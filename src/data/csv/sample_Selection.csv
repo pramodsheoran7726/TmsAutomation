@@ -1,0 +1,4 @@
+Title,Type,Priority,Status,Description
+Select Test 1,Functional,High,Draft,Test case for selection
+Select Test 2,Functional,Medium,Draft,Another test case for selection
+Select Test 3,Integration,Low,Draft,Third test case for selection

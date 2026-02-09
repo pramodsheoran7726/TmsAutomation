@@ -1,0 +1,25 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+blob-report/
+allure-results/
+allure-report/
+.auth/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Mobile app binaries (large files — download separately)
+src/data/apps/*.apk
+src/data/apps/*.ipa
+src/data/apps/*.zip
+
+# OS generated
+*.log

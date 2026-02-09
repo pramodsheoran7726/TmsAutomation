@@ -1,0 +1,37 @@
+/**
+ * Locators for Automation functionality in Test Manager
+ */
+
+export const AutomationLocators = {
+  automationSidebar: `//span[text()='Automation']`,
+  runtimeTc: `//h4[contains(text(),'RunTimeAutomationTestcase')]`,
+  runtimeTcTms: `//span[text()='RunTimeAutomationTestcase']`,
+  runtimeTcEditorTms: `//h5[text()='RunTimeAutomationTestcase']`,
+  automationTestTitle: `//h4[contains(text(),"RunTimeAutomationTestcase")]`,
+  automationTestTitleTms: `(//span[text()='RunTimeAutomationTestcase'])[1]`,
+  automationTcTitleTms: `//a[text()='RunTimeAutomationTestcase']`,
+  automationProjectName: `(//span[text()='LambdaTest Automation'])[1]`,
+  linkTcInAutomationDash: `//span[text()='Link Test Case']`,
+  createNewTcAutomationDash: `//span[text()='Create new Test Case']`,
+  tmsTcIdAutomationDash: `//a[contains(text(),'#TC-')]`,
+  unlinkTcAutomationDash: `//span[text()='Unlink Test']`,
+  automationTcTitleNewLink: `//span[text()='RunTimeAutomationTestcase']`,
+  automationUnlinkConfirmation: `//span[text()='Unlink']`,
+  searchTcAutomationDash: `//input[@placeholder="Search test cases here"]`,
+  linkOpenSearch: `//button[@aria-label="Link Test Case"]`,
+  noExecution: `//span[text()='No executions so far']`,
+  buildAutomation: `//span[text()="RunTimeAutomationTestcase"]`,
+  openMenuAutomationPage: `//button[@aria-label="Open  Menu, Press Enter to view "]`,
+  deleteAutomationPage: `//span[text()='Delete']`,
+  deleteAutomationPageProd: `//span[text()='Delete...']`,
+  openMenuProd: `(//button[@aria-label="Open  Menu, Press Enter to view "])[1]`,
+  variableLink: `//span[text()='Launch variables missing']`,
+  openDefaultProject: `//a[text()='LambdaTest Automation']`,
+  automationProject: `//div[div[div[a[text()='LambdaTest Automation']]]]//button`,
+  searchTestsMl: `//input[@placeholder='Search Tests by Test Name']`,
+  tcidTestsMl: `//span[text()='RunTimeAutomationTestcase']`,
+  metaDataMl: `//span[text()='Meta Data']`,
+  inputConfigMl: `//span[text()='Input Config']`,
+  mlExpandBuild: `//button[@aria-label="expand button"]`,
+  mlLinkId: `//a[contains(text(),'#TC-')]`,
+} as const;

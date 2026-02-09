@@ -1,0 +1,7 @@
+Title,Type,Priority,Status,Description,Test Steps
+Login Feature,Functional,High,Draft,BDD Login Test,"Given user is on login page
+When user enters credentials
+Then user is logged in"
+Checkout Feature,Functional,High,Draft,BDD Checkout Test,"Given user has items in cart
+When user clicks checkout
+Then payment page is displayed"

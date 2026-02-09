@@ -1,0 +1,4 @@
+Title,Type,Priority,Status,Description
+Login Test,Functional,High,Draft,Verify login functionality
+Signup Test,Functional,Medium,Draft,Verify signup flow
+Search Test,Integration,Low,Draft,Verify search feature

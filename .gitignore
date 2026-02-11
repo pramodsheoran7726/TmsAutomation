@@ -21,5 +21,14 @@ src/data/apps/*.apk
 src/data/apps/*.ipa
 src/data/apps/*.zip
 
+# Report-Lab
+report-lab-results/
+.build.json
+.summary.json
+.slack_thread_ts
+
+# Environment
+.env
+
 # OS generated
 *.log

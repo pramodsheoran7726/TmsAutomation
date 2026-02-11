@@ -31,15 +31,46 @@ on:
     # Regression: weekly Sunday at midnight UTC
     - cron: '0 0 * * 0'
 
+env:
+  TEST_ENV: ${{ github.event.inputs.environment || 'eu-stage' }}
+  TEST_SUITE: ${{ github.event.inputs.test_suite || (github.event.schedule == '0 0 * * 0' && '@regression') || '@smoke' }}
+  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
 jobs:
+  create-slack-thread:
+    runs-on: ubuntu-latest
+    outputs:
+      SLACK_THREAD_TS: ${{ steps.create.outputs.SLACK_THREAD_TS }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm ci
+
+      - id: create
+        name: Create Slack Thread
+        run: |
+          OUTPUT=$(npx tsx scripts/report-lab.ts slack_thread \
+            "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}")
+          TS=$(echo "$OUTPUT" | grep "^SLACK_THREAD_TS=" | cut -d= -f2)
+          echo "SLACK_THREAD_TS=$TS" >> "$GITHUB_OUTPUT"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
   test:
     name: EU ${{ github.event.inputs.environment || 'eu-stage' }} — ${{ github.event.inputs.test_suite || (github.event.schedule == '0 0 * * 0' && '@regression') || '@smoke' }}
+    needs: create-slack-thread
     runs-on: ubuntu-latest
     timeout-minutes: ${{ (github.event.inputs.test_suite == '@regression' || github.event.schedule == '0 0 * * 0') && 60 || 30 }}
 
     env:
-      TEST_ENV: ${{ github.event.inputs.environment || 'eu-stage' }}
-      TEST_SUITE: ${{ github.event.inputs.test_suite || (github.event.schedule == '0 0 * * 0' && '@regression') || '@smoke' }}
+      SLACK_THREAD_TS: ${{ needs.create-slack-thread.outputs.SLACK_THREAD_TS }}
 
     steps:
       - name: Checkout code
@@ -57,7 +88,15 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
+      - name: Start Report-Lab build
+        run: npx tsx scripts/report-lab.ts start
+        env:
+          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
+          HE_BUILD_ID: ${{ github.run_number }}
+
       - name: Run tests
+        id: run_tests
+        continue-on-error: true
         run: node scripts/run-tests.js --env ${{ env.TEST_ENV }} --grep ${{ env.TEST_SUITE }} --retries 2
         env:
           LT_USERNAME: ${{ secrets.LT_USERNAME }}
@@ -65,7 +104,22 @@ jobs:
           AUTH_EMAIL: ${{ secrets.EU_AUTH_EMAIL }}
           AUTH_PASSWORD: ${{ secrets.EU_AUTH_PASSWORD }}
           AUTH_TOKEN: ${{ secrets.EU_AUTH_TOKEN }}
+          REPORT_LAB_ENABLED: 'true'
           CI: true
+
+      - name: Send results to Report-Lab
+        if: always()
+        run: npx tsx scripts/report-lab.ts create_tests
+        env:
+          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
+          HE_BUILD_ID: ${{ github.run_number }}
+
+      - name: End Report-Lab build
+        if: always()
+        run: npx tsx scripts/report-lab.ts end
+        env:
+          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
+          HE_BUILD_ID: ${{ github.run_number }}
 
       - name: Upload Playwright HTML report
         uses: actions/upload-artifact@v4
@@ -90,3 +144,48 @@ jobs:
           name: test-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}
           path: test-results/
           retention-days: 7
+
+      - name: Upload Report-Lab results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-lab-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}
+          path: report-lab-results/
+          retention-days: 14
+
+      - name: Finalize Job Status
+        if: steps.run_tests.outcome == 'failure'
+        run: exit 1
+
+  conclude-slack:
+    name: Slack Summary
+    needs: [create-slack-thread, test]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Download Report-Lab results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: report-lab-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}
+          path: report-lab-results/
+
+      - name: Send Slack Final Summary
+        run: npx tsx scripts/report-lab.ts notify
+        env:
+          SLACK_THREAD_TS: ${{ needs.create-slack-thread.outputs.SLACK_THREAD_TS }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          SLACK_MENTIONS: ${{ secrets.SLACK_MENTIONS }}
+          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
+          HE_BUILD_ID: ${{ github.run_number }}

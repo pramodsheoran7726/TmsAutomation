@@ -43,20 +43,21 @@ export class TestRunPage extends BasePage {
       // Create test run (opens edit screen with test cases)
       await this.loc(L.saveTestRunCta).last().click({ timeout: TIMEOUTS.long });
       await waitForNetworkIdle(this.page);
-      // Select all test cases and add them
-      await this.loc(L.selectAllCheckboxInTpTestcase).waitFor({ state: 'visible', timeout: TIMEOUTS.long });
-      await this.loc(L.selectAllCheckboxInTpTestcase).click({ force: true });
+      // Wait for test cases to load, then select all
+      await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+      await this.loc(L.selectAllCheckboxInTpTestcase).click();
       await this.loc(L.addTcTestRunCta).click();
       await waitForNetworkIdle(this.page);
       // Verify missing config/assignee message
       await expect.soft(this.loc(L.missingMsgTR)).toBeVisible({ timeout: TIMEOUTS.medium });
       // Add configuration (skip assignee)
       await this.loc(L.addConfigCtaTP).click();
-      await this.loc(L.selectConfigCheck).click();
+      await waitForNetworkIdle(this.page);
+      await this.loc(L.selectConfigCheck).first().click();
       await this.loc(L.applyConfiguration).click();
       await waitForNetworkIdle(this.page);
       // Save test run
-      await this.loc(L.saveTestRunCta).last().click({ timeout: TIMEOUTS.long });
+      await this.loc(L.saveTestRun).click({ timeout: TIMEOUTS.long });
       await waitForNetworkIdle(this.page);
       // Verify test run appears on instances page
       await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(runName))).toBeVisible({ timeout: TIMEOUTS.long });

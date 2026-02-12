@@ -1,0 +1,116 @@
+# Bugsnag Integration
+
+> **Source**: [https://www.testmuai.com/support/docs/bugsnag-integration](https://www.testmuai.com/support/docs/bugsnag-integration)
+
+**Product**: Integrations
+
+**Last Crawled**: 2026-01-27T20:48:11.411292
+
+---
+
+On this page
+
+* * *
+
+Bugsnag is an error-monitoring tool that allows your developers to quickly find, prioritize, and reproduce errors. Individual crashes are gathered together by underlying cause and shown as discrete errors in Bugsnag to allow for easy prioritizing; the error inbox can be sorted by event count, impacted users, error severity, or it can be limited to provide a list of errors matching a specified search parameter.
+
+The TestMu AI and Bugsnag integration allows you to perform one-click bug logging from TestMu AI to your Bugsnag projects while perform [cross browser testing](https://www.lambdatest.com/) of your websites (and web apps).
+
+## Integrating Bugsnag With TestMu AI[â](https://www.testmuai.com/support/docs/bugsnag-integration#integrating-bugsnag-with- "Direct link to integrating-bugsnag-with-")
+
+* * *
+
+  1. Login to your TestMu AI account. Make sure you have admin or user level access before you begin configuring integrations.
+
+  2. From the left menu, select **Integrations** then **Bugsnag**.
+
+![Image](https://www.testmuai.com/support/assets/images/select-bugsnag-f73c8bc324772928872d14e74bdf9087.webp)
+
+  3. Enter your **Bugsnag Auth Token**.
+
+![Image](https://www.testmuai.com/support/assets/images/enter-auth-afc6f0198b91cdbbfe8b4b332bbfc4f2.webp)
+
+>   * **What is a Bugsnag Auth Token?**  
+The Bugsnag Auth token gives you access to information about your organization, projects, issues, and more, allowing you to create custom integrations with your Bugsnag data.
+
+### Getting the Bugsnag Token[â](https://www.testmuai.com/support/docs/bugsnag-integration#getting-the-bugsnag-token "Direct link to Getting the Bugsnag Token")
+
+* * *
+
+  1. Sign in to your Bugsnag account. Click on the Profile avatar and then **My account settings**.
+
+![Image](https://www.testmuai.com/support/assets/images/account-settings-6162168fdc79487a6c430d546d9c3056.webp)
+
+  2. Click on **Personal auth tokens**.
+
+![Image](https://www.testmuai.com/support/assets/images/personal-authtokens-da5c35fa5c150abd3c18cd42821ee6e3.webp)
+
+  3. To generate token, click on **Generate New Token**.
+
+![Image](https://www.testmuai.com/support/assets/images/create-auth-2fd9e6dd8baa71434d4636139be041e6.webp)
+
+  4. Enter the Bugsnag Auth token name and press **Generate Token**.
+
+![Image](https://www.testmuai.com/support/assets/images/generate-auth-289fd3e8697424067c8aab5e8c8dc116.webp)
+
+  5. Copy the Bugsnag Auth API Token.
+
+![Image](data:image/webp;base64,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)
+
+  6. Paste the copied Bugsnag Auth Token into the provided field and press **Install**.
+
+![Image](https://www.testmuai.com/support/assets/images/install-bugsnag-709cb03898ce792b207f3e0c5f757929.webp)
+
+The Bugsnag will be integrated with your TestMu AI account.
+
+## One-Click Bug Logging With Bugsnag[â](https://www.testmuai.com/support/docs/bugsnag-integration#one-click-bug-logging-with-bugsnag "Direct link to One-Click Bug Logging With Bugsnag")
+
+* * *
+
+  1. Choose **Real Time Testing** tab from the left menu.
+
+  2. Specify the test URL, then select the browser, browser versions, operating system, and click **START**.
+
+![Image](https://www.testmuai.com/support/assets/images/configuration-e8f4632353bac87abccc5f5c2608a24f.webp)
+
+A cloud-based virtual machine will be launched, providing you to conduct browser testing of websites and web apps.
+
+  3. If you discover an issue while testing the websites, click the Bug icon to grab a screenshot.
+
+![Image](https://www.testmuai.com/support/assets/images/spider-icon-2c7322454739f4c81646d93dbe54c1e1.webp)
+
+  4. Once you have grabbed the screenshot, you can use the in-built image editor tools to annotate issues or tasks. After annotating the issues (or bugs), click on **Mark As Bug**.
+
+![Image](https://www.testmuai.com/support/assets/images/mark-as-bug-b44a53de1e09f07682c83ab69a83281d.webp)
+
+  5. A Bugsnag ticket will be opened. Enter information such as Organization, Project, Release, Summary, and Description. Now, select **Create Issue**.
+
+![Image](https://www.testmuai.com/support/assets/images/bugsnag-ticket-e376bb834e377033801c09d866c55c4c.webp)
+
+Your bugs will be logged right away.
+
+  6. Open the Bugsnag dashboard, you'll find the marked issues.
+
+![Image](https://www.testmuai.com/support/assets/images/logged-issues-561e34658832571bd261b52e50809589.webp)
+
+  7. Select the **Exceptions** tab and you will notice the data you submitted via TestMu AI would already be presented in it. TestMu AI attaches test environment data and related screenshots to tickets automatically.
+
+![Image](https://www.testmuai.com/support/assets/images/bug-details-548810ceffcc864e35ed72d3ffb28527.webp)
+
+## Uninstalling The Bugsnag Integration[â](https://www.testmuai.com/support/docs/bugsnag-integration#uninstalling-the-bugsnag-integration "Direct link to Uninstalling The Bugsnag Integration")
+
+* * *
+
+  1. Login to your TestMu AI account and visit Integrations from the left menu.
+
+  2. Navigate to 'My Integrations'and click on **REMOVE** under the Bugsnag block.
+
+![Image](https://www.testmuai.com/support/assets/images/remove-bugsnag-c6a3bc2746ceaabc0bc3a6bca1d32a5b.webp)
+
+The Bugsnag integration will be uninstalled.
+
+> For any queries, feel free to drop them at our **24x7 Chat Support** or you could also mail us directly at **[[email protected]](https://www.testmuai.com/cdn-cgi/l/email-protection#aedddbdedec1dcdaeedacbdddac3db80cfc7)**.
+
+---
+
+*Auto-generated from TestMu AI documentation.*

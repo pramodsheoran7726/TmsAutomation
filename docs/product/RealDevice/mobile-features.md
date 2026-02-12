@@ -1,0 +1,1254 @@
+# Mobile Testing Features
+
+> **This document covers the complete feature set for LambdaTest Mobile Testing - including Real Devices and Virtual Devices (Emulators/Simulators).**
+
+---
+
+## Overview
+
+LambdaTest Mobile Testing provides cloud-based infrastructure for testing mobile applications on:
+- **Real Devices**: 3000+ physical Android and iOS devices
+- **Virtual Devices**: Android Emulators and iOS Simulators
+
+**Hub URL**: `https://mobile-hub.lambdatest.com/wd/hub`
+
+**Key Differentiator**: Use `isRealMobile: true` for Real Devices, `isRealMobile: false` for Virtual Devices
+
+---
+
+## 1. Device Infrastructure
+
+### 1.1 Real Device Cloud
+
+> **Learn more**: [Real Device Testing](https://www.lambdatest.com/support/docs/app-testing-on-real-devices/)
+
+| Feature | Description |
+|---------|-------------|
+| **Device Count** | 3000+ physical Android and iOS devices |
+| **Device Types** | Phones and Tablets |
+| **Brands** | Samsung, Apple, Google, OnePlus, Xiaomi, Huawei, and more |
+| **Android Versions** | Android 8.0 to Android 14+ |
+| **iOS Versions** | iOS 12 to iOS 17+ |
+| **Regional Distribution** | US, EU, Asia-Pacific data centers |
+| **Device Refresh** | Regular updates with latest devices |
+
+**Capability**:
+```json
+{
+  "isRealMobile": true
+}
+```
+
+### 1.2 Virtual Device Cloud
+
+> **Learn more**: [Virtual Device Testing](https://www.lambdatest.com/support/docs/app-automation-on-emulators-simulators/)
+
+| Feature | Description |
+|---------|-------------|
+| **Android Emulators** | Wide range of Android virtual devices |
+| **iOS Simulators** | iPhone and iPad simulators |
+| **Cost** | Lower cost than Real Devices |
+| **Framework Support** | Appium only |
+| **Availability** | Always available, instant provisioning |
+
+**Capability**:
+```json
+{
+  "isRealMobile": false
+}
+```
+
+### 1.3 Real Devices vs Virtual Devices
+
+| Aspect | Real Devices | Virtual Devices |
+|--------|--------------|-----------------|
+| **Capability** | `isRealMobile: true` | `isRealMobile: false` |
+| **Hardware** | Physical devices | Software emulation |
+| **Accuracy** | Production-like behavior | Close approximation |
+| **Framework Support** | Appium, Espresso, XCUITest, Flutter, Maestro, Detox | Appium only |
+| **Cost** | Higher | Lower |
+| **Availability** | Based on device pool | Always available |
+| **Performance Testing** | Accurate | Approximation |
+| **Sensor Testing** | Full sensor access | Limited |
+| **Carrier Features** | Available (Private Cloud) | Not available |
+
+---
+
+## 2. Automation Framework Support
+
+### 2.1 Framework Comparison
+
+| Framework | Real Devices | Virtual Devices | Platform |
+|-----------|--------------|-----------------|----------|
+| **Appium** | Yes | Yes | Android, iOS |
+| **Espresso** | Yes | No | Android only |
+| **XCUITest** | Yes | No | iOS only |
+| **Flutter** | Yes | No | Android, iOS |
+| **Maestro** | Yes | No | Android, iOS |
+| **Detox** | Yes | No | Android, iOS |
+
+### 2.2 Appium
+
+> **Learn more**: [Appium Testing](https://www.lambdatest.com/support/docs/appium-python/)
+
+**Supported on**: Real Devices and Virtual Devices
+
+**Languages**: Java, Python, JavaScript, Ruby, C#, PHP
+
+**Sample Capability (Python)**:
+```python
+desired_caps = {
+    "platformName": "Android",
+    "deviceName": "Galaxy S23",
+    "platformVersion": "13",
+    "isRealMobile": True,  # or False for emulator
+    "app": "lt://APP1234567890",
+    "build": "Appium Build",
+    "name": "Test Name"
+}
+
+driver = webdriver.Remote(
+    command_executor="https://username:accessKey@mobile-hub.lambdatest.com/wd/hub",
+    desired_capabilities=desired_caps
+)
+```
+
+### 2.3 Espresso
+
+> **Learn more**: [Espresso Testing](https://www.lambdatest.com/support/docs/espresso-testing/)
+
+**Supported on**: Real Devices only (Android)
+
+**Features**:
+- Native Android testing framework
+- Direct instrumentation
+- Fast execution
+- Access to internal app components
+
+**Sample Configuration**:
+```json
+{
+  "app": "lt://APP1234567890",
+  "testSuite": "lt://TEST0987654321",
+  "device": ["Galaxy S23-13", "Pixel 7-13"],
+  "build": "Espresso Build",
+  "queueTimeout": 300,
+  "idleTimeout": 120,
+  "deviceLog": true,
+  "video": true
+}
+```
+
+### 2.4 XCUITest
+
+> **Learn more**: [XCUITest Testing](https://www.lambdatest.com/support/docs/xcuitest-testing/)
+
+**Supported on**: Real Devices only (iOS)
+
+**Features**:
+- Native iOS testing framework
+- Direct XCTest integration
+- Access to iOS accessibility features
+- Swift and Objective-C support
+
+**Sample Configuration**:
+```json
+{
+  "app": "lt://APP0987654321",
+  "testSuite": "lt://TEST1234567890",
+  "device": ["iPhone 14 Pro-16", "iPhone 13-15"],
+  "build": "XCUITest Build",
+  "queueTimeout": 300,
+  "idleTimeout": 120,
+  "deviceLog": true,
+  "video": true
+}
+```
+
+### 2.5 Flutter
+
+> **Learn more**: [Flutter Testing](https://www.lambdatest.com/support/docs/flutter-testing/)
+
+**Supported on**: Real Devices only
+
+**Features**:
+- Native Flutter integration test support
+- Widget testing capabilities
+- Cross-platform (Android and iOS)
+
+### 2.6 Maestro
+
+> **Learn more**: [Maestro Testing](https://www.lambdatest.com/support/docs/maestro-testing/)
+
+**Supported on**: Real Devices only
+
+**Features**:
+- YAML-based test definitions
+- Simple syntax for mobile testing
+- Fast test authoring
+- Cross-platform support
+
+### 2.7 Detox
+
+> **Learn more**: [Detox Testing](https://www.lambdatest.com/support/docs/detox-testing/)
+
+**Supported on**: Real Devices only
+
+**Features**:
+- React Native testing
+- Gray box testing
+- Synchronization with app
+- Cross-platform support
+
+---
+
+## 3. App Management
+
+### 3.1 App Upload
+
+> **Learn more**: [App Upload API](https://www.lambdatest.com/support/docs/app-testing-apis/)
+
+**Supported Formats**:
+- Android: APK, AAB (Android App Bundle)
+- iOS: IPA
+
+**Upload Methods**:
+
+1. **REST API**:
+```bash
+curl -u "username:accessKey" \
+  -X POST "https://manual-api.lambdatest.com/app/upload/realDevice" \
+  -F "appFile=@/path/to/app.apk" \
+  -F "name=MyApp"
+```
+
+2. **Using App URL**:
+```bash
+curl -u "username:accessKey" \
+  -X POST "https://manual-api.lambdatest.com/app/upload/realDevice" \
+  -F "url=https://example.com/app.apk" \
+  -F "name=MyApp"
+```
+
+**Response**:
+```json
+{
+  "app_id": "APP1234567890",
+  "app_url": "lt://APP1234567890",
+  "name": "MyApp.apk",
+  "type": "android"
+}
+```
+
+### 3.2 App Versioning
+
+- Multiple versions of same app can be maintained
+- Use `custom_id` for easy identification
+- App gallery shows all uploaded versions
+- Delete old versions to manage storage
+
+---
+
+## 4. Device Capabilities
+
+### 4.1 Core Capabilities
+
+| Capability | Type | Description |
+|------------|------|-------------|
+| `platformName` | String | "Android" or "iOS" |
+| `deviceName` | String | Device name or ".*" for any |
+| `platformVersion` | String | OS version or ".*" for any |
+| `isRealMobile` | Boolean | true for Real Device, false for Virtual |
+| `app` | String | App URL (lt://...) |
+| `build` | String | Build name for grouping |
+| `name` | String | Test/session name |
+| `project` | String | Project name |
+
+### 4.2 Session Control Capabilities
+
+| Capability | Type | Description | Default |
+|------------|------|-------------|---------|
+| `queueTimeout` | Integer | Max wait time for device (seconds) | 300 |
+| `idleTimeout` | Integer | Session idle timeout (seconds) | 120 |
+| `autoGrantPermissions` | Boolean | Auto-grant app permissions | false |
+| `autoAcceptAlerts` | Boolean | Auto-accept system dialogs | false |
+| `newCommandTimeout` | Integer | Command timeout (seconds) | 60 |
+
+### 4.3 Debugging Capabilities
+
+| Capability | Type | Description | Default |
+|------------|------|-------------|---------|
+| `video` | Boolean | Record video | true |
+| `visual` | Boolean | Capture screenshots | true |
+| `devicelog` | Boolean | Capture device logs | true |
+| `network.har` | Boolean | Capture network logs (HAR) | false |
+
+### 4.4 Network Capabilities
+
+| Capability | Type | Description |
+|------------|------|-------------|
+| `network` | String | Network profile: "4G", "3G", "2G", "offline" |
+| `tunnel` | Boolean/String | Enable tunnel for local testing |
+| `tunnelName` | String | Specific tunnel name |
+
+### 4.5 Location Capabilities
+
+| Capability | Type | Description |
+|------------|------|-------------|
+| `location` | String | Country code for IP geolocation |
+| `geoLocation` | String | GPS coordinates "lat,long" |
+
+---
+
+## 5. Parallel Testing & Sharding
+
+### 5.1 Manual Sharding
+
+Create multiple sessions with different device configurations:
+
+```python
+# Session 1 - Galaxy S23
+caps_1 = {"deviceName": "Galaxy S23", "platformVersion": "13", ...}
+
+# Session 2 - Pixel 7
+caps_2 = {"deviceName": "Pixel 7", "platformVersion": "13", ...}
+
+# Session 3 - iPhone 14
+caps_3 = {"deviceName": "iPhone 14", "platformVersion": "16", ...}
+```
+
+### 5.2 Auto Sharding with HyperExecute
+
+> **Learn more**: [HyperExecute Mobile](https://www.lambdatest.com/support/docs/hyperexecute-appium-testing/)
+
+**Sample HyperExecute YAML**:
+```yaml
+version: 0.2
+globalTimeout: 90
+
+runson: android
+
+autosplit: true
+concurrency: 5
+
+testDiscovery:
+  type: raw
+  mode: dynamic
+  command: grep -lr 'test_' tests/ --include='*.py'
+
+testRunnerCommand: pytest $test
+
+framework:
+  name: appium
+  args:
+    region: us
+```
+
+### 5.3 Device Matrix
+
+```yaml
+matrix:
+  device:
+    - "Galaxy S23-13"
+    - "Pixel 7-13"
+    - "iPhone 14-16"
+    - "iPhone 13-15"
+```
+
+---
+
+## 6. Network Testing
+
+### 6.1 Network Throttling
+
+> **Learn more**: [Network Throttling](https://www.lambdatest.com/support/docs/network-throttling/)
+
+**Predefined Profiles**:
+| Profile | Download | Upload | Latency |
+|---------|----------|--------|---------|
+| 4G LTE | 50 Mbps | 25 Mbps | 20ms |
+| 4G | 20 Mbps | 10 Mbps | 35ms |
+| 3G | 2 Mbps | 1 Mbps | 100ms |
+| 2G | 250 Kbps | 50 Kbps | 300ms |
+| Offline | 0 | 0 | - |
+
+**Capability**:
+```json
+{
+  "network": "3G"
+}
+```
+
+### 6.2 LT Tunnel (Local Testing)
+
+> **Learn more**: [LT Tunnel](https://www.lambdatest.com/support/docs/testing-locally-hosted-pages/)
+
+Test apps connecting to localhost or private networks:
+
+```json
+{
+  "tunnel": true,
+  "tunnelName": "my-tunnel"
+}
+```
+
+---
+
+## 7. Geolocation Testing
+
+### 7.1 IP Geolocation
+
+Test location-based features using IP geolocation:
+
+```json
+{
+  "location": "US"  // Country code
+}
+```
+
+**Supported Locations**: 50+ countries
+
+### 7.2 GPS Simulation
+
+Simulate GPS coordinates:
+
+```json
+{
+  "geoLocation": "37.7749,-122.4194"  // San Francisco
+}
+```
+
+---
+
+## 8. Debugging & Artifacts
+
+### 8.1 Video Recording
+
+- Automatic video recording of all sessions
+- Playback with timeline
+- Download for offline analysis
+
+### 8.2 Device Logs
+
+- Real-time log streaming
+- Complete logs after session
+- Filter by log level
+- Crash detection
+
+### 8.3 Network Logs (HAR)
+
+- HTTP Archive format
+- Request/response details
+- Timing information
+- Waterfall view
+
+### 8.4 Screenshots
+
+- On-demand screenshots
+- Automatic capture on failure
+- Full-page screenshots
+- Element screenshots
+
+---
+
+## 9. Session Management
+
+### 9.1 Build Organization
+
+Group sessions under builds for reporting:
+
+```json
+{
+  "build": "Regression Suite v2.0",
+  "project": "Mobile App"
+}
+```
+
+### 9.2 Session Status
+
+Set test status programmatically:
+
+```python
+# Mark test as passed
+driver.execute_script("lambda-status=passed")
+
+# Mark test as failed
+driver.execute_script("lambda-status=failed")
+```
+
+### 9.3 Session Annotations
+
+Add custom annotations:
+
+```python
+# Add test name
+driver.execute_script("lambda-name=Login Test")
+
+# Add custom tags
+driver.execute_script('lambda-tags=["smoke", "login"]')
+```
+
+---
+
+## 10. Integration Points
+
+### 10.1 CI/CD Integration
+
+> **Learn more**: [CI/CD Integration](https://www.lambdatest.com/support/docs/integrations-with-ci-cd-tools/)
+
+**Supported CI/CD Tools**:
+- GitHub Actions
+- GitLab CI
+- Jenkins
+- CircleCI
+- Azure DevOps
+- Bitbucket Pipelines
+- Travis CI
+
+### 10.2 Test Framework Integration
+
+Compatible with all major test frameworks:
+- TestNG
+- JUnit
+- PyTest
+- Mocha
+- Jest
+- NUnit
+- XCTest
+
+### 10.3 Reporting Integration
+
+Export results to:
+- Allure Reports
+- ExtentReports
+- ReportPortal
+- Custom dashboards via API
+
+---
+
+## 11. Platform Limits
+
+### 11.1 Session Limits
+
+| Limit | Value |
+|-------|-------|
+| Max session duration | 4 hours (configurable) |
+| Default idle timeout | 120 seconds |
+| Max queue timeout | 600 seconds |
+| Max concurrent sessions | Based on plan |
+
+### 11.2 App Limits
+
+| Limit | Value |
+|-------|-------|
+| Max app size | 500 MB |
+| App retention | 60 days |
+| Max apps per account | Unlimited |
+
+---
+
+## 12. Best Practices
+
+### 12.1 Device Selection
+
+```json
+// Specific device
+{"deviceName": "Galaxy S23", "platformVersion": "13"}
+
+// Any device with specific OS
+{"deviceName": ".*", "platformVersion": "13"}
+
+// Any available device
+{"deviceName": ".*", "platformVersion": ".*"}
+```
+
+### 12.2 Stability
+
+- Use explicit waits instead of implicit
+- Handle app permissions properly
+- Clear app data between tests
+- Use meaningful build and test names
+
+### 12.3 Performance
+
+- Use parallel execution for faster results
+- Leverage HyperExecute for auto-sharding
+- Minimize unnecessary screenshots
+- Use appropriate timeouts
+
+---
+
+## Quick Reference
+
+### Hub URL
+```
+https://mobile-hub.lambdatest.com/wd/hub
+```
+
+### Authentication
+```
+username:accessKey
+```
+
+### Real Device Capability
+```json
+{"isRealMobile": true}
+```
+
+### Virtual Device Capability
+```json
+{"isRealMobile": false}
+```
+
+### Framework Support Summary
+| Framework | Real Devices | Virtual Devices |
+|-----------|--------------|-----------------|
+| Appium | Yes | Yes |
+| Espresso | Yes (Android) | No |
+| XCUITest | Yes (iOS) | No |
+| Flutter | Yes | No |
+| Maestro | Yes | No |
+| Detox | Yes | No |
+
+---
+
+## 13. Advanced Real Device Features
+
+### 13.1 Camera Image Injection
+
+> **Learn more**: [Camera Image Injection](https://www.lambdatest.com/support/docs/camera-image-injection/)
+
+**What it does**: Enables testing of image capturing, QR code scanning, and barcode scanning functionalities across 3000+ real devices using Sensor Instrumentation.
+
+**How it works**: Injects a camera code module that mocks or overrides native Android/iOS SDK camera implementations.
+
+**Supported Platforms**:
+
+| Platform | Minimum Version | Supported APIs |
+|----------|-----------------|----------------|
+| iOS | iOS 13+ | UIImagePickerController, AVCapturePhoto, AVMetadataMachineReadableCodeObject |
+| Android | Android 9+ | CameraX, Camera API (legacy), Camera2 API, MediaStore ACTION_IMAGE_CAPTURE |
+
+**Implementation Steps**:
+
+1. **Upload Image**:
+```bash
+curl -u "username:accessKey" \
+  -X POST "https://manual-api.lambdatest.com/app/upload/realDevice" \
+  -F "appFile=@/path/to/image.jpg" \
+  -F "type=image"
+```
+Response returns `media_url` (e.g., `lt://MEDIA1234567890`)
+
+2. **Enable Capability**:
+```python
+desired_caps = {
+    "enableImageInjection": True,
+    # ... other capabilities
+}
+```
+
+3. **Inject Image at Runtime**:
+```python
+driver.execute_script("lambda-image-injection=lt://MEDIA1234567890")
+```
+
+4. **Trigger Camera**: Click camera button - injected image displays
+
+**File Requirements**:
+- Formats: JPG, JPEG, PNG
+- Max size: 10 MB
+
+**Limitations**:
+- Enterprise-signed iOS apps cannot be resigned (required for injection)
+- Virtual device support limited to Android
+- Images must be injected *before* camera activation
+
+---
+
+### 13.2 Video Injection
+
+> **Learn more**: [Video Injection](https://www.lambdatest.com/support/docs/video-injection/)
+
+**What it does**: Enables testing of video-based functionalities like live streaming, real-time video capture, and video processing across 10,000+ real devices.
+
+**Use Cases**:
+- Real-time video streaming and playback
+- Video-based verification (identity verification via live video)
+- Video capture and upload workflows
+- In-app video recording features
+
+**Implementation Steps**:
+
+1. **Upload Video**:
+```bash
+curl -u "username:accessKey" \
+  -X POST "https://manual-api.lambdatest.com/app/upload/realDevice" \
+  -F "appFile=@/path/to/video.mp4" \
+  -F "type=video"
+```
+
+2. **Enable Capability**:
+```python
+desired_caps = {
+    "enableVideoInjection": True,
+    "media": "lt://MEDIA1234567890",  # Optional: pre-set video
+    # ... other capabilities
+}
+```
+
+3. **Inject Video at Runtime**:
+```python
+driver.execute_script("lambda-video-injection=lt://MEDIA1234567890")
+```
+
+**File Requirements**:
+- Format: MP4 only
+- Max size: 50 MB
+
+**Limitations**:
+- Only MP4 format supported
+- Must inject video before camera activation
+
+---
+
+### 13.3 Audio Injection (Beta)
+
+> **Learn more**: [Audio Injection](https://www.lambdatest.com/support/docs/audio-injection/)
+
+**What it does**: Enables testing of audio-driven functionality on iOS devices without requiring manual microphone input.
+
+**Supported Platforms**:
+- iOS 14 and above (Real devices only)
+- API: AVAudioRecorder
+
+**Use Cases**:
+- In-app audio recording functionality
+- Audio-based verification/KYC flows
+
+**Implementation Steps**:
+
+1. **Upload Audio**:
+```bash
+curl -u "username:accessKey" \
+  -X POST "https://api.lambdatest.com/mfs/v1.0/media/upload" \
+  -F "media_file=@/path/to/audio.mp3" \
+  -F "type=audio" \
+  -F "custom_id=my-audio-file"
+```
+
+2. **Enable Capability**:
+```python
+desired_caps = {
+    "enableAudioInjection": True,
+    "media": "lt://MEDIA1234567890",  # Optional
+    # ... other capabilities
+}
+```
+
+3. **Inject Audio at Runtime**:
+```python
+driver.execute_script("lambda-audio-injection=lt://MEDIA1234567890")
+```
+
+**File Requirements**:
+| Format | Max Size |
+|--------|----------|
+| MP3 | 15 MB |
+| WAV | 100 MB |
+
+---
+
+### 13.4 Biometric Authentication
+
+> **Learn more**: [Biometric Authentication](https://www.lambdatest.com/support/docs/biometric-authentication/)
+
+**What it does**: Enables testing of identity verification processes using biometric authentication (fingerprint, face recognition) on real devices.
+
+**Supported Platforms**:
+
+| Platform | Minimum Version | Supported APIs |
+|----------|-----------------|----------------|
+| iOS | iOS 13+ | LAContext, evaluatePolicy(), canEvaluatePolicy() |
+| Android | Android 11+ | BiometricPrompt (AndroidX), Native BiometricPrompt, BiometricManager, KeyguardManager |
+
+**Implementation Methods**:
+
+**Method 1: Desired Capabilities**:
+```python
+desired_caps = {
+    "enableBiometricsAuthentication": True,
+    # ... other capabilities
+}
+```
+
+**Method 2: Lambda Hooks**:
+```python
+# Simulate successful biometric authentication
+driver.execute_script("lambda-biometric-injection=pass")
+
+# Simulate failed biometric authentication
+driver.execute_script("lambda-biometric-injection=fail")
+```
+
+**Limitations**:
+- Does NOT support apps using iOS Keychain APIs with Biometric access control
+- `enableBiometricsAuthentication` capability is mandatory for webhook implementations
+
+---
+
+### 13.5 Upload Media
+
+> **Learn more**: [Upload Media](https://www.lambdatest.com/support/docs/upload-media/)
+
+**What it does**: Upload media files (images, videos, documents) to devices for testing workflows that require pre-existing media.
+
+**API Endpoint**:
+```
+POST https://api.lambdatest.com/mfs/v1.0/media/upload
+```
+
+**Supported File Types**:
+
+| Type | Formats | Max Size |
+|------|---------|----------|
+| Images | JPG, JPEG, PNG, GIF, BMP, HEIC | 10 MB |
+| Videos | MP4 | 50 MB |
+| Documents | XLS, XLSX, DOC, DOCX, PDF, CSV, TXT | 15 MB |
+
+**Storage Locations**:
+
+| Platform | Media Files | Non-Media Files |
+|----------|-------------|-----------------|
+| Android | `/sdcard/Pictures` (images), `/sdcard/Movies` (videos) | Downloads folder |
+| iOS | Camera Roll (`/private/var/mobile/Media/DCIM/`) | App's Files directory |
+
+**Capability**:
+```python
+desired_caps = {
+    "uploadMedia": ["lt://MEDIAf446d4170cd946aa9ec307d10cb679b9"],
+    # ... other capabilities
+}
+```
+
+**Limitations**:
+- Maximum 5 file uploads per automation session
+- iOS non-media file uploads require prior app installation
+- iOS apps need `UIFileSharingEnabled` and `LSSupportsOpeningDocumentsInPlace` keys enabled in Info.plist
+
+---
+
+### 13.6 SIM & eSIM Support
+
+> **Learn more**: [SIM Support](https://www.lambdatest.com/support/docs/sim-support/)
+
+**What it does**: Enables testing of SMS-driven workflows like OTP verification and two-factor authentication on real devices with SIM/eSIM support.
+
+**Workflow**:
+1. Enable SIM capabilities in automation session
+2. Retrieve SIM properties at runtime (phone number, carrier, region)
+3. Validate SMS workflows by triggering messages and extracting verification codes
+
+**Supported Devices**:
+
+| Platform | Devices | SIM Type |
+|----------|---------|----------|
+| iOS | iPhone 13-16 Pro (iOS 15-18) | Physical SIM, eSIM |
+| Android | Galaxy S23-S25 Ultra, Pixel 6-9 (Android 12-15) | Physical SIM only |
+
+**Geographic Coverage**:
+
+| Region | Carriers |
+|--------|----------|
+| Ireland | Three |
+| India | Airtel, Jio, Vodafone |
+| USA | T-Mobile, Verizon, AT&T |
+
+**Capabilities**:
+```python
+desired_caps = {
+    "enableSim": True,
+    "region": "USA",  # ISO country code: IND, USA, IRL
+    "carrier": ["T-Mobile", "Verizon"],  # Preferred carriers
+    "esim": True,  # iOS only
+    # ... other capabilities
+}
+```
+
+**Use Cases**:
+- OTP and 2FA automation
+- Phone number retrieval at runtime
+- SMS interrupt testing
+- Messaging workflow validation
+
+---
+
+### 13.7 ADB Commands Support
+
+> **Learn more**: [ADB Commands Support](https://www.lambdatest.com/support/docs/adb-commands-support/)
+
+**What it does**: Execute Android Debug Bridge (adb) commands during app automation tests via JavaScript executors.
+
+**Execution Syntax**:
+```python
+driver.execute_script("lambda-adb", params)
+```
+
+**Supported Commands**:
+
+**Device Interaction**:
+| Command | Purpose |
+|---------|---------|
+| Swipe | Generate swipe gestures using coordinates |
+| Text Input | Send keyboard input |
+| Home Navigation | Return to home screen (keycode 3) |
+| Auto-Rotation | Enable/disable automatic screen rotation |
+| Notifications | Control app notification permissions |
+| Battery Optimization | Manage device power settings |
+
+**System Information & File Operations**:
+| Command | Purpose |
+|---------|---------|
+| `adb shell dumpsys` | Retrieve package information (real devices only) |
+| `adb shell getprop` | Access system properties |
+| `adb shell cat /proc/version` | Display kernel details |
+| `adb shell ls` | List directory contents |
+| `adb shell cat` | Read file contents |
+
+**App & System Management**:
+| Command | Purpose |
+|---------|---------|
+| `adb shell pm` | Manage installed packages |
+| `adb shell am` | Control activities and intents |
+| `adb shell setprop/getprop` | Modify system properties |
+| `adb shell mkdir/rm` | Create/delete directories |
+| `adb shell screencap` | Capture screenshots |
+| `adb shell content` | Query content providers |
+
+**Network & Time**:
+- `adb shell ping` - Test connectivity
+- Animation/timezone/time configuration
+
+---
+
+### 13.8 Network Throttling
+
+> **Learn more**: [Network Throttling](https://www.lambdatest.com/support/docs/network-throttling/)
+
+**What it does**: Simulate various network conditions (2G/3G/4G/offline) to test app behavior under different network speeds.
+
+**Predefined Network Profiles**:
+
+| Profile | Download | Upload | Latency |
+|---------|----------|--------|---------|
+| Offline | 0 kbps | 0 kbps | 0 ms |
+| GPRS | 50 kbps | 20 kbps | 500 ms |
+| Regular 2G | 250 kbps | 50 kbps | 300 ms |
+| Good 2G | 450 kbps | 150 kbps | 150 ms |
+| Regular 3G | 750 kbps | 250 kbps | 100 ms |
+| Good 3G | 1 Mbps | 750 kbps | 20 ms |
+| Regular 4G | 4 Mbps | 3 Mbps | 20 ms |
+| DSL | 2 Mbps | 1 Mbps | 5 ms |
+
+**Method 1: Pre-defined Profile**:
+```python
+desired_caps = {
+    "networkThrottling": "Regular 4G",
+    # ... other capabilities
+}
+```
+
+**Method 2: Custom Configuration**:
+```python
+throttle_params = {
+    "download": 500,   # kbps
+    "upload": 100,     # kbps
+    "latency": 30      # ms
+}
+driver.execute_script("lambda-throttle-network", throttle_params)
+```
+
+---
+
+### 13.9 Network Configurations (HAR Logs)
+
+> **Learn more**: [Network Configurations](https://www.lambdatest.com/support/docs/network-configurations/)
+
+**What it does**: Capture and analyze network traffic during test sessions in HAR (HTTP Archive) format.
+
+**Supported Platforms**: Android and iOS real devices
+
+**Capabilities**:
+
+| Capability | Type | Default | Description |
+|------------|------|---------|-------------|
+| `network` | Boolean | true | Enable network logging |
+| `captureContent` | Boolean | true | Capture response body |
+| `excludeHosts` | List | None | Hosts to exclude from capture |
+| `includeHosts` | List | None | Only capture specified hosts |
+
+**Note**: `includeHosts` takes precedence if both are configured.
+
+**Example**:
+```python
+desired_caps = {
+    "deviceName": "Galaxy S23",
+    "platformName": "Android",
+    "app": "lt://APP1234567890",
+    "network": True,
+    "networkLogsOptions": {
+        "captureContent": False,
+        "excludeHosts": ["lambdatest"],
+        "includeHosts": ["youtube", "facebook"]
+    }
+}
+```
+
+**Requirements**:
+- Pro Plan only
+- Contact support to enable for organization
+- Apps using certificate pinning may fail unless pinned hosts are excluded
+
+---
+
+### 13.10 iOS Keychain Cleanup
+
+> **Learn more**: [iOS Keychain Cleanup](https://www.lambdatest.com/support/docs/ios-keychain-cleanup/)
+
+**What it does**: Automatically clear Keychain data after each test session and preserve keychain-access-groups entitlements during app resigning.
+
+**Why it's needed**: iOS doesn't automatically remove keychain data when apps are uninstalled, causing login credentials to persist across test runs.
+
+**Activation**:
+```bash
+curl -u "USERNAME:ACCESS_KEY" \
+  -X POST "https://manual-api.lambdatest.com/app/upload/realDevice" \
+  -F "appFile=@/path/to/your-app.ipa" \
+  -F "ios_keychain_enabled=true"
+```
+
+**Requirements**:
+- iOS 13 and above
+- App resigning enabled (`resignApp=true`)
+- Currently in Beta
+
+**Limitations**:
+- Not supported for apps signed with Enterprise certificates
+
+---
+
+### 13.11 Group Folder Redirect (iOS)
+
+> **Learn more**: [Group Folder Redirects](https://www.lambdatest.com/support/docs/group-folder-redirects/)
+
+**What it does**: Enables iOS apps to use their private container directory instead of shared app group containers during Appium automation testing.
+
+**Why it's needed**: After app resigning on real devices, shared App Group containers become inaccessible. This feature redirects file system operations to the app's private container.
+
+**Capability**:
+```python
+desired_caps = {
+    "groupFolderRedirectEnabled": True,
+    # ... other capabilities
+}
+```
+
+**Use Cases**:
+- Maintain file system access after app resigning
+- Resolve issues when apps depend on shared App Group containers
+- Ensure consistent file storage and retrieval operations
+
+---
+
+### 13.12 Smart Heal Appium (Beta)
+
+> **Learn more**: [Smart Heal Appium](https://www.lambdatest.com/support/docs/smart-heal-appium/)
+
+**What it does**: AI/ML-powered feature that automatically detects and recovers from locator issues during test execution by finding alternative element matches when UI changes occur.
+
+**Workflow**:
+1. **Baseline Creation** - Requires successful test run to establish reference snapshot
+2. **Baseline Update** - Automatically updates after each successful run
+3. **Detection & Healing** - Triggers when elements cannot be found
+4. **Retry with Healed Locator** - Test continues with recovered locator
+5. **Fallback & Suggestions** - Records AI recommendations if no confident match
+
+**Supported Platforms**: iOS and Android (real devices)
+
+**Enabling Smart Heal**:
+
+**Method 1: Capabilities**:
+```python
+desired_caps = {
+    "smartHeal": True,
+    # ... other capabilities
+}
+```
+
+**Method 2: Runtime Hooks**:
+```python
+driver.execute_script("lambda-heal-start")   # Enable
+driver.execute_script("lambda-heal-stop")    # Disable
+```
+
+**Requirements**:
+- App must be uploaded to LambdaTest
+- Test name and project name must remain consistent across runs
+- Baseline requires successful test passes
+
+**Dashboard Features**:
+- Healed element filtering and highlighting
+- Before/after screenshot comparisons
+- Original vs. healed locator visibility
+- AI-powered failure analysis
+
+**Limitations**:
+- Currently in closed beta (AI credits required when public)
+- Works best with static components (buttons, form fields)
+- Executions take slightly longer than usual
+
+---
+
+### 13.13 Regular Expression (RegEx) for Device Selection
+
+> **Learn more**: [Regular Expression Appium](https://www.lambdatest.com/support/docs/regular-expression-appium/)
+
+**What it does**: Use regex patterns to flexibly select devices and OS versions, widening search criteria to find available devices faster.
+
+**Supported Scope**: App Automation only (not Web Automation on Virtual Devices)
+
+**Applies to**: `deviceName` and `platformVersion` capabilities
+
+**Device Name Patterns**:
+
+| Pattern | Function | Example |
+|---------|----------|---------|
+| `.*` | Match all containing string | `"(iPhone.*)"` - any iPhone |
+| `,` | Combine multiple criteria | `"(Pixel.*),(Galaxy.*)"` - Pixel or Galaxy |
+| `[]` | Escape special chars or ranges | `"Pixel [3-6].*"` - Pixel 3-6 |
+| `$` | Exact match (anchor to end) | `"(Pixel 6$)"` - only Pixel 6 |
+| `^` | Negate/exclude patterns | `"(^(?!.*Tab).*)"` - exclude Tab devices |
+| `\|` | Create alternatives | `"iPad Pro 12.9 (202(0\|1\|2))"` - 2020-2022 |
+
+**Platform Version Patterns**:
+
+| Pattern | Function | Example |
+|---------|----------|---------|
+| `.*` | Match versions starting with | `"(13.*)"` - v13.x |
+| `,` | Combine versions | `"(13.*),(14.*),(15.*)"` |
+| `[]` | Character ranges | `"1[235]"` - v12, v13, v15 |
+| `^` | Negate characters | `"1[^5].*"` - excludes v15.x |
+| `\|` | Version alternatives | `"(1(3\|4).*)"` - v13 or v14 |
+
+**Example**:
+```python
+desired_caps = {
+    "deviceName": "(iPhone.*)",      # Any iPhone
+    "platformVersion": "(16.*)",     # Any iOS 16.x
+    # ... other capabilities
+}
+```
+
+---
+
+## 14. Advanced Capabilities Reference
+
+### 14.1 Sensor Injection Capabilities
+
+| Capability | Type | Description | Supported Platforms |
+|------------|------|-------------|---------------------|
+| `enableImageInjection` | Boolean | Enable camera image injection | iOS 13+, Android 9+ |
+| `enableVideoInjection` | Boolean | Enable video injection | iOS, Android |
+| `enableAudioInjection` | Boolean | Enable audio injection | iOS 14+ |
+| `enableBiometricsAuthentication` | Boolean | Enable biometric testing | iOS 13+, Android 11+ |
+
+### 14.2 Network & Connectivity Capabilities
+
+| Capability | Type | Description | Values |
+|------------|------|-------------|--------|
+| `networkThrottling` | String | Predefined network profile | Offline, GPRS, Regular 2G, Good 2G, Regular 3G, Good 3G, Regular 4G, DSL |
+| `network` | Boolean | Enable network logging | true/false |
+| `networkLogsOptions.captureContent` | Boolean | Capture response body | true/false |
+| `networkLogsOptions.excludeHosts` | Array | Hosts to exclude | ["host1", "host2"] |
+| `networkLogsOptions.includeHosts` | Array | Only capture these hosts | ["host1", "host2"] |
+
+### 14.3 SIM & Device Capabilities
+
+| Capability | Type | Description | Values |
+|------------|------|-------------|--------|
+| `enableSim` | Boolean | Enable SIM support | true/false |
+| `region` | String | SIM region | IND, USA, IRL |
+| `carrier` | Array | Preferred carriers | ["T-Mobile", "Verizon"] |
+| `esim` | Boolean | Request eSIM (iOS only) | true/false |
+
+### 14.4 iOS-Specific Capabilities
+
+| Capability | Type | Description |
+|------------|------|-------------|
+| `ios_keychain_enabled` | Boolean | Enable keychain cleanup (app upload param) |
+| `groupFolderRedirectEnabled` | Boolean | Redirect app group containers to private |
+| `resignApp` | Boolean | Enable app resigning |
+
+### 14.5 AI/ML Capabilities
+
+| Capability | Type | Description |
+|------------|------|-------------|
+| `smartHeal` | Boolean | Enable AI-powered locator healing |
+
+---
+
+## 15. Lambda Hooks Reference
+
+### 15.1 Injection Hooks
+
+| Hook | Description | Example |
+|------|-------------|---------|
+| `lambda-image-injection` | Inject image into camera | `driver.execute_script("lambda-image-injection=lt://MEDIA123")` |
+| `lambda-video-injection` | Inject video into camera | `driver.execute_script("lambda-video-injection=lt://MEDIA123")` |
+| `lambda-audio-injection` | Inject audio into microphone | `driver.execute_script("lambda-audio-injection=lt://MEDIA123")` |
+| `lambda-biometric-injection` | Simulate biometric result | `driver.execute_script("lambda-biometric-injection=pass")` |
+
+### 15.2 Network Hooks
+
+| Hook | Description | Example |
+|------|-------------|---------|
+| `lambda-throttle-network` | Apply custom network throttling | `driver.execute_script("lambda-throttle-network", {"download": 500})` |
+
+### 15.3 Smart Heal Hooks
+
+| Hook | Description | Example |
+|------|-------------|---------|
+| `lambda-heal-start` | Enable Smart Heal | `driver.execute_script("lambda-heal-start")` |
+| `lambda-heal-stop` | Disable Smart Heal | `driver.execute_script("lambda-heal-stop")` |
+
+### 15.4 ADB Hooks
+
+| Hook | Description | Example |
+|------|-------------|---------|
+| `lambda-adb` | Execute ADB command | `driver.execute_script("lambda-adb", params)` |
+
+### 15.5 Session Status Hooks
+
+| Hook | Description | Example |
+|------|-------------|---------|
+| `lambda-status` | Set test status | `driver.execute_script("lambda-status=passed")` |
+| `lambda-name` | Set test name | `driver.execute_script("lambda-name=Login Test")` |
+| `lambda-tags` | Add custom tags | `driver.execute_script('lambda-tags=["smoke", "login"]')` |
+
+---
+
+**For more information**: [LambdaTest Mobile Testing Documentation](https://www.lambdatest.com/support/docs/app-testing-on-real-devices/)
+
+---
+
+## Crawled Documentation Reference
+
+> **See [RealDeviceMain.md](RealDeviceMain.md) for the complete crawled documentation index with 1 feature page.**
+
+### Available Crawled Documentation
+
+| Category | Key Documents |
+|----------|---------------|
+| **Getting Started** | [Getting Started with Real Device App Testing](app-testing-on-real-devices.md) |
+
+> **Note**: For complete App Automation documentation including Appium frameworks, see [AppAutomationMain.md](../AppAutomation/AppAutomationMain.md) which contains 26 additional feature pages covering all testing frameworks and languages.

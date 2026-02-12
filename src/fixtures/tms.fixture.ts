@@ -19,6 +19,7 @@ import { SdkPage } from '../pages/sdk/sdk.page.js';
 import { AutomationPage } from '../pages/automation/automation.page.js';
 import { KaneaiPage } from '../pages/kaneai/kaneai.page.js';
 import { ModulePage } from '../pages/module/module.page.js';
+import { TcGeneratorPage } from '../pages/tc-generator/tc-generator.page.js';
 import { TmsApi } from '../api/tms.api.js';
 import { JiraApi } from '../api/jira.api.js';
 import { createApiSetup } from './api-setup.factory.js';
@@ -49,6 +50,7 @@ type TmsFixtures = {
   automationPage: AutomationPage;
   kaneaiPage: KaneaiPage;
   modulePage: ModulePage;
+  tcGeneratorPage: TcGeneratorPage;
   tmsApi: TmsApi;
   jiraApi: JiraApi;
   apiSetup: ApiSetup;
@@ -122,6 +124,9 @@ export const test = base.extend<TmsFixtures>({
   },
   modulePage: async ({ page }, use) => {
     await use(new ModulePage(page));
+  },
+  tcGeneratorPage: async ({ page }, use) => {
+    await use(new TcGeneratorPage(page));
   },
   toast: async ({ page }, use) => {
     await use(new ToastComponent(page));

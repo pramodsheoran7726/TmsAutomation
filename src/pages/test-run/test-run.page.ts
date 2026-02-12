@@ -21,6 +21,7 @@ export class TestRunPage extends BasePage {
       await this.loc(L.testRunTitle).fill(runName);
       await this.loc(L.testRunDescription).fill(randomString(RANDOM_LENGTH.long));
       await this.loc(L.saveTestRunCta).last().click({ timeout: TIMEOUTS.long });
+
       await waitForNetworkIdle(this.page);
       // If we're not on the test runs list, navigate back
       if (!(await this.isVisible(L.createdTestrunAppear(runName), TIMEOUTS.medium))) {
@@ -71,7 +72,9 @@ export class TestRunPage extends BasePage {
         await this.loc(L.selectAllCheckboxInTpTestcase).nth(i).click();
       }
       await this.loc(L.updateTestcaseInTestRun).click();
-      await expect.soft(this.loc(L.addTcTestRunCta)).toBeVisible({ timeout: TIMEOUTS.medium });
+      await expect.soft(this.loc(L.saveTestRun)).toBeVisible({ timeout: TIMEOUTS.medium });
+      await this.loc(L.saveTestRun).click();
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -336,6 +339,25 @@ export class TestRunPage extends BasePage {
       for (const status of statuses) {
         await expect.soft(this.loc(L.executionHistoryStatus(status))).toBeVisible({ timeout: TIMEOUTS.medium });
       }
+    });
+  }
+
+  async clickEditTestRun(): Promise<void> {
+    await test.step('Click edit test run', async () => {
+      await this.loc(L.editCtaInsideTR).click();
+      await waitForNetworkIdle(this.page);
+    });
+  }
+
+  async configurationAddedFromNoConfiguration(): Promise<void> {
+    await test.step('No configuration added', async () => {
+      await expect.soft(this.loc(L.noConfigurationAddedBtn)).toBeVisible({ timeout: TIMEOUTS.medium });
+      await this.loc(L.noConfigurationAddedBtn).click();
+      await waitForNetworkIdle(this.page);
+      await this.loc(L.checkBoxConfiguration).click();
+      await this.loc(L.applyConfiguration).click();
+      await waitForNetworkIdle(this.page);
+      await expect.soft(this.loc(L.noConfigurationAddedBtn)).not.toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
 }

@@ -92,6 +92,9 @@ export const TestRunLocators = {
   addVariableUrl: `//input[@placeholder='Enter URL']`,
   addVariableSave: `//button[normalize-space()='Save']`,
   addVariableCta: `//span[text()='Add Variable']`,
+  saveTestRun: `//span[text()='Save Test Run']//ancestor::button`,
+  noConfigurationAddedBtn: `// span[text()='No Configuration added']`,
+  checkBoxConfiguration: `(// input[@id=\"checkbox_new\"])[1]`,
 
   // Execution history
   executionHistoryTab: `//span[text()='Execution History']`,

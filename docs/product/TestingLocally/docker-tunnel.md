@@ -1,0 +1,136 @@
+# Docker Tunnel
+
+> **Source**: [https://www.testmuai.com/support/docs/docker-tunnel](https://www.testmuai.com/support/docs/docker-tunnel)
+
+**Product**: Testing Locally
+
+**Last Crawled**: 2026-01-27T20:47:28.663096
+
+---
+
+On this page
+
+* * *
+
+With the help of the Docker Tunnel, i.e., Docker and TestMu AI Tunnel, you can perform live interactive and automated cross-browser testing of your locally hosted webpage on the TestMu AI platform, with the help of 3000+ real browsers (desktop and mobile) and operating systems.
+
+With Docker Tunnel, you will also be able to create multiple instances of TestMu AI Tunnel.
+
+## Prerequisites To Get Started With TestMu AI Docker Tunnel[â](https://www.testmuai.com/support/docs/docker-tunnel#prerequisites-to-get-started-with--docker-tunnel "Direct link to prerequisites-to-get-started-with--docker-tunnel")
+
+* * *
+
+  1. Download and set up Docker Desktop from [official Docker website](https://www.docker.com/products/docker-desktop).
+  2. You also need your TestMu AI Username and Access Key. You can get these from your [TestMu AIâs profile](https://accounts.lambdatest.com/detail/profile).
+
+## How To Use Docker With TestMu AI Tunnel[â](https://www.testmuai.com/support/docs/docker-tunnel#how-to-use-docker-with--tunnel "Direct link to how-to-use-docker-with--tunnel")
+
+* * *
+
+Initially, you need to pull the [Docker hub image of Lambda Tunnel](https://hub.docker.com/r/lambdatest/tunnel). You can use the below command to raise the pull request.
+
+`docker pull lambdatest/tunnel:latest`
+
+![Image](https://www.testmuai.com/support/assets/images/raise-the-pull-request-67cceeaf4bdad820ac37cb09ce348864.webp)
+
+In order to pull the other docker images from the hub, use the below command:
+
+  * **Legacy Alpine:** `docker pull lambdatest/tunnel:legacy-alpine`
+
+  * **Alpine:** `docker pull lambdatest/tunnel:alpine`
+
+  * **Legacy:** `docker pull lambdatest/tunnel:legacy`
+
+  * **Burrow:** `docker pull lambdatest/tunnel:burrow`
+
+This image supports all the [tunnel modifier flags](https://www.testmuai.com/support/docs/lambda-tunnel-modifiers/) available in the tunnel command-line binary and passes them as the entry point. Let us see some of them:
+
+  * **Version Checking** : You can check the installed version of the TestMu AI Tunnel using the below command.
+
+`docker run -it lambdatest/tunnel --version`
+
+![Image](data:image/webp;base64,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)
+
+  * **Basic Authentication and Login** : You can login into your TestMu AI Tunnel with Docker image, with the help of below command:
+
+`docker run -it --name lt lambdatest/tunnel --user johndoe --key XXXXXXXXXXXX`
+
+![Image](https://www.testmuai.com/support/assets/images/Basic-Authentication-and-Login-675b1f6afa2d7b1d5231b7e96bbb2f8d.webp)
+
+  * **Capturing logs in mounted volume on host machine** : You can capture these logs with the help of below command:
+
+`docker run -it -v /mydir:/logs lambdatest/tunnel --user joendoe --key XXXXXXXX --logFile /logs/tunnel.log`
+
+![Image](https://www.testmuai.com/support/assets/images/Capturing-logs-662b213f1d9821f55ab9e24df7b9fd7e.webp)
+
+  * **Getting Tunnel Status** : You can fetch the current tunnel status using the Info API on the tunnel.
+
+Suppose the InfoAPI is available on the host over port 13001, then you need to expose the docker container port to host in the form 13001:8000. Use the below command to infuse the InfoAPI in the current docker image:
+
+`docker run -it -p 13001:8000 lambdatest/tunnel --user johndoe --key XXXXXXX --infoAPIPort 8000`
+
+![Image](https://www.testmuai.com/support/assets/images/Getting-Tunnel-Status-c9b7fe0ab96072d7ee7efbd4a7c1629f.webp)
+
+Now, in order to fetch the current tunnel status, just execute the below command:
+
+`curl http://127.0.0.1:13001/api/v1.0/info`
+
+![Image](https://www.testmuai.com/support/assets/images/docker-tunnel-status-bd93300557efc4adc3d83ef7b06bd50b.webp)
+
+  * You can also use **Proxy running on host machine at port 8082 having foo and bar as username and key** as per the example shown below:
+
+`docker run -it lambdatest/tunnel --user johndoe --key XXXXXXX --proxy-host host.docker.internal --proxy-port 8082 --proxy-user foo --proxy-pass bar`
+
+  * You can also use Proxy running on another docker container within same default bridge network, assuming the container in which proxy is running has IP 172.17.0.2.
+
+> Note: The IP can be found from inside of the container or by inspecting the network to which container is attached.
+
+Consider the below example:
+
+`docker run -it lambdatest/tunnel --user johndoe --key XXXXXXX --proxy-host 172.17.0.2 --proxy-port 8082 --proxy-user foo --proxy-pass bar`
+
+  * You can also use Proxy running on another docker container within same custom bridge network, assuming the container in which proxy is running has IP 172.17.0.2.
+
+> Note: When you create custom network, containers can reach each other using container names due to automatic service discovery. Assuming that custom-network already exists and container named proxy-service has a proxy server running.
+
+Consider the below example:
+
+`docker run -it lambdatest/tunnel --user johndoe --key XXXXXXX --proxy-host proxy-service --proxy-port 8082 --proxy-user foo --proxy-pass bar`
+
+  * In order to stop the Docker tunnel, you can use the above mentioned InfoAPI, according to the command shown below:
+
+`curl -X DELETE http://127.0.0.1:13001/api/v1.0/stop`
+
+![Image](data:image/webp;base64,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)
+
+## How To Make Use Of TestMu AI Tunnel With Docker Image For Development[â](https://www.testmuai.com/support/docs/docker-tunnel#how-to-make-use-of--tunnel-with-docker-image-for-development "Direct link to how-to-make-use-of--tunnel-with-docker-image-for-development")
+
+* * *
+
+By default TestMu AI tunnel can no longer access web apps running on host machines or other docker containers using _localhost_ or _127.0.0.1_ when you run it using docker container. This means that the test scripts need to be modified in a way that they can access the target web app, according to the docker network topology and host operating system.
+
+**For Linux Machines:**
+
+On Linux, containers can run in a special network mode called host. This network mode makes the container use hostâs network stack and doesnât create an isolated one for the containers. Running the following command makes the tunnel containers run with host networking and can access the hostâs network. The test scripts can access services running on the host machine using the localhost.
+
+`docker run -it --network host lambdatest/tunnel --user johndoe --key XXXXXXXXXXXX`
+
+**For Mac and Windows Machines:**
+
+Unfortunately, on both mac and windows, host networking mode is not available due to docker-machine implementation. The recommended approach to access services on the host machine is to use a special hostname _host.docker.internal_ , which resolves to the host machine.
+
+> You can find more details on these, using [this link](https://docs.docker.com/docker-for-mac/networking/) for Mac, and [this link](https://docs.docker.com/docker-for-windows/networking/) for Windows respectively.
+
+The test scripts need to use this special hostname to access the web services running on the host machine. The most idiomatic way of testing docker infra is creating a custom bridge network and access services using their container names. This method works on all operating systems.
+
+## Conclusion[â](https://www.testmuai.com/support/docs/docker-tunnel#conclusion "Direct link to Conclusion")
+
+* * *
+
+Test your locally hosted pages and privately hosted pages at TestMu AI [Selenium Test Automation](https://www.lambdatest.com/selenium-automation/) Platform using Docker Tunnel, via SSH based integration tunnel. If you still have any doubts or questions, please donât hesitate to contact us. Our experts are available on **24/7 chat support**. You can also drop us a mail at [[email protected]](https://www.testmuai.com/cdn-cgi/l/email-protection#a0d3d5d0d0cfd2d4e0d4c5d3d4cdd58ec1c9).
+
+Happy testing! ð
+
+---
+
+*Auto-generated from TestMu AI documentation.*

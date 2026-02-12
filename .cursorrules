@@ -1,0 +1,74 @@
+# E2E Agent TestKit
+
+## Available Playbooks
+
+When user mentions testing JIRA tickets or RFCs, suggest using:
+- `@docs/e2e_agent/TMS_AGENT.md` - Full 13-phase workflow
+
+## Quick Reference
+
+### For JIRA/RFC Testing (Full Workflow)
+```
+Use @docs/e2e_agent/TMS_AGENT.md playbook for testing <JIRA-ID or RFC>
+```
+
+### For Test Case Generation Only (Phases 1-5)
+```
+Use @docs/e2e_agent/TMS_AGENT.md playbook for Phases 1-5 only.
+Perform RFC Analysis, Test Case Proposal, Critique & Validation, TMS Integration.
+STOP after Phase 5. Do NOT proceed to automation phases.
+Input: <JIRA-ID or RFC>
+```
+
+### For Automation Only (Phases 7+)
+```
+Use @docs/e2e_agent/TMS_AGENT.md playbook starting from Phase 7.
+Skip Phases 1-6. Automate the following test scenarios:
+<list of test scenarios>
+```
+
+## Key Files
+- Playbook: `docs/e2e_agent/TMS_AGENT.md`
+- Product Docs: `docs/product/`
+
+## Project Context
+
+- **Project**: TmsAutomation - E2E test automation for LambdaTest Test Manager
+- **Tech Stack**: TypeScript 5.7 + Playwright Test 1.49 + Node.js 20
+- **Package Manager**: npm
+- **Config**: `playwright.config.ts`, `tsconfig.json`, `.env`
+- **CI/CD**: GitHub Actions + HyperExecute
+
+## Project Structure
+```
+TmsAutomation/
+├── tests/                     # Test specs (.spec.ts)
+├── src/
+│   ├── pages/                 # Page objects (.page.ts) + locators (.locators.ts)
+│   ├── fixtures/              # Playwright custom fixtures (tms.fixture.ts)
+│   ├── api/                   # REST API clients (tms.api.ts, jira.api.ts)
+│   ├── config/                # EnvConfig, constants
+│   ├── utils/                 # Helpers (base.page.ts, wait.helper.ts, retry.helper.ts)
+│   ├── setup/                 # Auth setup (auth.setup.ts)
+│   └── reporters/             # Custom reporters
+├── playwright.config.ts
+├── hyperexecute.yaml
+└── package.json
+```
+
+## Code Conventions
+- Page objects extend `BasePage` from `src/utils/base.page.ts`
+- Use `loc(selector)` for auto-detecting XPath vs CSS selectors
+- Use `test.step()` for step grouping in page object methods
+- Locators exported as `const` objects with `as const` in `*.locators.ts`
+- Use `expect()` / `expect.soft()` from `@playwright/test` for assertions
+- Wait helpers: `waitForNetworkIdle()`, `fillAndWaitForSearch()`, `clickAndWaitForNetwork()`
+- Test fixtures defined in `src/fixtures/tms.fixture.ts`
+- Import `test, expect` from fixtures, not from `@playwright/test` directly
+
+## Execution
+```bash
+npx playwright test --grep @tag
+TEST_ENV=stage npx playwright test --grep @tag
+npx playwright test tests/module/feature.spec.ts
+```

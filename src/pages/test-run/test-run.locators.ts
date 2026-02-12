@@ -21,6 +21,7 @@ export const TestRunLocators = {
   selectAssignee: `(//span[@class='Item__TextContainer-sc-y6iv6t-3 bvbgsO'])[1]`,
   testRunNav: `//*[@role='tab' and contains(.,'Test Runs')]`,
   selectAllCheckboxInTpTestcase: `//input[@id='all' and @type='checkbox']`,
+  testCaseRowLoaded: `//*[contains(text(), '#TC-')]`,
   selectAllCheckboxInTrInstances: `(//input[@class='Checkbox__StyledCheckbox-sc-1ga3qj3-0 cZZRyo'])[1]`,
   updateTestcaseInTestRun: `(//span[text()='Update'])[1]`,
   selectConfigInTRPage: `//label[.//input[starts-with(@id, 'select-checkbox')]]`,

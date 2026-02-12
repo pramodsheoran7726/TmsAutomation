@@ -13,14 +13,33 @@ runtime:
   version: "20"
 
 env:
-  TEST_ENV: ${TEST_ENV}
-  TEST_SUITE: ${TEST_SUITE}
+  TEST_ENV: stage
+  TEST_SUITE: "@smoke"
+  TEST_MODE: remote
+  AUTH_EMAIL: ""
+  AUTH_PASSWORD: ""
+  AUTH_TOKEN: ""
+  LT_USERNAME: ""
+  LT_ACCESS_KEY: ""
+  AUTH_URL: ""
+  BASE_URL: ""
+  TMS_BASE_URL: ""
+  TMS_API_URL: ""
+  TMS_INSIGHTS_API: ""
+  HUB_URL: ""
+  API_URL: ""
   REPORT_LAB_ENABLED: "true"
-  REPORT_LAB_URL: ${REPORT_LAB_URL}
-  SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
-  SLACK_CHANNEL: ${SLACK_CHANNEL}
-  SLACK_MENTIONS: ${SLACK_MENTIONS}
-  HE_BUILD_ID: ${HE_BUILD_ID}
+  REPORT_LAB_URL: ""
+  SLACK_BOT_TOKEN: ""
+  SLACK_CHANNEL: ""
+  SLACK_MENTIONS: ""
+  HE_BUILD_ID: ""
+
+retryOnFailure: true
+maxRetries: 2
+
+mergeArtifacts: true
+alwaysRunPostSteps: true
 
 cacheKey: '{{ checksum "package-lock.json" }}'
 cacheDirectories:
@@ -28,9 +47,10 @@ cacheDirectories:
   - /home/user/.cache/ms-playwright
 
 globalPre:
-  - npm ci
-  - npx playwright install chromium --with-deps
-  - npx tsx scripts/report-lab.ts start
+  commands:
+    - npm ci
+    - npx playwright install chromium --with-deps
+    - npx tsx scripts/report-lab.ts start
 
 pre:
   - npx playwright test --project setup
@@ -46,8 +66,9 @@ post:
   - npx tsx scripts/report-lab.ts create_tests
 
 globalPost:
-  - npx tsx scripts/report-lab.ts end
-  - npx tsx scripts/report-lab.ts notify
+  commands:
+    - npx tsx scripts/report-lab.ts end
+    - npx tsx scripts/report-lab.ts notify
 
 uploadArtefacts:
   - name: report-lab-results

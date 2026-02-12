@@ -28,7 +28,8 @@
     "report:send": "npx tsx scripts/report-lab.ts create_tests",
     "report:end": "npx tsx scripts/report-lab.ts end",
     "report:notify": "npx tsx scripts/report-lab.ts notify",
-    "report:run": "npx tsx scripts/report-run.ts"
+    "report:run": "npx tsx scripts/report-run.ts",
+    "he:update": "npx tsx scripts/update-hyperexecute.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
@@ -36,6 +37,7 @@
     "allure-playwright": "^3.4.5",
     "dotenv": "^16.4.7",
     "tsx": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "yaml": "^2.8.2"
   }
 }

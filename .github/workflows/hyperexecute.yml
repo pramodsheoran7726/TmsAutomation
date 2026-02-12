@@ -26,6 +26,16 @@ on:
         required: false
         default: '5'
         type: string
+      retries:
+        description: 'Max retries on failure (0 to disable)'
+        required: false
+        default: '2'
+        type: string
+      labels:
+        description: 'HyperExecute build labels (comma-separated)'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   hyperexecute:
@@ -37,27 +47,62 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update HyperExecute YAML
+        run: npx tsx scripts/update-hyperexecute.ts --concurrency ${{ inputs.concurrency }} --retries ${{ inputs.retries }}
+        env:
+          TEST_ENV: ${{ inputs.environment }}
+          TEST_SUITE: ${{ inputs.test_suite }}
+          HE_BUILD_ID: ${{ github.run_number }}
+          AUTH_EMAIL: ${{ secrets.AUTH_EMAIL }}
+          AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          LT_USERNAME: ${{ secrets.LT_USERNAME }}
+          LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
+          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          SLACK_MENTIONS: ${{ secrets.SLACK_MENTIONS }}
+
       - name: Download HyperExecute CLI
         run: |
           curl -sL https://downloads.lambdatest.com/hyperexecute/linux/hyperexecute -o hyperexecute
           chmod +x hyperexecute
 
       - name: Run HyperExecute
+        id: he_run
         run: |
           ./hyperexecute \
             --user ${{ secrets.LT_USERNAME }} \
             --key ${{ secrets.LT_ACCESS_KEY }} \
             --config hyperexecute.yaml \
-            --vars "TEST_ENV=${{ inputs.environment }}" \
-            --vars "TEST_SUITE=${{ inputs.test_suite }}" \
-            --vars "HE_BUILD_ID=${{ github.run_number }}" \
-            --vars "REPORT_LAB_URL=${{ secrets.REPORT_LAB_URL }}" \
-            --vars "SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}" \
-            --vars "SLACK_CHANNEL=${{ secrets.SLACK_CHANNEL }}" \
-            --vars "SLACK_MENTIONS=${{ secrets.SLACK_MENTIONS }}"
-        env:
-          LT_USERNAME: ${{ secrets.LT_USERNAME }}
-          LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
-          AUTH_EMAIL: ${{ secrets.AUTH_EMAIL }}
-          AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+            ${{ inputs.labels && format('--labels "{0}"', inputs.labels) }} \
+            2>&1 | tee he-output.log
+
+          # Extract job link from output
+          JOB_LINK=$(grep -oP 'https://hyperexecute[^\s"]+' he-output.log | head -1 || true)
+          echo "job_link=$JOB_LINK" >> "$GITHUB_OUTPUT"
+
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## HyperExecute Run" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Setting | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ------- | ----- |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Environment | \`${{ inputs.environment }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Suite | \`${{ inputs.test_suite }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Concurrency | \`${{ inputs.concurrency }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Retries | \`${{ inputs.retries }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${{ steps.he_run.outputs.job_link }}" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "[View HyperExecute Job](${{ steps.he_run.outputs.job_link }})" >> "$GITHUB_STEP_SUMMARY"
+          fi

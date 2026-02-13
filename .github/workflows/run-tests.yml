@@ -61,38 +61,8 @@ env:
   TEST_SUITE: ${{ inputs.test_suite }}
   LT_RUN_PROFILE: ${{ inputs.run_profile || (inputs.test_suite == '@smoke' && 'smoke') || 'regression' }}
   LT_PROFILE: ${{ inputs.browser_profile }}
-  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-  SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
 jobs:
-  # ────────────────────────────────────────────────────────────
-  # Slack thread — shared by both execution paths
-  # ────────────────────────────────────────────────────────────
-  create-slack-thread:
-    runs-on: ubuntu-latest
-    outputs:
-      SLACK_THREAD_TS: ${{ steps.create.outputs.SLACK_THREAD_TS }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - run: npm ci
-
-      - id: create
-        name: Create Slack Thread
-        run: |
-          OUTPUT=$(npx tsx scripts/report-lab.ts slack_thread \
-            "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}")
-          TS=$(echo "$OUTPUT" | grep "^SLACK_THREAD_TS=" | cut -d= -f2)
-          echo "SLACK_THREAD_TS=$TS" >> "$GITHUB_OUTPUT"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
-
   # ────────────────────────────────────────────────────────────
   # Path A: LambdaTest Remote Grid
   #   GA runs Playwright locally → browsers on LT cloud via CDP
@@ -100,12 +70,8 @@ jobs:
   remote-grid:
     name: "LT Grid: ${{ inputs.environment }} — ${{ inputs.test_suite }} — ${{ inputs.browser_profile }}"
     if: inputs.execution_mode == 'remote-grid'
-    needs: create-slack-thread
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.test_suite == '@regression' && 90 || 45 }}
-
-    env:
-      SLACK_THREAD_TS: ${{ needs.create-slack-thread.outputs.SLACK_THREAD_TS }}
 
     steps:
       - name: Checkout code
@@ -124,12 +90,6 @@ jobs:
       - name: Install Playwright browsers (auth only)
         run: npx playwright install chromium --with-deps
 
-      - name: Start Report-Lab build
-        run: npx tsx scripts/report-lab.ts start
-        env:
-          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
-          HE_BUILD_ID: ${{ github.run_number }}
-
       - name: Run tests on LambdaTest Grid
         id: run_tests
         continue-on-error: true
@@ -142,27 +102,11 @@ jobs:
             --grep ${{ env.TEST_SUITE }} \
             --retries 2
         env:
-          LT_USERNAME: ${{ secrets.LT_USERNAME }}
-          LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
+          LT_USERNAME: ${{ secrets.HE_USERNAME }}
+          LT_ACCESS_KEY: ${{ secrets.HE_ACCESS_KEY }}
           AUTH_EMAIL: ${{ secrets.AUTH_EMAIL }}
           AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-          REPORT_LAB_ENABLED: 'true'
           CI: true
-
-      - name: Send results to Report-Lab
-        if: always()
-        run: npx tsx scripts/report-lab.ts create_tests
-        env:
-          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
-          HE_BUILD_ID: ${{ github.run_number }}
-
-      - name: End Report-Lab build
-        if: always()
-        run: npx tsx scripts/report-lab.ts end
-        env:
-          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
-          HE_BUILD_ID: ${{ github.run_number }}
 
       - name: Upload Playwright HTML report
         uses: actions/upload-artifact@v4
@@ -188,14 +132,6 @@ jobs:
           path: test-results/
           retention-days: 7
 
-      - name: Upload Report-Lab results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: report-lab-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ env.LT_PROFILE }}
-          path: report-lab-results/
-          retention-days: 14
-
       - name: Finalize Job Status
         if: steps.run_tests.outcome == 'failure'
         run: exit 1
@@ -208,12 +144,8 @@ jobs:
   hyperexecute:
     name: "HyperExecute: ${{ inputs.environment }} — ${{ inputs.test_suite }}"
     if: inputs.execution_mode == 'hyperexecute'
-    needs: create-slack-thread
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.test_suite == '@regression' && 60 || 30 }}
-
-    env:
-      SLACK_THREAD_TS: ${{ needs.create-slack-thread.outputs.SLACK_THREAD_TS }}
 
     steps:
       - name: Checkout code
@@ -243,65 +175,24 @@ jobs:
           fi
 
           ./hyperexecute \
-            --user ${{ secrets.LT_USERNAME }} \
-            --key ${{ secrets.LT_ACCESS_KEY }} \
+            --user ${{ secrets.HE_USERNAME }} \
+            --key ${{ secrets.HE_ACCESS_KEY }} \
             --config ${{ steps.he_config.outputs.config_file }} \
             --vars "TEST_ENV=${{ env.TEST_ENV }}" \
             --vars "TEST_SUITE=${{ env.TEST_SUITE }}" \
             --vars "LT_PROFILE=${{ env.LT_PROFILE }}" \
             --vars "LT_BUILD_ID=HE-${{ github.run_number }}" \
             --vars "HE_BUILD_ID=${{ github.run_number }}" \
-            --vars "REPORT_LAB_URL=${{ secrets.REPORT_LAB_URL }}" \
-            --vars "SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}" \
-            --vars "SLACK_CHANNEL=${{ secrets.SLACK_CHANNEL }}" \
-            --vars "SLACK_MENTIONS=${{ secrets.SLACK_MENTIONS }}" \
-            --vars "LT_USERNAME=${{ secrets.LT_USERNAME }}" \
-            --vars "LT_ACCESS_KEY=${{ secrets.LT_ACCESS_KEY }}" \
+            --vars "LT_USERNAME=${{ secrets.HE_USERNAME }}" \
+            --vars "LT_ACCESS_KEY=${{ secrets.HE_ACCESS_KEY }}" \
             --vars "AUTH_EMAIL=${{ secrets.AUTH_EMAIL }}" \
             --vars "AUTH_PASSWORD=${{ secrets.AUTH_PASSWORD }}" \
-            --vars "AUTH_TOKEN=${{ secrets.AUTH_TOKEN }}" \
+            --vars "REPORT_LAB_URL=" \
+            --vars "SLACK_BOT_TOKEN=" \
+            --vars "SLACK_CHANNEL=" \
+            --vars "SLACK_MENTIONS=" \
             $CONCURRENCY_FLAG
-        env:
-          LT_USERNAME: ${{ secrets.LT_USERNAME }}
-          LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
 
       - name: Finalize Job Status
         if: steps.run_tests.outcome == 'failure'
         run: exit 1
-
-  # ────────────────────────────────────────────────────────────
-  # Slack summary — runs after either execution path
-  # ────────────────────────────────────────────────────────────
-  conclude-slack:
-    name: Slack Summary
-    needs: [create-slack-thread, remote-grid, hyperexecute]
-    runs-on: ubuntu-latest
-    if: always()
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - run: npm ci
-
-      - name: Download Report-Lab results (remote-grid)
-        if: inputs.execution_mode == 'remote-grid'
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: report-lab-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ env.LT_PROFILE }}
-          path: report-lab-results/
-
-      - name: Send Slack Final Summary
-        run: npx tsx scripts/report-lab.ts notify
-        env:
-          SLACK_THREAD_TS: ${{ needs.create-slack-thread.outputs.SLACK_THREAD_TS }}
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
-          SLACK_MENTIONS: ${{ secrets.SLACK_MENTIONS }}
-          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
-          HE_BUILD_ID: ${{ github.run_number }}

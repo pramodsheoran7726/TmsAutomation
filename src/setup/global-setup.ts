@@ -10,6 +10,14 @@ const AUTH_FILE = '.auth/user.json';
  * Runs once before all tests — no browser needed, not counted as a test.
  */
 async function globalSetup() {
+  // Generate a stable build ID if not provided — runs once before workers fork,
+  // so all workers inherit the same value via process.env
+  if (!process.env.LT_BUILD_ID) {
+    process.env.LT_BUILD_ID = process.env.HE_BUILD_ID
+      || process.env.GITHUB_RUN_NUMBER
+      || Date.now().toString();
+  }
+
   // Ensure .auth directory exists
   const authDir = path.dirname(AUTH_FILE);
   if (!fs.existsSync(authDir)) {

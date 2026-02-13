@@ -87,8 +87,8 @@ export const EnvConfig = {
   isStage,
   isEu,
 
-  ltUsername: env('LT_USERNAME'),
-  ltAccessKey: env('LT_ACCESS_KEY'),
+  ltUsername: env('LT_USERNAME') || env('HE_USERNAME'),
+  ltAccessKey: env('LT_ACCESS_KEY') || env('HE_ACCESS_KEY'),
 
   authUrl: env('AUTH_URL', urls.authUrl),
   baseUrl: env('BASE_URL', urls.baseUrl),

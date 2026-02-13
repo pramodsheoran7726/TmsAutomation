@@ -1,0 +1,9 @@
+bin/
+node_modules/
+.auth/
+playwright-report/
+allure-results/
+allure-report/
+test-results/
+report-lab-results/
+.git/

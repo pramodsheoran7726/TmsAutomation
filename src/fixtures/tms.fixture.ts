@@ -1,5 +1,6 @@
-import { test as base } from '@playwright/test';
+import { test as base, chromium } from '@playwright/test';
 import { EnvConfig } from '../config/env.config.js';
+import { getCdpEndpoint, type LTRunProfile } from '../config/lambdatest.config.js';
 import { ToastComponent, DeleteDialogComponent, SearchComponent } from '../pages/components/index.js';
 import { NavigationPage } from '../pages/navigation/navigation.page.js';
 import { ProjectPage } from '../pages/project/project.page.js';
@@ -65,9 +66,32 @@ type TmsFixtures = {
 
 export const test = base.extend<TmsFixtures>({
   // Auto-navigate to TMS before every test
-  page: async ({ page }, use) => {
-    await page.goto(EnvConfig.tmsBaseUrl, { waitUntil: 'domcontentloaded' });
-    await use(page);
+  // In remote mode: creates a per-test LT session with the test name in capabilities
+  page: async ({ page }, use, testInfo) => {
+    if (process.env.TEST_MODE !== 'remote') {
+      await page.goto(EnvConfig.tmsBaseUrl, { waitUntil: 'domcontentloaded' });
+      await use(page);
+      return;
+    }
+
+    // Remote mode: connect to LT grid with per-test session name
+    const testName = testInfo.titlePath.slice(1).join(' > ');
+    const profile = process.env.LT_PROFILE ?? 'chrome-win';
+    const runProfile = (process.env.LT_RUN_PROFILE ?? 'regression') as LTRunProfile;
+    const wsEndpoint = getCdpEndpoint(profile, runProfile, testName);
+
+    const browser = await chromium.connect(wsEndpoint);
+    const context = await browser.newContext({
+      storageState: testInfo.project.use.storageState as string | undefined,
+      baseURL: testInfo.project.use.baseURL,
+    });
+    const remotePage = await context.newPage();
+    await remotePage.goto(EnvConfig.tmsBaseUrl, { waitUntil: 'domcontentloaded' });
+
+    await use(remotePage);
+
+    await context.close();
+    await browser.close();
   },
   nav: async ({ page }, use) => {
     await use(new NavigationPage(page));

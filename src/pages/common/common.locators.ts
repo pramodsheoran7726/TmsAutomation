@@ -17,7 +17,7 @@ export const CommonLocators = {
 
   // ─── Confirmation Dialog ──────────────────────────
   typeDeleteInput: `//input[@placeholder='Type DELETE to confirm']`,
-  deleteConfirmButton: `//button[text()='Delete']`,
+  deleteConfirmButton: `//button[normalize-space()='Delete']`,
   duplicateConfirmButton: `//button[text()='Duplicate']`,
   saveNormalizedButton: `//button[normalize-space()='Save']`,
 

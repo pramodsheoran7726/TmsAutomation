@@ -13,12 +13,12 @@ export const ConfigurationLocators = {
   configurationNameInput: `input[placeholder='Enter Configuration name']`,
   configDescription: `textarea[placeholder='Add description to the Configuration']`,
   createConfigurationSubmit: `//button[normalize-space()='Create Configuration']`,
-  saveConfigurationButton: `//button[text()='Save']`,
-  searchConfigurationInput: `//input[@placeholder='Search Configurations']`,
+  saveConfigurationButton: `//button[normalize-space()='Update Configuration']`,
+  searchConfigurationInput: `//input[@placeholder='Search configurations']`,
 
   // OS and Browser selection
-  osDropdown: `//*[text()='Operating system']/following-sibling::button`,
-  browserDropdown: `//*[text()='Browser']/following-sibling::button`,
+  osDropdown: `//*[normalize-space()='Operating system']/following::button[1]`,
+  browserDropdown: `//*[normalize-space()='Browser' and not(self::h5) and not(self::button) and not(ancestor::button)]/following::button[1]`,
   selectWindows: `//span[text()='Windows']`,
   selectMacOS: `//span[text()='macOS']`,
   selectLinux: `//span[text()='Linux']`,
@@ -28,12 +28,12 @@ export const ConfigurationLocators = {
   selectEdge: `//span[text()='Edge']`,
 
   // Version selection
-  osVersionDropdown: `//*[text()='OS version']/following-sibling::button`,
-  browserVersionDropdown: `//*[text()='Browser version']/following-sibling::button`,
+  osVersionDropdown: `//*[normalize-space()='OS version']/following::button[1]`,
+  browserVersionDropdown: `//*[normalize-space()='Browser version']/following::button[1]`,
   latestVersion: `//span[text()='Latest']`,
 
   // Resolution
-  resolutionDropdown: `//*[text()='Resolution']/following-sibling::button`,
+  resolutionDropdown: `//*[normalize-space()='Resolution' and not(self::h5) and not(self::button) and not(ancestor::button)]/following::button[1]`,
   resolution1920x1080: `//span[text()='1920x1080']`,
   resolution1366x768: `//span[text()='1366x768']`,
   resolution1280x1024: `//span[text()='1280x1024']`,
@@ -59,7 +59,7 @@ export const ConfigurationLocators = {
   duplicateConfigurationConfirm: C.duplicateConfirmButton,
 
   // Configuration list
-  searchConfig: `//input[@placeholder='Search Configurations']`,
+  searchConfig: `//input[@placeholder='Search configurations']`,
   configListItem: `//div[contains(@class,'config-list-item')]`,
 
   // Configuration details
@@ -79,34 +79,34 @@ export const ConfigurationLocators = {
 
   // Falcon platform
   falconPlatformTab: `//span[text()='Falcon']`,
-  falconOsDropdown: `//*[text()='Operating system']/following-sibling::button`,
-  falconOsVersionDropdown: `//*[text()='OS version']/following-sibling::button`,
-  falconBrowserDropdown: `//*[text()='Browser']/following-sibling::button`,
-  falconBrowserVersionDropdown: `//*[text()='Browser version']/following-sibling::button`,
-  falconResolutionDropdown: `//*[text()='Resolution']/following-sibling::button`,
+  falconOsDropdown: `//*[normalize-space()='Operating system']/following::button[1]`,
+  falconOsVersionDropdown: `//*[normalize-space()='OS version']/following::button[1]`,
+  falconBrowserDropdown: `//*[normalize-space()='Browser' and not(self::h5) and not(self::button) and not(ancestor::button)]/following::button[1]`,
+  falconBrowserVersionDropdown: `//*[normalize-space()='Browser version']/following::button[1]`,
+  falconResolutionDropdown: `//*[normalize-space()='Resolution' and not(self::h5) and not(self::button) and not(ancestor::button)]/following::button[1]`,
 
   // Real Device platform
   realDevicePlatformTab: `//span[text()='Real Device']`,
-  manufacturerDropdown: `//*[text()='Manufacturer']/following-sibling::button`,
-  deviceNameDropdown: `//*[text()='Device name']/following-sibling::button`,
-  realDeviceOsVersionDropdown: `//*[text()='OS version']/following-sibling::button`,
+  manufacturerDropdown: `//*[normalize-space()='Manufacturer']/following::button[1]`,
+  deviceNameDropdown: `//*[normalize-space()='Device name']/following::button[1]`,
+  realDeviceOsVersionDropdown: `//*[normalize-space()='OS version']/following::button[1]`,
 
   // Dynamic selectors for Falcon / Real Device
   selectManufacturer: (manufacturer: string) => `//span[text()='${manufacturer}']`,
   selectDeviceName: (device: string) => `//span[text()='${device}']`,
 
   // Dynamic locators
-  createdConfig: (name: string) => `//a[text()='${name}']`,
-  createdConfiguration: (name: string) => `//a[text()='${name}']`,
+  createdConfig: (name: string) => `//*[text()='${name}']`,
+  createdConfiguration: (name: string) => `//*[text()='${name}']`,
   configByName: (name: string) => `//span[text()='${name}']`,
-  configThreeDots: (name: string) => `//div[div[a[text()='${name}']]]//button[@aria-label='More options']`,
-  configurationOptionsMenu: (name: string) => `//a[text()='${name}']//ancestor::tr//button[@aria-label='more']`,
-  selectOS: (os: string) => `//span[text()='${os}']`,
-  selectOsVersion: (version: string) => `//span[text()='${version}']`,
-  selectBrowserVersion: (version: string) => `//span[text()='${version}']`,
-  selectBrowser: (browser: string) => `//span[text()='${browser}']`,
-  selectDevice: (device: string) => `//span[text()='${device}']`,
-  selectResolution: (resolution: string) => `//span[text()='${resolution}']`,
+  configThreeDots: (name: string) => `//*[text()='${name}']/following::button[@data-component='IconButton'][1]`,
+  configurationOptionsMenu: (name: string) => `//*[text()='${name}']/following::button[@data-component='IconButton'][1]`,
+  selectOS: (os: string) => `//*[@role='option']//span[text()='${os}']`,
+  selectOsVersion: (version: string) => `//*[@role='option']//span[text()='${version}']`,
+  selectBrowserVersion: (version: string) => `//*[@role='option']//span[text()='${version}']`,
+  selectBrowser: (browser: string) => `//*[@role='option']//span[text()='${browser}']`,
+  selectDevice: (device: string) => `//*[@role='option']//span[text()='${device}']`,
+  selectResolution: (resolution: string) => `//*[@role='option']//span[text()='${resolution}']`,
   configurationSearchResults: `//div[contains(@class, 'search-results')]`,
   configurationDropdownInTestRun: `//button[text()='Select Configuration']`,
   configurationSearchInTestRun: `//input[@placeholder='Search configurations']`,

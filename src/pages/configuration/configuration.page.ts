@@ -13,6 +13,14 @@ export class ConfigurationPage extends BasePage {
     super(page);
   }
 
+  /** Open a combobox dropdown, type to filter, then click the matching option */
+  private async selectFromDropdown(dropdownSelector: string, value: string, optionSelector: string): Promise<void> {
+    await this.loc(dropdownSelector).click();
+    await this.page.locator('[role="listbox"]').waitFor({ state: 'visible' });
+    await this.page.keyboard.type(value);
+    await this.loc(optionSelector).click();
+  }
+
   async createConfiguration(config?: ConfigurationRequest): Promise<void> {
     const configData = config ?? {
       name: this.configurationName,
@@ -29,32 +37,27 @@ export class ConfigurationPage extends BasePage {
 
       // Select OS
       if (configData.osType) {
-        await this.loc(L.osDropdown).click();
-        await this.loc(L.selectOS(configData.osType)).click();
+        await this.selectFromDropdown(L.osDropdown, configData.osType, L.selectOS(configData.osType));
       }
 
       // Select OS Version
       if (configData.osVersion) {
-        await this.loc(L.osVersionDropdown).click();
-        await this.loc(L.selectOsVersion(configData.osVersion)).click();
+        await this.selectFromDropdown(L.osVersionDropdown, configData.osVersion, L.selectOsVersion(configData.osVersion));
       }
 
       // Select Browser
       if (configData.browser) {
-        await this.loc(L.browserDropdown).click();
-        await this.loc(L.selectBrowser(configData.browser)).click();
+        await this.selectFromDropdown(L.browserDropdown, configData.browser, L.selectBrowser(configData.browser));
       }
 
       // Select Browser Version
       if (configData.browserVersion) {
-        await this.loc(L.browserVersionDropdown).click();
-        await this.loc(L.selectBrowserVersion(configData.browserVersion)).click();
+        await this.selectFromDropdown(L.browserVersionDropdown, configData.browserVersion, L.selectBrowserVersion(configData.browserVersion));
       }
 
       // Select Resolution
       if (configData.resolution) {
-        await this.loc(L.resolutionDropdown).click();
-        await this.loc(L.selectResolution(configData.resolution)).click();
+        await this.selectFromDropdown(L.resolutionDropdown, configData.resolution, L.selectResolution(configData.resolution));
       }
 
       await this.loc(L.createConfigurationSubmit).click();
@@ -124,6 +127,8 @@ export class ConfigurationPage extends BasePage {
       await this.loc(L.configurationNameInput).fill(this.configurationName);
 
       await this.loc(L.saveConfigurationButton).click();
+      await this.loc(L.searchConfigurationInput).fill(this.configurationName);
+      await this.page.waitForTimeout(2000);
       await expect.soft(this.loc(L.createdConfiguration(this.configurationName))).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
@@ -137,7 +142,6 @@ export class ConfigurationPage extends BasePage {
       if (await this.isVisible(L.createdConfiguration(configName))) {
         await this.loc(L.configurationOptionsMenu(configName)).click();
         await this.loc(L.deleteConfigurationButton).click();
-        await this.loc(L.deleteConfigurationConfirmInput).fill('DELETE');
         await this.loc(L.deleteConfigurationConfirm).click();
         await expect.soft(this.loc(L.createdConfiguration(configName))).not.toBeVisible({ timeout: TIMEOUTS.medium });
       }
@@ -185,24 +189,19 @@ export class ConfigurationPage extends BasePage {
       await this.loc(L.configurationNameInput).fill(config.name);
 
       if (config.osType) {
-        await this.loc(L.falconOsDropdown).click();
-        await this.loc(L.selectOS(config.osType)).click();
+        await this.selectFromDropdown(L.falconOsDropdown, config.osType, L.selectOS(config.osType));
       }
       if (config.osVersion) {
-        await this.loc(L.falconOsVersionDropdown).click();
-        await this.loc(L.selectOsVersion(config.osVersion)).click();
+        await this.selectFromDropdown(L.falconOsVersionDropdown, config.osVersion, L.selectOsVersion(config.osVersion));
       }
       if (config.browser) {
-        await this.loc(L.falconBrowserDropdown).click();
-        await this.loc(L.selectBrowser(config.browser)).click();
+        await this.selectFromDropdown(L.falconBrowserDropdown, config.browser, L.selectBrowser(config.browser));
       }
       if (config.browserVersion) {
-        await this.loc(L.falconBrowserVersionDropdown).click();
-        await this.loc(L.selectBrowserVersion(config.browserVersion)).click();
+        await this.selectFromDropdown(L.falconBrowserVersionDropdown, config.browserVersion, L.selectBrowserVersion(config.browserVersion));
       }
       if (config.resolution) {
-        await this.loc(L.falconResolutionDropdown).click();
-        await this.loc(L.selectResolution(config.resolution)).click();
+        await this.selectFromDropdown(L.falconResolutionDropdown, config.resolution, L.selectResolution(config.resolution));
       }
 
       await this.loc(L.createConfigurationSubmit).click();
@@ -220,16 +219,13 @@ export class ConfigurationPage extends BasePage {
         await this.loc(L.selectOS(config.osType)).click();
       }
       if (config.osVersion) {
-        await this.loc(L.realDeviceOsVersionDropdown).click();
-        await this.loc(L.selectOsVersion(config.osVersion)).click();
+        await this.selectFromDropdown(L.realDeviceOsVersionDropdown, config.osVersion, L.selectOsVersion(config.osVersion));
       }
       if (config.manufacturer) {
-        await this.loc(L.manufacturerDropdown).click();
-        await this.loc(L.selectManufacturer(config.manufacturer)).click();
+        await this.selectFromDropdown(L.manufacturerDropdown, config.manufacturer, L.selectManufacturer(config.manufacturer));
       }
       if (config.device) {
-        await this.loc(L.deviceNameDropdown).click();
-        await this.loc(L.selectDeviceName(config.device)).click();
+        await this.selectFromDropdown(L.deviceNameDropdown, config.device, L.selectDeviceName(config.device));
       }
 
       await this.loc(L.createConfigurationSubmit).click();

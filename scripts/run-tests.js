@@ -22,6 +22,10 @@ const browserInput = extractFlag('--browser');      // chrome-win | edge-win | c
 const runProfile   = extractFlag('--run-profile');  // smoke | regression | debug
 const workersInput = extractFlag('--workers');      // number of parallel workers
 
+const mode = modeInput || process.env.TEST_MODE || 'local';
+const isRemote = mode === 'remote';
+const reportLabEnabled = isRemote || process.env.REPORT_LAB_ENABLED === 'true';
+
 // ──────────────────────────────────────────────────────────
 // ENVIRONMENT → REGION MAPPING (single source of truth)
 // ──────────────────────────────────────────────────────────

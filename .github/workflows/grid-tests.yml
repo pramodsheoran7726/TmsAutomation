@@ -1,0 +1,134 @@
+name: Grid Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: '@smoke'
+        type: choice
+        options:
+          - '@smoke'
+          - '@regression'
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'stage'
+        type: choice
+        options:
+          - stage
+          - eu-stage
+          - prod
+          - eu-prod
+      browser_profile:
+        description: 'LambdaTest browser/OS profile'
+        required: true
+        default: 'chrome-linux'
+        type: choice
+        options:
+          - chrome-linux
+          - chrome-win
+          - edge-win
+          - chrome-mac
+          - firefox-win
+      run_profile:
+        description: 'Capture profile (smoke=fast/no video, regression=full capture)'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''
+          - smoke
+          - regression
+          - debug
+      workers:
+        description: 'Number of parallel Playwright workers'
+        required: false
+        default: '5'
+        type: string
+
+env:
+  TEST_ENV: ${{ inputs.environment }}
+  TEST_SUITE: ${{ inputs.test_suite }}
+  LT_RUN_PROFILE: ${{ inputs.run_profile || (inputs.test_suite == '@smoke' && 'smoke') || 'regression' }}
+  LT_PROFILE: ${{ inputs.browser_profile }}
+
+jobs:
+  grid:
+    name: "LT Grid: ${{ inputs.environment }} — ${{ inputs.test_suite }} — ${{ inputs.browser_profile }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.test_suite == '@regression' && 90 || 45 }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Chromium needed only for auth setup (runs locally, not on grid)
+      - name: Install Playwright browsers (auth only)
+        run: npx playwright install chromium --with-deps
+
+      - name: Run tests on LambdaTest Grid
+        id: run_tests
+        continue-on-error: true
+        run: |
+          node scripts/run-tests.js \
+            --env ${{ env.TEST_ENV }} \
+            --mode remote \
+            --browser ${{ env.LT_PROFILE }} \
+            --run-profile ${{ env.LT_RUN_PROFILE }} \
+            --workers ${{ inputs.workers }} \
+            --grep ${{ env.TEST_SUITE }} \
+            --retries 2
+        env:
+          LT_USERNAME: ${{ secrets.HE_USERNAME }}
+          LT_ACCESS_KEY: ${{ secrets.HE_ACCESS_KEY }}
+          AUTH_EMAIL: ${{ secrets.AUTH_EMAIL }}
+          AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          CI: true
+
+      - name: Upload Playwright HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ env.LT_PROFILE }}
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ env.LT_PROFILE }}
+          path: allure-results/
+          retention-days: 14
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ env.LT_PROFILE }}
+          path: test-results/
+          retention-days: 7
+
+      - name: Upload ReportLab results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-lab-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ env.LT_PROFILE }}
+          path: report-lab-results/
+          retention-days: 14
+
+      - name: Finalize Job Status
+        if: steps.run_tests.outcome == 'failure'
+        run: exit 1

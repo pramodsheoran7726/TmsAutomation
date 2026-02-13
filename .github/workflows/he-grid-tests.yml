@@ -1,0 +1,101 @@
+name: HE + Grid Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: '@smoke'
+        type: choice
+        options:
+          - '@smoke'
+          - '@regression'
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'stage'
+        type: choice
+        options:
+          - stage
+          - eu-stage
+          - prod
+          - eu-prod
+      browser_profile:
+        description: 'LambdaTest browser/OS profile'
+        required: true
+        default: 'chrome-linux'
+        type: choice
+        options:
+          - chrome-linux
+          - chrome-win
+          - edge-win
+          - chrome-mac
+          - firefox-win
+      concurrency:
+        description: 'HyperExecute concurrency'
+        required: false
+        default: '10'
+        type: string
+      labels:
+        description: 'HyperExecute build labels (comma-separated)'
+        required: false
+        default: ''
+        type: string
+
+env:
+  TEST_ENV: ${{ inputs.environment }}
+  TEST_SUITE: ${{ inputs.test_suite }}
+  LT_PROFILE: ${{ inputs.browser_profile }}
+
+jobs:
+  hyperexecute:
+    name: "HE + Grid: ${{ inputs.environment }} — ${{ inputs.test_suite }} — ${{ inputs.browser_profile }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.test_suite == '@regression' && 60 || 30 }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download HyperExecute CLI
+        run: |
+          curl -sSL https://downloads.lambdatest.com/hyperexecute/linux/hyperexecute -o hyperexecute
+          chmod +x hyperexecute
+
+      - name: Select HE config file
+        id: he_config
+        run: |
+          if [[ "${{ inputs.test_suite }}" == "@smoke" ]]; then
+            echo "config_file=hyperexecute-smoke.yaml" >> "$GITHUB_OUTPUT"
+          else
+            echo "config_file=hyperexecute.yaml" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Trigger HyperExecute job
+        id: run_tests
+        continue-on-error: true
+        run: |
+          ./hyperexecute \
+            --user ${{ secrets.HE_USERNAME }} \
+            --key ${{ secrets.HE_ACCESS_KEY }} \
+            --config ${{ steps.he_config.outputs.config_file }} \
+            --vars "TEST_ENV=${{ env.TEST_ENV }}" \
+            --vars "TEST_SUITE=${{ env.TEST_SUITE }}" \
+            --vars "LT_PROFILE=${{ env.LT_PROFILE }}" \
+            --vars "LT_BUILD_ID=HE-${{ github.run_number }}" \
+            --vars "HE_BUILD_ID=${{ github.run_number }}" \
+            --vars "LT_USERNAME=${{ secrets.HE_USERNAME }}" \
+            --vars "LT_ACCESS_KEY=${{ secrets.HE_ACCESS_KEY }}" \
+            --vars "AUTH_EMAIL=${{ secrets.AUTH_EMAIL }}" \
+            --vars "AUTH_PASSWORD=${{ secrets.AUTH_PASSWORD }}" \
+            --vars "REPORT_LAB_URL=" \
+            --vars "SLACK_BOT_TOKEN=" \
+            --vars "SLACK_CHANNEL=" \
+            --vars "SLACK_MENTIONS=" \
+            --concurrency ${{ inputs.concurrency }} \
+            ${{ inputs.labels && format('--labels "{0}"', inputs.labels) }}
+
+      - name: Finalize Job Status
+        if: steps.run_tests.outcome == 'failure'
+        run: exit 1

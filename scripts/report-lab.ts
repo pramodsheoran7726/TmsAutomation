@@ -17,8 +17,14 @@ import { createThread, sendTestNotification, sendFinalSummary } from './slack-no
 const REPORT_LAB_URL = process.env.REPORT_LAB_URL ?? 'https://qa-report.lambdatestinternal.com';
 const TEST_ENV = process.env.TEST_ENV ?? 'stage';
 const TEST_SUITE = process.env.TEST_SUITE ?? '@smoke';
-const BUILD_ID = process.env.HE_BUILD_ID ?? process.env.GITHUB_RUN_NUMBER ?? `local-${Date.now()}`;
-const TEAM = 'test-manager';
+
+// Map TEST_ENV to ReportLab env names
+const REPORT_LAB_ENV: Record<string, string> = {
+  'stage': 'stage'
+};
+const RL_ENV = REPORT_LAB_ENV[TEST_ENV] ?? TEST_ENV;
+const BUILD_ID = process.env.HE_BUILD_ID ?? process.env.HYE_JOB_NUMBER ?? process.env.GITHUB_RUN_NUMBER ?? String(Math.floor(Date.now() / 1000));
+const TEAM = process.env.REPORT_LAB_TEAM ?? 'test-manager';
 const RESULTS_DIR = 'report-lab-results';
 const BUILD_FILE = '.build.json';
 const SUMMARY_FILE = '.summary.json';
@@ -26,16 +32,40 @@ const SUMMARY_FILE = '.summary.json';
 // ──────────────────────────────────────────────────────────────
 // Build payload helper (mirrors KaneAI create_build_payload)
 // ──────────────────────────────────────────────────────────────
-function createBuildPayload(env: string, suite: string, buildId: string): { build: ReportLabBuildPayload } {
+function buildPayload(env: string, suite: string, buildId: string): { build: ReportLabBuildPayload } {
   return {
     build: {
       team: TEAM,
       env,
       suite,
       id: buildId,
-      name: `#${buildId}`,
     },
   };
+}
+
+function createBuildPayload(env: string, suite: string, buildId: string): { build: ReportLabBuildPayload & { name: string; start_time: string } } {
+  return {
+    build: {
+      team: TEAM,
+      env,
+      suite,
+      id: buildId,
+      name: `${suite} Test Build`,
+      start_time: new Date().toISOString().slice(0, 19),
+    },
+  };
+}
+
+/** Read saved build data from .build.json (written by start command) */
+function getSavedBuild(): { build: ReportLabBuildPayload } {
+  if (fs.existsSync(BUILD_FILE)) {
+    const saved = JSON.parse(fs.readFileSync(BUILD_FILE, 'utf-8'));
+    console.log(`  Loaded build from ${BUILD_FILE}: ${JSON.stringify(saved)}`);
+    return { build: saved };
+  }
+  console.log(`  No ${BUILD_FILE} found, using defaults`);
+  const suiteName = TEST_SUITE.replace('@', '');
+  return buildPayload(RL_ENV, suiteName, BUILD_ID);
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -47,7 +77,7 @@ async function start(): Promise<void> {
 
   const suiteName = TEST_SUITE.replace('@', '');
   const url = `${REPORT_LAB_URL}/build/create`;
-  const payload = createBuildPayload(TEST_ENV, suiteName, BUILD_ID);
+  const payload = createBuildPayload(RL_ENV, suiteName, BUILD_ID);
 
   console.log(`  POST ${url}`);
 
@@ -60,12 +90,14 @@ async function start(): Promise<void> {
     });
 
     if (res.status === 200 || res.status === 201) {
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({})) as Record<string, string>;
       console.log('  Successfully created build');
       console.log('  Response /build/create:', JSON.stringify(data));
 
-      const buildData = { ...payload.build, build_id: (data as Record<string, string>).build_id ?? BUILD_ID };
+      const resolvedId = data.id ?? BUILD_ID;
+      const buildData = { team: TEAM, env: RL_ENV, suite: suiteName, id: resolvedId };
       fs.writeFileSync(BUILD_FILE, JSON.stringify(buildData, null, 2));
+      console.log(`  Build ID: ${resolvedId}`);
       console.log(`  Saved to ${BUILD_FILE}\n`);
     } else {
       const text = await res.text().catch(() => '');
@@ -106,8 +138,7 @@ async function createTests(): Promise<void> {
     return;
   }
 
-  const suiteName = TEST_SUITE.replace('@', '');
-  const buildPayload = createBuildPayload(TEST_ENV, suiteName, BUILD_ID);
+  const buildPl = getSavedBuild();
 
   const summary: ReportLabSummary = {
     total: 0,
@@ -127,7 +158,7 @@ async function createTests(): Promise<void> {
     const status = test.result.status;
 
     const url = `${REPORT_LAB_URL}/test/create`;
-    const payload = JSON.stringify({ test, ...buildPayload });
+    const payload = JSON.stringify({ test, ...buildPl });
 
     console.log('  Create Test Payload:', JSON.stringify(JSON.parse(payload), null, 2));
 
@@ -173,9 +204,8 @@ async function createTests(): Promise<void> {
 async function end(): Promise<void> {
   console.log('\n  [report-lab] Ending build...');
 
-  const suiteName = TEST_SUITE.replace('@', '');
   const url = `${REPORT_LAB_URL}/build/end`;
-  const payload = createBuildPayload(TEST_ENV, suiteName, BUILD_ID);
+  const payload = getSavedBuild();
 
   console.log(`  POST ${url}`);
 
@@ -200,7 +230,8 @@ async function end(): Promise<void> {
     console.error(`  ${e}`);
   }
 
-  const reportUrl = `${REPORT_LAB_URL}/${TEAM}/${TEST_ENV}/${suiteName}/${BUILD_ID}/summary`;
+  const { build: b } = payload;
+  const reportUrl = `${REPORT_LAB_URL}/${b.team}/${b.env}/${b.suite}/${b.id}/summary`;
   console.log(`  Report: ${reportUrl}\n`);
 }
 
@@ -213,10 +244,10 @@ async function notify(): Promise<void> {
     return;
   }
 
-  const suiteName = TEST_SUITE.replace('@', '');
   const summary: ReportLabSummary = JSON.parse(fs.readFileSync(SUMMARY_FILE, 'utf-8'));
+  const { build: b } = getSavedBuild();
 
-  const reportUrl = `${REPORT_LAB_URL}/${TEAM}/${TEST_ENV}/${suiteName}/${BUILD_ID}/summary`;
+  const reportUrl = `${REPORT_LAB_URL}/${b.team}/${b.env}/${b.suite}/${b.id}/summary`;
   const githubUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
     ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
     : '';

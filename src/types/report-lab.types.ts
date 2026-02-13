@@ -7,7 +7,6 @@ export interface ReportLabBuildPayload {
   env: string;
   suite: string;
   id: string;
-  name: string;
 }
 
 export interface ReportLabResult {

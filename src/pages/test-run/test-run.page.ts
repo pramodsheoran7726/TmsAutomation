@@ -21,12 +21,46 @@ export class TestRunPage extends BasePage {
       await this.loc(L.testRunTitle).fill(runName);
       await this.loc(L.testRunDescription).fill(randomString(RANDOM_LENGTH.long));
       await this.loc(L.saveTestRunCta).last().click({ timeout: TIMEOUTS.long });
+
       await waitForNetworkIdle(this.page);
       // If we're not on the test runs list, navigate back
       if (!(await this.isVisible(L.createdTestrunAppear(runName), TIMEOUTS.medium))) {
         await clickAndWaitForNetwork(this.page, this.loc(L.testRunNav));
       }
       await expect.soft(this.loc(L.createdTestrunAppear(runName))).toBeVisible({ timeout: TIMEOUTS.long });
+    });
+  }
+
+  async createTestRunWithConfig(name?: string): Promise<void> {
+    await test.step('Create test run with configuration (no assignee)', async () => {
+      const runName = name ?? this.testRunName;
+      await clickAndWaitForNetwork(this.page, this.loc(L.testRunNav));
+      await this.loc(L.createTestRunButton).first().click({ timeout: TIMEOUTS.long });
+      await this.loc(L.testRunTitle).fill(runName);
+      await this.loc(L.testRunDescription).fill(randomString(RANDOM_LENGTH.long));
+      await this.loc(L.testRunTag).fill(`tag_${randomString(RANDOM_LENGTH.short)}`);
+      await this.page.keyboard.press('Enter');
+      // Create test run (opens edit screen with test cases)
+      await this.loc(L.saveTestRunCta).last().click({ timeout: TIMEOUTS.long });
+      await waitForNetworkIdle(this.page);
+      // Wait for test cases to load, then select all
+      await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+      await this.loc(L.selectAllCheckboxInTpTestcase).click();
+      await this.loc(L.addTcTestRunCta).click();
+      await waitForNetworkIdle(this.page);
+      // Verify missing config/assignee message
+      await expect.soft(this.loc(L.missingMsgTR)).toBeVisible({ timeout: TIMEOUTS.medium });
+      // Add configuration (skip assignee)
+      await this.loc(L.addConfigCtaTP).click();
+      await waitForNetworkIdle(this.page);
+      await this.loc(L.selectConfigCheck).first().click();
+      await this.loc(L.applyConfiguration).click();
+      await waitForNetworkIdle(this.page);
+      // Save test run
+      await this.loc(L.saveTestRun).click({ timeout: TIMEOUTS.long });
+      await waitForNetworkIdle(this.page);
+      // Verify test run appears on instances page
+      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(runName))).toBeVisible({ timeout: TIMEOUTS.long });
     });
   }
 
@@ -71,7 +105,9 @@ export class TestRunPage extends BasePage {
         await this.loc(L.selectAllCheckboxInTpTestcase).nth(i).click();
       }
       await this.loc(L.updateTestcaseInTestRun).click();
-      await expect.soft(this.loc(L.addTcTestRunCta)).toBeVisible({ timeout: TIMEOUTS.medium });
+      await expect.soft(this.loc(L.saveTestRun)).toBeVisible({ timeout: TIMEOUTS.medium });
+      await this.loc(L.saveTestRun).click();
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -336,6 +372,25 @@ export class TestRunPage extends BasePage {
       for (const status of statuses) {
         await expect.soft(this.loc(L.executionHistoryStatus(status))).toBeVisible({ timeout: TIMEOUTS.medium });
       }
+    });
+  }
+
+  async clickEditTestRun(): Promise<void> {
+    await test.step('Click edit test run', async () => {
+      await this.loc(L.editCtaInsideTR).click();
+      await waitForNetworkIdle(this.page);
+    });
+  }
+
+  async configurationAddedFromNoConfiguration(): Promise<void> {
+    await test.step('No configuration added', async () => {
+      await expect.soft(this.loc(L.noConfigurationAddedBtn)).toBeVisible({ timeout: TIMEOUTS.medium });
+      await this.loc(L.noConfigurationAddedBtn).click();
+      await waitForNetworkIdle(this.page);
+      await this.loc(L.checkBoxConfiguration).click();
+      await this.loc(L.applyConfiguration).click();
+      await waitForNetworkIdle(this.page);
+      await expect.soft(this.loc(L.noConfigurationAddedBtn)).not.toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
 }

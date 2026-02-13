@@ -1,0 +1,17 @@
+{
+  "run_id": "20260213-1430",
+  "started_at": "2026-02-13T14:30:00Z",
+  "current_phase": 3,
+  "phase_status": {
+    "phase_0": "completed",
+    "phase_1": "completed",
+    "phase_2": "completed",
+    "phase_3": "completed",
+    "phase_4": "pending",
+    "phase_5": "pending"
+  },
+  "mcp_available": true,
+  "mode": "full_pipeline",
+  "selected_findings": "all",
+  "batches": ["A", "B", "C", "D", "E", "F", "G", "H"]
+}

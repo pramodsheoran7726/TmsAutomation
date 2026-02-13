@@ -78,15 +78,12 @@ test.describe('Insights Mixed Status', {
     // Step 4: Mark test instances with different statuses
     // Mark first instance as Passed
     await testRunPage.markStatus('Passed');
-    await page.waitForTimeout(2000);
 
     // Mark second instance as Failed
     await testRunPage.markStatus('Failed');
-    await page.waitForTimeout(2000);
 
     // Mark third instance as Skipped
     await testRunPage.markStatus('Skipped');
-    await page.waitForTimeout(2000);
 
     // Navigate back to project
     await projectPage.openProject();

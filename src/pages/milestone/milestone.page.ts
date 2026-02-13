@@ -17,6 +17,7 @@ import {
 } from './milestone.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class MilestonePage extends BasePage {
   milestoneTitle = `Milestone_${randomString(RANDOM_LENGTH.medium)}`;
@@ -31,7 +32,7 @@ export class MilestonePage extends BasePage {
   async openMilestonesTab(): Promise<void> {
     await test.step('Open Milestones tab', async () => {
       await this.loc(L.milestoneTab).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -39,7 +40,7 @@ export class MilestonePage extends BasePage {
     await test.step('Navigate back to milestones list', async () => {
       if (await this.isVisible(L.milestoneBackBtn, TIMEOUTS.short)) {
         await this.loc(L.milestoneBackBtn).click();
-        await this.page.waitForTimeout(2000);
+        await waitForNetworkIdle(this.page);
       }
     });
   }
@@ -48,24 +49,24 @@ export class MilestonePage extends BasePage {
   async createMilestoneWithDetails(): Promise<void> {
     await test.step('Create milestone with details', async () => {
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.milestoneNameInput).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneNameInput).fill(this.milestoneTitle);
       await this.loc(L.milestoneDescriptionInput).fill(this.milestoneDescription);
       await this.addTagToMilestone(this.milestoneTag);
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.createMilestoneCta).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async createMilestoneWithNameAndDescription(): Promise<void> {
     await test.step('Create milestone with name and description', async () => {
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.milestoneNameInput).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneNameInput).fill(this.milestoneTitle);
       await this.loc(L.milestoneDescriptionInput).fill(this.milestoneDescription);
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -73,7 +74,7 @@ export class MilestonePage extends BasePage {
     if (await this.isVisible(L.milestoneTagsInput, TIMEOUTS.short)) {
       await this.loc(L.milestoneTagsInput).fill(tagName);
       await this.page.keyboard.press('Enter');
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     }
   }
 
@@ -94,14 +95,14 @@ export class MilestonePage extends BasePage {
   async openCreatedMilestone(): Promise<void> {
     await test.step('Open created milestone', async () => {
       await this.loc(milestoneInList(this.milestoneTitle)).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async openUpdatedMilestone(): Promise<void> {
     await test.step('Open updated milestone', async () => {
       await this.loc(milestoneInList(this.updatedMilestoneTitle)).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -109,9 +110,9 @@ export class MilestonePage extends BasePage {
   async openMilestoneEditForm(): Promise<void> {
     await test.step('Open milestone edit form', async () => {
       await this.loc(L.milestoneOpenMenu).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.milestoneEditMenu).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneEditMenu).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -121,7 +122,7 @@ export class MilestonePage extends BasePage {
       const nameEl = this.loc(L.milestoneNameInput); await nameEl.click(); await nameEl.clear(); await nameEl.fill(this.updatedMilestoneTitle);
       const descEl = this.loc(L.milestoneDescriptionInput); await descEl.click(); await descEl.clear(); await descEl.fill(this.updatedMilestoneDescription);
       await this.loc(L.milestoneSaveChangesBtn).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -130,7 +131,7 @@ export class MilestonePage extends BasePage {
       await this.openMilestoneEditForm();
       await this.addTagToMilestone(this.milestoneTag);
       await this.loc(L.milestoneSaveChangesBtn).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -138,9 +139,9 @@ export class MilestonePage extends BasePage {
   async deleteMilestone(): Promise<void> {
     await test.step('Delete milestone', async () => {
       await this.loc(L.milestoneOpenMenu).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.milestoneDeleteMenu).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneDeleteMenu).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -173,17 +174,16 @@ export class MilestonePage extends BasePage {
   // Test Run Integration
   async selectMilestoneInTestRun(milestoneName: string): Promise<void> {
     await test.step(`Select milestone "${milestoneName}" in test run`, async () => {
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.testRunMilestoneDropdown).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.testRunMilestoneDropdown).scrollIntoViewIfNeeded();
-      await this.page.waitForTimeout(1000);
       await this.loc(L.testRunMilestoneDropdown).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
       if (await this.isVisible(L.testRunMilestoneSearch, TIMEOUTS.short)) {
         await this.loc(L.testRunMilestoneSearch).fill(milestoneName);
-        await this.page.waitForTimeout(1000);
+        await waitForNetworkIdle(this.page);
       }
       await this.loc(milestoneOption(milestoneName)).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -201,7 +201,7 @@ export class MilestonePage extends BasePage {
   async verifyProgressAfterStatusUpdate(expectedPercentage: string): Promise<void> {
     await test.step(`Verify progress after status update is ${expectedPercentage}%`, async () => {
       await this.page.reload();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
       await expect.soft(this.loc(milestoneProgressWithPercentage(expectedPercentage))).toBeVisible({ timeout: TIMEOUTS.long });
     });
   }
@@ -242,7 +242,6 @@ export class MilestonePage extends BasePage {
       if (await this.isVisible(L.milestoneProgressDetailsBtn, TIMEOUTS.medium)) {
         await this.loc(L.milestoneProgressDetailsBtn).click();
         await this.loc(L.milestoneProgressDetailsBtn).hover();
-        await this.page.waitForTimeout(2000);
       }
       await expect.soft(this.loc(L.progressPopupPassedCount)).toBeVisible({ timeout: TIMEOUTS.medium });
       await expect.soft(this.loc(L.progressPopupFailedCount)).toBeVisible({ timeout: TIMEOUTS.medium });
@@ -259,7 +258,7 @@ export class MilestonePage extends BasePage {
   async searchMilestone(milestoneName: string): Promise<void> {
     await test.step(`Search milestone "${milestoneName}"`, async () => {
       const el = this.loc(L.milestoneSearchInput); await el.click(); await el.clear(); await el.fill(milestoneName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -276,7 +275,7 @@ export class MilestonePage extends BasePage {
   async clearMilestoneSearch(): Promise<void> {
     await test.step('Clear milestone search', async () => {
       const el = this.loc(L.milestoneSearchInput); await el.click(); await el.clear();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -284,18 +283,18 @@ export class MilestonePage extends BasePage {
   async filterMilestonesByOpen(): Promise<void> {
     await test.step('Filter milestones by open', async () => {
       await this.loc(L.milestoneViewDropdown).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.milestoneViewOpen).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneViewOpen).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async filterMilestonesByComplete(): Promise<void> {
     await test.step('Filter milestones by complete', async () => {
       await this.loc(L.milestoneViewDropdown).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.milestoneViewComplete).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneViewComplete).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -311,17 +310,18 @@ export class MilestonePage extends BasePage {
   async markMilestoneAsCompleted(): Promise<void> {
     await test.step('Mark milestone as completed', async () => {
       await this.loc(L.milestoneOpenMenu).click();
+      await this.loc(L.milestoneMarkCompletedBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneMarkCompletedBtn).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async markMilestoneAsCompletedViaMenu(): Promise<void> {
     await test.step('Mark milestone as completed via menu', async () => {
       await this.loc(L.milestoneOpenMenu).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.milestoneMarkCompleteMenu).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneMarkCompleteMenu).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -336,22 +336,22 @@ export class MilestonePage extends BasePage {
   async createMilestoneWithTestRun(testRunName: string): Promise<void> {
     await test.step(`Create milestone with test run "${testRunName}"`, async () => {
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.milestoneNameInput).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneNameInput).fill(this.milestoneTitle);
       await this.loc(L.milestoneDescriptionInput).fill(this.milestoneDescription);
       await this.addTagToMilestone(this.milestoneTag);
       await this.selectTestRunInMilestoneForm(testRunName);
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   private async selectTestRunInMilestoneForm(testRunName: string): Promise<void> {
     await this.loc(L.milestoneTestRunsSearch).click();
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
     if (await this.isVisible(milestoneTestRunItem(testRunName), TIMEOUTS.medium)) {
       await this.loc(milestoneTestRunCheckbox(testRunName)).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     }
   }
 
@@ -360,32 +360,32 @@ export class MilestonePage extends BasePage {
       await this.openMilestoneEditForm();
       await this.selectTestRunInMilestoneForm(testRunName);
       await this.loc(L.milestoneSaveChangesBtn).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   // Date Methods
   private async setMilestoneEndDate(day: string): Promise<void> {
     await this.loc(L.milestoneEndDateInput).click();
-    await this.page.waitForTimeout(1000);
+    await this.loc(L.datePickerNextMonth).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
     if (await this.isVisible(L.datePickerNextMonth, TIMEOUTS.short)) {
       await this.loc(L.datePickerNextMonth).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(datePickerDay(day)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
     }
     await this.loc(datePickerDay(day)).click();
-    await this.page.waitForTimeout(1000);
+    await waitForNetworkIdle(this.page);
   }
 
   async createMilestoneWithEndDate(endDay: string): Promise<void> {
     await test.step(`Create milestone with end date day ${endDay}`, async () => {
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.milestoneNameInput).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneNameInput).fill(this.milestoneTitle);
       await this.addTagToMilestone(this.milestoneTag);
       await this.loc(L.milestoneDescriptionInput).fill(this.milestoneDescription);
       await this.setMilestoneEndDate(endDay);
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -398,7 +398,7 @@ export class MilestonePage extends BasePage {
   async createMilestoneWithAllDetails(testRunName: string, endDay: string): Promise<void> {
     await test.step('Create milestone with all details', async () => {
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.milestoneNameInput).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.milestoneNameInput).fill(this.milestoneTitle);
       await this.loc(L.milestoneDescriptionInput).fill(this.milestoneDescription);
       await this.addTagToMilestone(this.milestoneTag);
@@ -407,7 +407,7 @@ export class MilestonePage extends BasePage {
         await this.selectTestRunInMilestoneForm(testRunName);
       }
       await this.loc(L.createMilestoneCta).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 }

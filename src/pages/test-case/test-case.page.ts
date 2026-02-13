@@ -3,6 +3,7 @@ import { BasePage } from '../base.page.js';
 import { TestCaseLocators as L } from './test-case.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class TestCasePage extends BasePage {
   testCaseTitle = `AutoTC_${randomString(RANDOM_LENGTH.standard)}`;
@@ -94,7 +95,7 @@ export class TestCasePage extends BasePage {
   async createStepViaAI(): Promise<void> {
     await test.step('Create test step via AI', async () => {
       await this.loc(L.aiButton).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
       await this.loc(L.createStepCta).click();
       await expect.soft(this.loc(L.verifyAiTeststep)).toBeVisible({ timeout: TIMEOUTS.long });
     });
@@ -132,7 +133,7 @@ export class TestCasePage extends BasePage {
 
   async searchTestCase(query: string): Promise<void> {
     await this.loc(L.searchTcInput).fill(query);
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async selectScenarioType(): Promise<void> {
@@ -155,7 +156,7 @@ export class TestCasePage extends BasePage {
         editor?.trigger('keyboard', 'type', { text });
       }, scenarioText);
       await this.loc(L.addScenarioCta).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -174,14 +175,14 @@ export class TestCasePage extends BasePage {
   async cloneScenario(): Promise<void> {
     await test.step('Clone scenario', async () => {
       await this.loc(L.scenarioDuplicate).first().click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async deleteScenario(): Promise<void> {
     await test.step('Delete scenario', async () => {
       await this.loc(L.scenarioDelete).first().click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 }

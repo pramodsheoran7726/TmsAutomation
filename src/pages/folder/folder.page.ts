@@ -3,6 +3,7 @@ import { BasePage } from '../base.page.js';
 import { FolderLocators as L } from './folder.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class FolderPage extends BasePage {
   folderName = `AutoFolder_${randomString(RANDOM_LENGTH.standard)}`;
@@ -19,7 +20,7 @@ export class FolderPage extends BasePage {
       await this.loc(L.createFolderButton).click();
       await this.loc(L.folderTitleField).fill(folder);
       await this.page.keyboard.press('Enter');
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
       await expect.soft(this.loc(L.createdFolder(folder))).toBeVisible({ timeout: TIMEOUTS.long });
     });
   }
@@ -28,9 +29,9 @@ export class FolderPage extends BasePage {
     const subFolder = subFolderName ?? this.subFolderName;
     await test.step('Create sub-folder "' + subFolder + '" under "' + parentFolder + '"', async () => {
       await this.loc(L.createdFolder(parentFolder)).hover();
-      await this.page.waitForTimeout(500);
+      await this.loc(L.createSubFolderForFolder(parentFolder)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.createSubFolderForFolder(parentFolder)).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.folderNameInput).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.folderNameInput).fill(subFolder);
       await this.loc(L.createFolderSubmit).click();
       await expect.soft(this.loc(L.createdFolder(subFolder))).toBeVisible({ timeout: TIMEOUTS.long });
@@ -68,7 +69,7 @@ export class FolderPage extends BasePage {
       const target = this.loc(L.createdFolder(targetFolder));
 
       await source.dragTo(target);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
 
       await this.loc(L.createdFolder(targetFolder)).click();
       await expect.soft(this.loc(L.createdFolder(sourceFolder))).toBeVisible({ timeout: TIMEOUTS.medium });
@@ -134,11 +135,11 @@ export class FolderPage extends BasePage {
 
   async expandFolder(name: string): Promise<void> {
     await this.loc(L.folderExpandIcon(name)).click();
-    await this.page.waitForTimeout(1000);
+    await waitForNetworkIdle(this.page);
   }
 
   async collapseFolder(name: string): Promise<void> {
     await this.loc(L.folderCollapseIcon(name)).click();
-    await this.page.waitForTimeout(1000);
+    await waitForNetworkIdle(this.page);
   }
 }

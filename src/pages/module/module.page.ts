@@ -3,6 +3,7 @@ import { BasePage } from '../base.page.js';
 import { ModuleLocators as L, moduleName } from './module.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class ModulePage extends BasePage {
   moduleNameValue = `Module_${randomString(RANDOM_LENGTH.medium)}`;
@@ -14,7 +15,7 @@ export class ModulePage extends BasePage {
   async clickCreateModule(): Promise<void> {
     await test.step('Click create module button', async () => {
       await this.loc(L.createModule).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -43,31 +44,31 @@ export class ModulePage extends BasePage {
       const tagToUse = tag || this.moduleTagValue;
       await this.loc(L.moduleTag).fill(tagToUse);
       await this.page.keyboard.press('Enter');
-      await this.page.waitForTimeout(500);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async addModuleStep(stepDetails: string): Promise<void> {
     await test.step('Add module step', async () => {
       await this.loc(L.addStep).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.moduleStepSteps).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.moduleStepSteps).fill(stepDetails);
       await this.loc(L.moduleAddStep).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async cancelModuleStep(): Promise<void> {
     await test.step('Cancel module step', async () => {
       await this.loc(L.moduleStepStepsCancel).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async createNewModule(): Promise<void> {
     await test.step('Click create new module', async () => {
       await this.loc(L.createNewModule).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -95,42 +96,42 @@ export class ModulePage extends BasePage {
   async openMoreActions(): Promise<void> {
     await test.step('Open more actions menu', async () => {
       await this.loc(L.moreActions).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async clickAddModule(): Promise<void> {
     await test.step('Click add module', async () => {
       await this.loc(L.addModule).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async clickCreateModuleButton(): Promise<void> {
     await test.step('Click create a module button', async () => {
       await this.loc(L.createAModule).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async insertModule(): Promise<void> {
     await test.step('Insert module', async () => {
       await this.loc(L.insertModule).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async clickGenerateWithAi(): Promise<void> {
     await test.step('Click generate with AI', async () => {
       await this.loc(L.generateWithAi).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async setTestCaseLimit(limit: string): Promise<void> {
     await test.step('Set test case limit', async () => {
       await this.loc(L.testCaseLimitButton).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.testCaseLimitInputBox).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       const el = this.loc(L.testCaseLimitInputBox); await el.click(); await el.clear(); await el.fill(limit);
     });
   }
@@ -144,14 +145,14 @@ export class ModulePage extends BasePage {
   async submitGenerateWithAi(): Promise<void> {
     await test.step('Submit generate with AI', async () => {
       await this.loc(L.submitGenerateWithAi).click();
-      await this.page.waitForTimeout(5000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async clickCreateAndAutomate(): Promise<void> {
     await test.step('Click create and automate', async () => {
       await this.loc(L.createAndAutomate).click();
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -173,7 +174,7 @@ export class ModulePage extends BasePage {
       }
 
       await this.createNewModule();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -181,9 +182,9 @@ export class ModulePage extends BasePage {
     await test.step('Delete module', async () => {
       await this.openMoreActions();
       await this.loc(`//span[text()='Delete']`).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(`//span[text()='Delete Module']`).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(`//span[text()='Delete Module']`).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -198,10 +199,10 @@ export class ModulePage extends BasePage {
     await test.step('Edit module', async () => {
       await this.openMoreActions();
       await this.loc(`//span[text()='Edit']`).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.moduleNameInputField).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       const el = this.loc(L.moduleNameInputField); await el.click(); await el.clear(); await el.fill(newName);
       await this.loc(L.createNewModule).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -209,7 +210,7 @@ export class ModulePage extends BasePage {
     await test.step('Duplicate module', async () => {
       await this.openMoreActions();
       await this.loc(`//span[text()='Duplicate']`).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 }

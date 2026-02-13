@@ -18,7 +18,7 @@ test.describe('Jira TestMu AI Integration', {
     expect(link).toBeTruthy();
     if (link) {
       await page.goto(link);
-      await page.waitForTimeout(5000);
+      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
       await kaneaiPage.expandInitialPrompt();
       await kaneaiPage.verifyJiraIssueKey(issueKey);
       const count = await kaneaiPage.getTestCaseCount();

@@ -2,6 +2,7 @@ import { type Page, expect, test } from '@playwright/test';
 import { BasePage } from '../base.page.js';
 import { SdkLocators as L, stepDisplayInSdk, stepDisplayInEditor } from './sdk.locators.js';
 import { TIMEOUTS } from '../../config/constants.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class SdkPage extends BasePage {
   constructor(page: Page) { super(page); }
@@ -9,28 +10,28 @@ export class SdkPage extends BasePage {
   async expandDetails(): Promise<void> {
     await test.step('Expand SDK details', async () => {
       await this.loc(L.sdkExpand).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async collapseDetails(): Promise<void> {
     await test.step('Collapse SDK details', async () => {
       await this.loc(L.sdkCollapse).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async endSession(): Promise<void> {
     await test.step('End SDK session', async () => {
       await this.loc(L.sdkEndSession).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async clickNextStep(): Promise<void> {
     await test.step('Click next step button', async () => {
       await this.loc(L.sdkNextStepButton).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -47,7 +48,7 @@ export class SdkPage extends BasePage {
       const locator = stepLocators[stepNumber];
       if (locator) {
         await this.loc(locator).click();
-        await this.page.waitForTimeout(1000);
+        await waitForNetworkIdle(this.page);
       }
     });
   }
@@ -79,21 +80,21 @@ export class SdkPage extends BasePage {
   async markStatus(): Promise<void> {
     await test.step('Mark SDK status', async () => {
       await this.loc(L.markSdkStatus).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async clickFinish(): Promise<void> {
     await test.step('Click finish button', async () => {
       await this.loc(L.finishSdk).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async clickNext(): Promise<void> {
     await test.step('Click next button', async () => {
       await this.loc(L.tcNextCtaSdk).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -107,28 +108,28 @@ export class SdkPage extends BasePage {
     await test.step('Add tag', async () => {
       await this.loc(L.projectTagSdk).fill(tag);
       await this.page.keyboard.press('Enter');
-      await this.page.waitForTimeout(500);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async openMenu(): Promise<void> {
     await test.step('Open SDK menu', async () => {
       await this.loc(L.openMenuSdk).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async openExpandMenu(): Promise<void> {
     await test.step('Open expand menu', async () => {
       await this.loc(L.openExpandMenu).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async clickCollapseToExpand(): Promise<void> {
     await test.step('Click collapse to expand', async () => {
       await this.loc(L.collapseToExpand).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -154,7 +155,7 @@ export class SdkPage extends BasePage {
     await test.step(`Mark step status as ${status}`, async () => {
       await this.markStatus();
       await this.loc(`//span[text()='${status}']`).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -172,7 +173,7 @@ export class SdkPage extends BasePage {
   async finishTestExecution(): Promise<void> {
     await test.step('Finish test execution', async () => {
       await this.clickFinish();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -187,7 +188,7 @@ export class SdkPage extends BasePage {
       } else {
         await this.loc(`//span[text()='${status}']`).click();
       }
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 

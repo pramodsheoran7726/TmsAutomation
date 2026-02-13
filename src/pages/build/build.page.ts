@@ -3,6 +3,7 @@ import { BasePage } from '../base.page.js';
 import { BuildLocators as L } from './build.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class BuildPage extends BasePage {
   buildName = `AutoBuild_${randomString(RANDOM_LENGTH.standard)}`;
@@ -36,7 +37,7 @@ export class BuildPage extends BasePage {
     const buildTitle = name ?? this.buildName;
     await test.step('Edit build: ' + buildTitle, async () => {
       await this.loc(L.searchBuildInput).fill(buildTitle);
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.createdBuild(buildTitle)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.buildOptionsMenu(buildTitle)).click();
       await this.loc(L.editBuildButton).click();
 
@@ -52,7 +53,7 @@ export class BuildPage extends BasePage {
     const buildTitle = name ?? this.buildName;
     await test.step('Duplicate build: ' + buildTitle, async () => {
       await this.loc(L.searchBuildInput).fill(buildTitle);
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.createdBuild(buildTitle)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.buildOptionsMenu(buildTitle)).click();
       await this.loc(L.duplicateBuildButton).click();
 
@@ -67,7 +68,7 @@ export class BuildPage extends BasePage {
     const buildTitle = name ?? this.buildName;
     await test.step('Delete build: ' + buildTitle, async () => {
       await this.loc(L.searchBuildInput).fill(buildTitle);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
 
       if (await this.isVisible(L.createdBuild(buildTitle))) {
         await this.loc(L.buildOptionsMenu(buildTitle)).click();
@@ -92,14 +93,14 @@ export class BuildPage extends BasePage {
     const buildTitle = name ?? this.buildName;
     await test.step('Open build: ' + buildTitle, async () => {
       await this.loc(L.searchBuildInput).fill(buildTitle);
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.createdBuild(buildTitle)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.createdBuild(buildTitle)).click();
     });
   }
 
   async searchBuild(query: string): Promise<void> {
     await this.loc(L.searchBuildInput).fill(query);
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async verifyBuildDeleted(name?: string): Promise<void> {

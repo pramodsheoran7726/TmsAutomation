@@ -4,6 +4,7 @@ import { ConfigurationLocators as L } from './configuration.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
 import type { ConfigurationRequest } from '../../types/configuration.types.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class ConfigurationPage extends BasePage {
   configurationName = `AutoConfig_${randomString(RANDOM_LENGTH.standard)}`;
@@ -117,7 +118,7 @@ export class ConfigurationPage extends BasePage {
     const configName = oldName ?? this.configurationName;
     await test.step('Edit configuration: ' + configName, async () => {
       await this.loc(L.searchConfigurationInput).fill(configName);
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.createdConfiguration(configName)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
 
       await this.loc(L.configurationOptionsMenu(configName)).click();
       await this.loc(L.editConfigurationButton).click();
@@ -128,7 +129,6 @@ export class ConfigurationPage extends BasePage {
 
       await this.loc(L.saveConfigurationButton).click();
       await this.loc(L.searchConfigurationInput).fill(this.configurationName);
-      await this.page.waitForTimeout(2000);
       await expect.soft(this.loc(L.createdConfiguration(this.configurationName))).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
@@ -137,7 +137,7 @@ export class ConfigurationPage extends BasePage {
     const configName = name ?? this.configurationName;
     await test.step('Delete configuration: ' + configName, async () => {
       await this.loc(L.searchConfigurationInput).fill(configName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
 
       if (await this.isVisible(L.createdConfiguration(configName))) {
         await this.loc(L.configurationOptionsMenu(configName)).click();
@@ -151,7 +151,6 @@ export class ConfigurationPage extends BasePage {
   async searchConfiguration(query: string): Promise<void> {
     await test.step('Search configuration: ' + query, async () => {
       await this.loc(L.searchConfigurationInput).fill(query);
-      await this.page.waitForTimeout(2000);
       await expect.soft(this.loc(L.configurationSearchResults)).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
@@ -170,7 +169,7 @@ export class ConfigurationPage extends BasePage {
     const configName = name ?? this.configurationName;
     await test.step('Duplicate configuration: ' + configName, async () => {
       await this.loc(L.searchConfigurationInput).fill(configName);
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.createdConfiguration(configName)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
 
       await this.loc(L.configurationOptionsMenu(configName)).click();
       await this.loc(L.duplicateConfigurationButton).click();
@@ -246,7 +245,7 @@ export class ConfigurationPage extends BasePage {
     const configName = name ?? this.configurationName;
     await test.step('Open configuration: ' + configName, async () => {
       await this.loc(L.searchConfigurationInput).fill(configName);
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.createdConfiguration(configName)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.createdConfiguration(configName)).click();
     });
   }
@@ -255,7 +254,6 @@ export class ConfigurationPage extends BasePage {
     await test.step('Filter configurations by OS: ' + os, async () => {
       await this.loc(L.osFilterDropdown).click();
       await this.loc(L.selectOsFilter(os)).click();
-      await this.page.waitForTimeout(1000);
       await expect.soft(this.loc(L.filteredConfigurations)).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
@@ -264,7 +262,6 @@ export class ConfigurationPage extends BasePage {
     await test.step('Filter configurations by browser: ' + browser, async () => {
       await this.loc(L.browserFilterDropdown).click();
       await this.loc(L.selectBrowserFilter(browser)).click();
-      await this.page.waitForTimeout(1000);
       await expect.soft(this.loc(L.filteredConfigurations)).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }

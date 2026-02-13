@@ -19,7 +19,7 @@ export class DeleteDialogComponent extends BasePage {
     await input.click();
     await input.fill('');
     await input.pressSequentially('DELETE');
-    await this.page.waitForTimeout(1000);
+    await this.loc(confirmButton).waitFor({ state: 'visible', timeout: 5000 });
     await this.loc(confirmButton).click();
   }
 

@@ -3,6 +3,7 @@ import { BasePage } from '../base.page.js';
 import { SettingsLocators as L } from './settings.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 import type { CustomFieldConfig } from '../../data/custom-fields.data.js';
 
 export class SettingsPage extends BasePage {
@@ -205,7 +206,7 @@ export class SettingsPage extends BasePage {
 
   async searchCustomField(name: string): Promise<void> {
     await this.loc(L.searchCustomFields).fill(name);
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   /**

@@ -2,20 +2,21 @@ import { type Page, expect, test } from '@playwright/test';
 import { BasePage } from '../base.page.js';
 import { JiraLocators as L } from './jira.locators.js';
 import { TIMEOUTS } from '../../config/constants.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class JiraIntegrationPage extends BasePage {
   constructor(page: Page) { super(page); }
 
   async openLinkInBrowser(link: string): Promise<void> {
     await this.page.goto(link);
-    await this.page.waitForTimeout(5000);
+    await waitForNetworkIdle(this.page);
   }
 
   async expandInitialPromptSection(): Promise<void> {
     await test.step('Expand initial prompt section', async () => {
       if (await this.isVisible(L.initialPromptChevron, TIMEOUTS.long)) {
         await this.loc(L.initialPromptChevron).click();
-        await this.page.waitForTimeout(2000);
+        await waitForNetworkIdle(this.page);
       }
     });
   }
@@ -25,7 +26,7 @@ export class JiraIntegrationPage extends BasePage {
       await this.loc(L.linkIssueButton).click();
       await this.loc(L.linkFieldTms).fill(issueKey);
       await this.page.keyboard.press('Enter');
-      await this.page.waitForTimeout(3000);
+      await waitForNetworkIdle(this.page);
     });
   }
 

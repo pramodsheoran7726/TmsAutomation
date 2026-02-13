@@ -35,3 +35,6 @@ hyperexecute
 
 # OS generated
 *.log
+
+
+/kaneai-testkit

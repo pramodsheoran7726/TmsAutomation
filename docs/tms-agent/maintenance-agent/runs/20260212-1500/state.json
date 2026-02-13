@@ -1,0 +1,19 @@
+{
+  "runId": "20260212-1500",
+  "currentPhase": 1,
+  "status": "checkpoint",
+  "startedAt": "2026-02-12T15:00:00Z",
+  "overallScore": 74,
+  "phases": {
+    "1": { "status": "complete", "startedAt": "2026-02-12T15:00:00Z", "completedAt": "2026-02-12T15:30:00Z", "score": 74 },
+    "2": { "status": "pending" },
+    "3": { "status": "pending" },
+    "4": { "status": "pending" },
+    "5": { "status": "pending" }
+  },
+  "findings": {
+    "critical": 11,
+    "warnings": 20,
+    "observations": 22
+  }
+}

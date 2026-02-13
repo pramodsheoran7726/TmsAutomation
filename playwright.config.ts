@@ -52,6 +52,7 @@ function getWorkerCount(): number {
 }
 
 export default defineConfig({
+  globalSetup: './src/setup/global-setup.ts',
   testDir: './tests',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
@@ -81,17 +82,10 @@ export default defineConfig({
   },
 
   projects: [
-    // Auth setup — runs first, no storageState
-    {
-      name: 'setup',
-      testDir: './src/setup',
-      testMatch: 'auth.setup.ts',
-    },
-
     // Single test project — name and URLs driven by TEST_ENV
+    // Auth handled by globalSetup (not a test project)
     {
       name: projectName,
-      dependencies: ['setup'],
       testIgnore: '**/api/**',
       use: {
         ...devices['Desktop Chrome'],

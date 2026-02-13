@@ -1,12 +1,12 @@
 ---
 version: 0.1
-globalTimeout: 90
-testSuiteTimeout: 30
-testSuiteStep: 10
+globalTimeout: 30
+testSuiteTimeout: 15
+testSuiteStep: 5
 
 runson: linux
 autosplit: true
-concurrency: 15
+concurrency: 10
 
 runtime:
   language: node
@@ -14,10 +14,10 @@ runtime:
 
 env:
   TEST_ENV: ${TEST_ENV}
-  TEST_SUITE: ${TEST_SUITE}
+  TEST_SUITE: "@smoke"
   TEST_MODE: "remote"
   LT_PROFILE: ${LT_PROFILE}
-  LT_RUN_PROFILE: "regression"
+  LT_RUN_PROFILE: "smoke"
   LT_BUILD_ID: ${LT_BUILD_ID}
   LT_USERNAME: ${LT_USERNAME}
   LT_ACCESS_KEY: ${LT_ACCESS_KEY}
@@ -47,9 +47,9 @@ pre:
 testDiscovery:
   type: raw
   mode: dynamic
-  command: node scripts/discover-tests.js --env $TEST_ENV --grep "${TEST_SUITE}"
+  command: node scripts/discover-tests.js --env $TEST_ENV --grep "@smoke"
 
-testRunnerCommand: node scripts/run-tests.js --env $TEST_ENV --mode remote --run-profile regression --grep "${TEST_SUITE}" --retries 2 -- tests/$test
+testRunnerCommand: node scripts/run-tests.js --env $TEST_ENV --mode remote --run-profile smoke --grep "@smoke" --retries 1 -- tests/$test
 
 post:
   - npx tsx scripts/report-lab.ts create_tests

@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import { CI_CONFIG } from './src/config/constants.js';
+import {
+  REMOTE_TIMEOUTS,
+  REMOTE_WORKERS,
+} from './src/config/lambdatest.config.js';
 
 dotenv.config();
 
@@ -18,6 +22,7 @@ const TEST_ENV = process.env.TEST_ENV ?? 'stage';
 // TEST_MODE: "local" (default) or "remote" (LambdaTest grid)
 // ──────────────────────────────────────────────────────────────
 const TEST_MODE = process.env.TEST_MODE ?? 'local';
+const isRemote = TEST_MODE === 'remote';
 
 const PROJECT_NAME: Record<string, string> = {
   'stage':    'us-chromium',
@@ -38,26 +43,12 @@ const baseURL = process.env.BASE_URL ?? BASE_URLS[TEST_ENV] ?? BASE_URLS['stage'
 const AUTH_FILE = '.auth/user.json';
 
 // ──────────────────────────────────────────────────────────────
-// LambdaTest remote CDP connection (TEST_MODE=remote)
+// Worker count: remote grid is limited by LT plan concurrency
 // ──────────────────────────────────────────────────────────────
-function getLambdaTestEndpoint(): string {
-  const user = process.env.LT_USERNAME ?? '';
-  const key = process.env.LT_ACCESS_KEY ?? '';
-  const capabilities = {
-    browserName: 'Chrome',
-    browserVersion: 'latest',
-    'LT:Options': {
-      platform: 'Windows 10',
-      build: `TMS-E2E-${TEST_ENV}-${Date.now()}`,
-      name: `TMS ${TEST_ENV}`,
-      user,
-      accessKey: key,
-      network: true,
-      video: true,
-      console: true,
-    },
-  };
-  return `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(JSON.stringify(capabilities))}`;
+function getWorkerCount(): number {
+  if (isRemote) return REMOTE_WORKERS;
+  if (process.env.CI) return CI_CONFIG.workers;
+  return 10;
 }
 
 export default defineConfig({
@@ -65,7 +56,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? CI_CONFIG.retries : 0,
-  workers: process.env.CI ? CI_CONFIG.workers : 10,
+  workers: getWorkerCount(),
   reporter: [
     ['html', { open: 'never' }],
     ['./src/reporters/step-reporter.ts'],
@@ -74,19 +65,19 @@ export default defineConfig({
       ? [['./src/reporters/report-lab.reporter.ts'] as const]
       : []),
   ],
-  timeout: 120_000,
-  expect: { timeout: 15_000 },
+
+  // Remote grid: inflate timeouts to account for network latency
+  timeout: isRemote ? REMOTE_TIMEOUTS.test : 120_000,
+  expect: { timeout: isRemote ? REMOTE_TIMEOUTS.expect : 15_000 },
 
   use: {
     baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    actionTimeout: 30_000,
-    navigationTimeout: 60_000,
-    // Remote mode: connect to LambdaTest grid via CDP
-    ...(TEST_MODE === 'remote' && {
-      connectOptions: { wsEndpoint: getLambdaTestEndpoint() },
-    }),
+    actionTimeout: isRemote ? REMOTE_TIMEOUTS.action : 30_000,
+    navigationTimeout: isRemote ? REMOTE_TIMEOUTS.navigation : 60_000,
+    // Remote mode: LT grid connection is handled per-test in tms.fixture.ts
+    // (each test gets its own session with its name in the capabilities)
   },
 
   projects: [

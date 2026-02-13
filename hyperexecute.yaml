@@ -30,8 +30,7 @@ cacheDirectories:
   - node_modules
   - /home/user/.cache/ms-playwright
 
-globalPre:
-  - "npm ci && npx playwright install chromium --with-deps"
+globalPre: "npm ci && npx playwright install chromium --with-deps"
 
 pre:
   - npx playwright test --project setup

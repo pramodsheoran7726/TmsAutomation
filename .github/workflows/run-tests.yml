@@ -29,17 +29,31 @@ on:
           - eu-stage
           - prod
           - eu-prod
-      browser_profile:
-        description: 'LambdaTest browser/OS profile (remote-grid only)'
+      chrome_linux:
+        description: 'chrome-linux'
         required: false
-        default: 'chrome-linux'
-        type: choice
-        options:
-          - chrome-linux
-          - chrome-win
-          - edge-win
-          - chrome-mac
-          - firefox-win
+        default: true
+        type: boolean
+      chrome_win:
+        description: 'chrome-win'
+        required: false
+        default: false
+        type: boolean
+      edge_win:
+        description: 'edge-win'
+        required: false
+        default: false
+        type: boolean
+      chrome_mac:
+        description: 'chrome-mac'
+        required: false
+        default: false
+        type: boolean
+      firefox_win:
+        description: 'firefox-win'
+        required: false
+        default: false
+        type: boolean
       run_profile:
         description: 'Capture profile (remote-grid only)'
         required: false
@@ -51,7 +65,7 @@ on:
           - regression
           - debug
       workers:
-        description: 'Number of parallel Playwright workers'
+        description: 'Number of parallel Playwright workers (per device)'
         required: false
         default: '10'
         type: string
@@ -76,15 +90,17 @@ env:
   TEST_ENV: ${{ github.event.inputs.environment || 'stage' }}
   TEST_SUITE: ${{ github.event.inputs.test_suite || (github.event.schedule == '0 0 * * 0' && '@regression') || '@smoke' }}
   LT_RUN_PROFILE: ${{ inputs.run_profile || (inputs.test_suite == '@smoke' && 'smoke') || 'regression' }}
-  LT_PROFILE: ${{ inputs.browser_profile || 'chrome-linux' }}
   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
 jobs:
-  create-slack-thread:
+  # ── 1. Slack thread + ReportLab start + matrix preparation (runs once) ──
+  prepare:
     runs-on: ubuntu-latest
     outputs:
-      SLACK_THREAD_TS: ${{ steps.create.outputs.SLACK_THREAD_TS }}
+      SLACK_THREAD_TS: ${{ steps.slack.outputs.SLACK_THREAD_TS }}
+      matrix: ${{ steps.profiles.outputs.matrix }}
+      total: ${{ steps.profiles.outputs.total }}
     steps:
       - uses: actions/checkout@v4
 
@@ -95,7 +111,7 @@ jobs:
 
       - run: npm ci
 
-      - id: create
+      - id: slack
         name: Create Slack Thread
         run: |
           OUTPUT=$(npx tsx scripts/report-lab.ts slack_thread \
@@ -106,14 +122,51 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
+      - name: Start Report-Lab build
+        run: npx tsx scripts/report-lab.ts start
+        env:
+          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
+          HE_BUILD_ID: ${{ github.run_number }}
+
+      - name: Upload build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metadata
+          path: .build.json
+          retention-days: 1
+
+      - id: profiles
+        name: Build browser matrix
+        run: |
+          PROFILES="[]"
+          [[ "${{ inputs.chrome_linux }}" == "true" ]] && PROFILES=$(echo "$PROFILES" | jq '. + ["chrome-linux"]')
+          [[ "${{ inputs.chrome_win }}" == "true" ]]   && PROFILES=$(echo "$PROFILES" | jq '. + ["chrome-win"]')
+          [[ "${{ inputs.edge_win }}" == "true" ]]     && PROFILES=$(echo "$PROFILES" | jq '. + ["edge-win"]')
+          [[ "${{ inputs.chrome_mac }}" == "true" ]]   && PROFILES=$(echo "$PROFILES" | jq '. + ["chrome-mac"]')
+          [[ "${{ inputs.firefox_win }}" == "true" ]]  && PROFILES=$(echo "$PROFILES" | jq '. + ["firefox-win"]')
+          # Default to chrome-linux if nothing selected (schedule trigger)
+          if [ "$(echo "$PROFILES" | jq 'length')" -eq 0 ]; then
+            PROFILES='["chrome-linux"]'
+          fi
+          TOTAL=$(echo "$PROFILES" | jq 'length')
+          echo "matrix=$(echo "$PROFILES" | jq -c .)" >> "$GITHUB_OUTPUT"
+          echo "total=$TOTAL" >> "$GITHUB_OUTPUT"
+          echo "Profiles: $PROFILES (total: $TOTAL)"
+
+  # ── 2. Run tests (one job per browser profile, sharded) ──
   test:
-    name: "${{ github.event.inputs.environment || 'stage' }} — ${{ github.event.inputs.test_suite || (github.event.schedule == '0 0 * * 0' && '@regression') || '@smoke' }}"
-    needs: create-slack-thread
+    name: "${{ matrix.profile }} — ${{ github.event.inputs.environment || 'stage' }} — ${{ github.event.inputs.test_suite || '@smoke' }}"
+    needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: ${{ (github.event.inputs.test_suite == '@regression' || github.event.schedule == '0 0 * * 0') && 90 || 45 }}
 
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: ${{ fromJson(needs.prepare.outputs.matrix) }}
+
     env:
-      SLACK_THREAD_TS: ${{ needs.create-slack-thread.outputs.SLACK_THREAD_TS }}
+      SLACK_THREAD_TS: ${{ needs.prepare.outputs.SLACK_THREAD_TS }}
 
     steps:
       - name: Checkout code
@@ -131,16 +184,20 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
-      - name: Start Report-Lab build
-        run: npx tsx scripts/report-lab.ts start
-        env:
-          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
-          HE_BUILD_ID: ${{ github.run_number }}
-
       - name: Resolve auth credentials
         run: |
           echo "AUTH_EMAIL=${{ github.event.inputs.auth_email || secrets.AUTH_EMAIL }}" >> "$GITHUB_ENV"
           echo "AUTH_PASSWORD=${{ github.event.inputs.auth_password || secrets.AUTH_PASSWORD }}" >> "$GITHUB_ENV"
+
+      - name: Compute shard index
+        id: shard
+        run: |
+          PROFILES='${{ needs.prepare.outputs.matrix }}'
+          TOTAL=${{ needs.prepare.outputs.total }}
+          INDEX=$(echo "$PROFILES" | jq --arg p "${{ matrix.profile }}" 'to_entries[] | select(.value == $p) | .key + 1')
+          echo "index=$INDEX" >> "$GITHUB_OUTPUT"
+          echo "total=$TOTAL" >> "$GITHUB_OUTPUT"
+          echo "Shard: $INDEX/$TOTAL (${{ matrix.profile }})"
 
       # Local mode (default for schedule and manual dispatch)
       - name: Run tests (local)
@@ -151,10 +208,10 @@ jobs:
         env:
           LT_USERNAME: ${{ secrets.LT_USERNAME }}
           LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
-          REPORT_LAB_ENABLED: 'true'
+          REPORT_LAB_ENABLED: 'false'
           CI: true
 
-      # Remote grid mode (LambdaTest)
+      # Remote grid mode — shards tests across browser profiles
       - name: Run tests (remote-grid)
         id: run_remote
         if: github.event.inputs.execution_mode == 'remote-grid'
@@ -163,36 +220,23 @@ jobs:
           node scripts/run-tests.js \
             --env ${{ env.TEST_ENV }} \
             --mode remote \
-            --browser ${{ env.LT_PROFILE }} \
+            --browser ${{ matrix.profile }} \
             --run-profile ${{ env.LT_RUN_PROFILE }} \
             --workers ${{ inputs.workers }} \
             --grep ${{ env.TEST_SUITE }} \
+            --shard ${{ steps.shard.outputs.index }}/${{ steps.shard.outputs.total }} \
             --retries 2
         env:
           LT_USERNAME: ${{ secrets.HE_USERNAME }}
           LT_ACCESS_KEY: ${{ secrets.HE_ACCESS_KEY }}
-          REPORT_LAB_ENABLED: 'true'
+          REPORT_LAB_ENABLED: 'false'
           CI: true
-
-      - name: Send results to Report-Lab
-        if: always()
-        run: npx tsx scripts/report-lab.ts create_tests
-        env:
-          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
-          HE_BUILD_ID: ${{ github.run_number }}
-
-      - name: End Report-Lab build
-        if: always()
-        run: npx tsx scripts/report-lab.ts end
-        env:
-          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
-          HE_BUILD_ID: ${{ github.run_number }}
 
       - name: Upload Playwright HTML report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}
+          name: playwright-report-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ matrix.profile }}
           path: playwright-report/
           retention-days: 14
 
@@ -200,7 +244,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: allure-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}
+          name: allure-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ matrix.profile }}
           path: allure-results/
           retention-days: 14
 
@@ -208,7 +252,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}
+          name: test-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}-${{ matrix.profile }}
           path: test-results/
           retention-days: 7
 
@@ -216,17 +260,19 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: report-lab-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}
+          name: report-lab-results-${{ matrix.profile }}
           path: report-lab-results/
-          retention-days: 14
+          retention-days: 1
+          if-no-files-found: ignore
 
       - name: Finalize Job Status
         if: steps.run_local.outcome == 'failure' || steps.run_remote.outcome == 'failure'
         run: exit 1
 
-  conclude-slack:
-    name: Slack Summary
-    needs: [create-slack-thread, test]
+  # ── 3. Aggregate results, end build, send Slack summary (runs once) ──
+  conclude:
+    name: Report & Notify
+    needs: [prepare, test]
     runs-on: ubuntu-latest
     if: always()
 
@@ -240,17 +286,40 @@ jobs:
 
       - run: npm ci
 
-      - name: Download Report-Lab results
+      - name: Download build metadata
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: report-lab-results-${{ env.TEST_ENV }}-${{ env.TEST_SUITE }}
+          name: build-metadata
+          path: .
+
+      - name: Download all Report-Lab results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: report-lab-results-*
           path: report-lab-results/
+          merge-multiple: true
+
+      - name: Send results to Report-Lab
+        run: npx tsx scripts/report-lab.ts create_tests
+        env:
+          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
+          HE_BUILD_ID: ${{ github.run_number }}
+          SLACK_THREAD_TS: ${{ needs.prepare.outputs.SLACK_THREAD_TS }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
+      - name: End Report-Lab build
+        run: npx tsx scripts/report-lab.ts end
+        env:
+          REPORT_LAB_URL: ${{ secrets.REPORT_LAB_URL }}
+          HE_BUILD_ID: ${{ github.run_number }}
 
       - name: Send Slack Final Summary
         run: npx tsx scripts/report-lab.ts notify
         env:
-          SLACK_THREAD_TS: ${{ needs.create-slack-thread.outputs.SLACK_THREAD_TS }}
+          SLACK_THREAD_TS: ${{ needs.prepare.outputs.SLACK_THREAD_TS }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_MENTIONS: ${{ secrets.SLACK_MENTIONS }}

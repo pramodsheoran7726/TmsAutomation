@@ -24,7 +24,9 @@ const workersInput = extractFlag('--workers');      // number of parallel worker
 
 const mode = modeInput || process.env.TEST_MODE || 'local';
 const isRemote = mode === 'remote';
-const reportLabEnabled = isRemote || process.env.REPORT_LAB_ENABLED === 'true';
+// Explicit 'false' overrides even for remote mode (lets CI workflow manage the lifecycle)
+const reportLabEnabled = process.env.REPORT_LAB_ENABLED !== 'false'
+  && (isRemote || process.env.REPORT_LAB_ENABLED === 'true');
 
 // ──────────────────────────────────────────────────────────
 // ENVIRONMENT → REGION MAPPING (single source of truth)

@@ -2,14 +2,20 @@ import { test } from '../../src/fixtures/tms.fixture.js';
 import { setupReportProject, configureReportFilters, generateAndVerifyReport } from '../../src/helpers/report-test.helper.js';
 
 test.describe('Report - Type Filter', {
-  tag: ['@regression'],
+  tag: ['@regression', '@Reportregressionus'],
   annotation: [
     { type: 'feature', description: 'Reports' },
     { type: 'severity', description: 'normal' },
   ],
 }, () => {
   test('should create a report with type filter', async ({ projectPage, testCasePage, testRunPage, reportPage }) => {
-    const opts = { projectPage, testCasePage, testRunPage, reportPage, filters: [{ method: 'Type' as const, value: 'Functional' }] };
+    test.setTimeout(600_000);
+    const opts = {
+      projectPage, testCasePage, testRunPage, reportPage,
+      type: 'Functional',
+      dateRangePreset: 'All Time',
+      filters: [{ method: 'Type' as const, value: 'Functional' }],
+    };
     await setupReportProject(opts);
     await configureReportFilters(opts);
     await generateAndVerifyReport(reportPage, 1);

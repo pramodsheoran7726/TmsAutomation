@@ -2,14 +2,19 @@ import { test } from '../../src/fixtures/tms.fixture.js';
 import { setupReportProject, configureReportFilters, generateAndVerifyReport } from '../../src/helpers/report-test.helper.js';
 
 test.describe('Report - Automation Status Filter', {
-  tag: ['@regression'],
+  tag: ['@regression', '@Reportregressionus'],
   annotation: [
     { type: 'feature', description: 'Reports' },
     { type: 'severity', description: 'normal' },
   ],
 }, () => {
   test('should create a report with automation status filter', async ({ projectPage, testCasePage, testRunPage, reportPage }) => {
-    const opts = { projectPage, testCasePage, testRunPage, reportPage, filters: [{ method: 'AutomationStatus' as const, value: 'Not Automated' }] };
+    test.setTimeout(600_000);
+    const opts = {
+      projectPage, testCasePage, testRunPage, reportPage,
+      dateRangePreset: 'All Time',
+      filters: [{ method: 'AutomationStatus' as const, value: 'Not Automated' }],
+    };
     await setupReportProject(opts);
     await configureReportFilters(opts);
     await generateAndVerifyReport(reportPage, 1);

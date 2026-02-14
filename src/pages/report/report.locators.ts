@@ -26,16 +26,16 @@ export const ReportLocators = {
 
   // ============== REPORT TYPE SELECTION DIALOG ==============
   generateReportDialog: `//div[@role='dialog']//h1[text()='Generate Report']`,
-  detailedExecutionHistoryOption: `//button[contains(text(),'Detailed Execution History')]`,
-  traceabilityReportOption: `//button[contains(text(),'Traceability Report')]`,
+  detailedExecutionHistoryOption: `//div[@role='dialog']//*[@role='button'][contains(.,'Detailed Execution History')]`,
+  traceabilityReportOption: `//div[@role='dialog']//*[@role='button'][contains(.,'Traceability Report')]`,
   dialogCancelBtn: `//div[@role='dialog']//button[normalize-space()='Cancel']`,
   dialogContinueBtn: `//div[@role='dialog']//button[normalize-space()='Continue']`,
   dialogCloseBtn: `//div[@role='dialog']//button[@aria-label='Close' or contains(@class,'close')]`,
 
   // ============== REPORT GENERATION DRAWER ==============
   reportDrawerHeader: `//div[contains(text(),'Generate Report: Detailed Execution History')]`,
-  reportNameInput: `//input[@name='title']`,
-  reportDescriptionInput: `//textarea[@placeholder='Add Description (Optional)']`,
+  reportNameInput: `//input[@placeholder='Enter report name']`,
+  reportDescriptionInput: `//*[@placeholder='Enter description']`,
   goBackBtn: `//button[@aria-label='Go back' or contains(.,'Go back')]`,
   closeDrawerBtn: `//button[@aria-label='Close drawer' or contains(.,'Close drawer')]`,
   stepIndicator: `//div[contains(text(),'Step')]`,
@@ -48,10 +48,10 @@ export const ReportLocators = {
 
   // ============== PRIMARY FILTERS ==============
   primaryFiltersLabel: `//text()[contains(.,'Primary Filters')]/..`,
-  dateRangeRadio: `//div[@class='ant-picker-input']//input`,
-  dateRangeFilterBtn: `//*[@id="__primerPortalRoot__"]/div/div/div/div[2]/div/div/div[1]/div/div[3]/div[1]`,
-  testRunsRadio: `//button[contains(text(),'Test Runs')]//input[@type='radio']`,
-  testRunsFilterBtn: `//div[contains(@class, 'LTDrawer')]// span[contains(text(),'Test Runs')]`,
+  dateRangeRadio: `//input[@placeholder='Start date']`,
+  dateRangeFilterBtn: `//button[contains(.,'Date Range')]`,
+  testRunsRadio: `//input[@value='TEST_RUNS']`,
+  testRunsFilterBtn: `//input[@value='TEST_RUNS']`,
 
   // ============== DATE RANGE PICKER ==============
   startDateInput: `//input[@placeholder='Start date' or contains(@aria-label,'Start date')]`,
@@ -66,8 +66,8 @@ export const ReportLocators = {
   selectAllTestRuns: `//div[contains(.,'Test Runs')]//input[@type='checkbox']`,
 
   // ============== ADDITIONAL FILTERS (TEST CASES) ==============
-  testCasesFilterCheckbox: `//button[contains(text(),'Test Cases')]//input[@type='checkbox']`,
-  testCasesFilterBtn: `//div[@class='flex flex-col h-screen']//span[contains(text(),'Test Cases')]`,
+  testCasesFilterCheckbox: `//*[@role='button'][contains(.,'Test Cases')]//input[@type='checkbox']`,
+  testCasesFilterBtn: `//*[@role='button'][contains(.,'Test Cases')]//input[@type='checkbox']`,
   addFilterBtn: `//span[contains(text(),'Add a filter')]`,
   noFiltersAdded: `//div[contains(text(),'No Filters Added')]`,
   filtersAddedCount: `//div[contains(text(),'Filters Added')]`,
@@ -162,7 +162,7 @@ export const testRunRow = (testRunName: string) =>
  * Returns locator for priority selection
  */
 export const selectPriority = (priority: string) =>
-  `//li[contains(.,'${priority}')]`;
+  `//li[normalize-space()='${priority}']`;
 
 /**
  * Returns locator for report by name
@@ -180,37 +180,37 @@ export const reportTypeBadge = (reportType: string) =>
  * Returns locator for status selection
  */
 export const selectStatus = (status: string) =>
-  `//li[contains(.,'${status}')]`;
+  `//li[normalize-space()='${status}']`;
 
 /**
  * Returns locator for automation status selection
  */
 export const selectAutomationStatus = (automationStatus: string) =>
-  `//li[contains(.,'${automationStatus}')]`;
+  `//li[normalize-space()='${automationStatus}']`;
 
 /**
  * Returns locator for type selection
  */
 export const selectType = (type: string) =>
-  `//li[contains(.,'${type}')]`;
+  `//li[normalize-space()='${type}']`;
 
 /**
  * Returns locator for tag selection
  */
 export const selectTag = (tagName: string) =>
-  `//li[contains(.,'${tagName}')]`;
+  `//li[normalize-space()='${tagName}']`;
 
 /**
  * Returns locator for linked issue selection
  */
 export const selectLinkedIssue = (issueName: string) =>
-  `//li[contains(.,'${issueName}')]`;
+  `//li[normalize-space()='${issueName}']`;
 
 /**
  * Returns locator for created by selection
  */
 export const selectCreatedBy = (userName: string) =>
-  `//li[contains(.,'${userName}')]`;
+  `//li[normalize-space()='${userName}']`;
 
 /**
  * Returns locator for folder selection

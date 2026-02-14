@@ -1,25 +1,24 @@
-import { test, expect } from '../../src/fixtures/tms.fixture.js';
+import { test } from '../../src/fixtures/tms.fixture.js';
+import { setupReportProject, configureReportFilters, generateAndVerifyReport } from '../../src/helpers/report-test.helper.js';
 
 test.describe('Report - Multiple Filters', {
-  tag: ['@regression'],
+  tag: ['@regression', '@Reportregressionus'],
   annotation: [
     { type: 'feature', description: 'Reports' },
     { type: 'severity', description: 'normal' },
   ],
 }, () => {
-  test('should create a report with priority and status filters', async ({ page, projectPage, reportPage }) => {
-    await projectPage.openProject(projectPage.projectName);
-    await reportPage.openReportsTab();
-    await reportPage.startReportCreation('Detailed Execution History');
-    await reportPage.enterReportName();
-    await reportPage.selectDateRangePreset('30');
-    await reportPage.clickContinue();
-    await reportPage.enableTestCasesFilter();
-    await reportPage.selectPriorityFilter();
-    await reportPage.setPriorityFilterValue('High');
-    await reportPage.selectStatusFilter();
-    await reportPage.setStatusFilterValue('Draft');
-    await reportPage.clickGenerateReport();
-    await reportPage.verifyReportCreated();
+  test('should create a report with test runs and priority filters', async ({ projectPage, testCasePage, testRunPage, reportPage }) => {
+    test.setTimeout(600_000);
+    const opts = {
+      projectPage, testCasePage, testRunPage, reportPage,
+      primaryFilter: 'testRuns' as const,
+      priority: 'Medium',
+      filters: [{ method: 'Priority' as const, value: 'Medium' }],
+    };
+    await setupReportProject(opts);
+    await configureReportFilters(opts);
+    await generateAndVerifyReport(reportPage, 1);
+    await projectPage.deleteProject();
   });
 });

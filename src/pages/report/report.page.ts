@@ -60,7 +60,6 @@ export class ReportPage extends BasePage {
         } else if (reportType === 'Traceability Report') {
           await this.loc(L.traceabilityReportTemplate).click();
         }
-        await waitForNetworkIdle(this.page);
       } else {
         await this.clickGenerateNewReport();
         if (reportType === 'Detailed Execution History') {
@@ -70,6 +69,8 @@ export class ReportPage extends BasePage {
         }
         await this.clickDialogContinue();
       }
+      // Wait for the report generation drawer to fully open
+      await this.loc(L.reportNameInput).waitFor({ state: 'visible', timeout: TIMEOUTS.long });
     });
   }
 
@@ -97,12 +98,21 @@ export class ReportPage extends BasePage {
 
   async enterReportName(name?: string): Promise<void> {
     const reportNameToUse = name || this.reportName;
-    const el = this.loc(L.reportNameInput); await el.click(); await el.clear(); await el.fill(reportNameToUse);
+    const el = this.loc(L.reportNameInput);
+    await el.waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+    await el.click();
+    await el.clear();
+    await el.fill(reportNameToUse);
+    await this.page.waitForTimeout(500);
   }
 
   async enterReportDescription(description?: string): Promise<void> {
     const descriptionToUse = description || this.reportDescription;
-    await this.loc(L.reportDescriptionInput).fill(descriptionToUse);
+    const el = this.loc(L.reportDescriptionInput);
+    await el.waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+    await el.click();
+    await el.fill(descriptionToUse);
+    await this.page.waitForTimeout(500);
   }
 
   // Primary Filters
@@ -119,13 +129,11 @@ export class ReportPage extends BasePage {
   async selectDateRangePreset(preset: string): Promise<void> {
     await test.step(`Select date range preset "${preset}"`, async () => {
       const locator = this.tpl(L.lastDays, { days: preset });
-      if (await this.isVisible(locator, TIMEOUTS.short)) {
-        await this.loc(locator).click();
-      } else {
-        await this.loc(L.dateRangeRadio).click();
-        await this.loc(locator).click();
-      }
-      await waitForNetworkIdle(this.page);
+      // Always click the date input to open the picker dropdown
+      await this.loc(L.dateRangeRadio).click();
+      await this.page.waitForTimeout(500);
+      await this.loc(locator).click();
+      await this.page.waitForTimeout(1000);
     });
   }
 
@@ -172,8 +180,9 @@ export class ReportPage extends BasePage {
     await test.step('Select priority filter', async () => {
       await this.clickAddFilter();
       await this.loc(L.filterPriority).click();
-      await this.loc(L.testCasesFilterBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.loc(L.testCasesFilterBtn).click();
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
     });
   }
 
@@ -181,8 +190,9 @@ export class ReportPage extends BasePage {
     await test.step('Select status filter', async () => {
       await this.clickAddFilter();
       await this.loc(L.filterStatus).click();
-      await this.loc(L.testCasesFilterBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.loc(L.testCasesFilterBtn).click();
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
     });
   }
 
@@ -190,8 +200,9 @@ export class ReportPage extends BasePage {
     await test.step('Select folder filter', async () => {
       await this.clickAddFilter();
       await this.loc(L.filterFolder).click();
-      await this.loc(L.testCasesFilterBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.loc(L.testCasesFilterBtn).click();
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
     });
   }
 
@@ -199,8 +210,9 @@ export class ReportPage extends BasePage {
     await test.step('Select automation status filter', async () => {
       await this.clickAddFilter();
       await this.loc(L.filterAutomationStatus).click();
-      await this.loc(L.testCasesFilterBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.loc(L.testCasesFilterBtn).click();
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
     });
   }
 
@@ -208,8 +220,9 @@ export class ReportPage extends BasePage {
     await test.step('Select tags filter', async () => {
       await this.clickAddFilter();
       await this.loc(L.filterTags).click();
-      await this.loc(L.testCasesFilterBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.loc(L.testCasesFilterBtn).click();
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
     });
   }
 
@@ -217,8 +230,9 @@ export class ReportPage extends BasePage {
     await test.step('Select created by filter', async () => {
       await this.clickAddFilter();
       await this.loc(L.filterCreatedBy).click();
-      await this.loc(L.testCasesFilterBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.loc(L.testCasesFilterBtn).click();
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
     });
   }
 
@@ -226,8 +240,9 @@ export class ReportPage extends BasePage {
     await test.step('Select type filter', async () => {
       await this.clickAddFilter();
       await this.loc(L.filterType).click();
-      await this.loc(L.testCasesFilterBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.loc(L.testCasesFilterBtn).click();
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
     });
   }
 
@@ -235,8 +250,9 @@ export class ReportPage extends BasePage {
     await test.step('Select linked issues filter', async () => {
       await this.clickAddFilter();
       await this.loc(L.filterLinkedIssues).click();
-      await this.loc(L.testCasesFilterBtn).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.loc(L.testCasesFilterBtn).click();
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
     });
   }
 
@@ -434,7 +450,6 @@ export class ReportPage extends BasePage {
   async deleteCreatedReport(): Promise<void> {
     await this.deleteReport(this.reportName);
   }
-
   async verifyReportDeleted(): Promise<void> {
     await test.step('Verify report deleted', async () => {
       await this.searchReport(this.reportName);
@@ -470,34 +485,45 @@ export class ReportPage extends BasePage {
   }
 
   // Report Polling
-  async pollForReportGeneration(maxWaitTimeInMinutes = 7): Promise<boolean> {
+  async pollForReportGeneration(maxWaitTimeInMinutes = 5): Promise<boolean> {
+    const pollingIntervalSeconds = 10;
     const maxWaitTimeInSeconds = maxWaitTimeInMinutes * 60;
     let elapsedTime = 0;
-    let reportOpened = false;
 
     while (elapsedTime < maxWaitTimeInSeconds) {
-      await this.page.reload();
-      await waitForNetworkIdle(this.page, TIMEOUTS.long);
+      try {
+        await this.page.reload({ waitUntil: 'domcontentloaded' });
+      } catch {
+        // Transient network error — wait and retry
+        await this.page.waitForTimeout(5000);
+        elapsedTime += 5;
+        continue;
+      }
+      await this.page.waitForTimeout(3000);
 
       if (await this.isVisible(L.reportLoadingIndicator, 2000)) {
         await this.loc(L.reportLoadingIndicator).waitFor({ state: 'hidden', timeout: TIMEOUTS.extraLong });
       }
 
+      // Check if data is available (works on both detail page and after opening from list)
+      if (await this.isReportDataAvailable()) {
+        return true;
+      }
+
+      // If "No Data available" is shown, we're on the detail page but data isn't ready
+      if (await this.isVisible(L.reportNoDataAvailable, 2000)) {
+        await this.page.waitForTimeout(pollingIntervalSeconds * 1000);
+        elapsedTime += pollingIntervalSeconds + 3;
+        continue;
+      }
+
+      // If we're on the list page, try to find and open the report
       const reportVisible = await this.isReportGenerated();
-
       if (reportVisible) {
-        if (!reportOpened) {
-          await this.openGeneratedReport();
-          reportOpened = true;
-          await waitForNetworkIdle(this.page, TIMEOUTS.long);
-        }
-
+        await this.openGeneratedReport();
+        await this.page.waitForTimeout(3000);
         if (await this.isReportDataAvailable()) {
           return true;
-        } else {
-          await this.page.reload();
-          await waitForNetworkIdle(this.page, TIMEOUTS.long);
-          reportOpened = false;
         }
       }
 

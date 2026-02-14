@@ -205,8 +205,8 @@ jobs:
             --shard ${{ steps.shard.outputs.index }}/${{ steps.shard.outputs.total }} \
             --retries 2
         env:
-          LT_USERNAME: ${{ secrets.HE_USERNAME }}
-          LT_ACCESS_KEY: ${{ secrets.HE_ACCESS_KEY }}
+          LT_USERNAME: ${{ secrets.LT_USERNAME }}
+          LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
           REPORT_LAB_ENABLED: 'false'
           CI: true
 

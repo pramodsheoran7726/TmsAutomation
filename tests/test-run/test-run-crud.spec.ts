@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Test Run CRUD', {
-  tag: ['@smoke', '@regression'],
+  tag: ['@smoke', '@regression', '@test-run'],
   annotation: [
     { type: 'feature', description: 'Test Run Management' },
     { type: 'severity', description: 'critical' },

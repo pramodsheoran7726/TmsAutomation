@@ -1,6 +1,6 @@
 import { type Page, expect, test } from '@playwright/test';
 import { BasePage } from '../../utils/base.page.js';
-import { ModuleLocators as L, moduleName } from './module.locators.js';
+import { ModuleLocators as L, moduleName, linkProjectCheckbox } from './module.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
 
@@ -38,6 +38,25 @@ export class ModulePage extends BasePage {
     });
   }
 
+  async linkProject(projectName: string): Promise<void> {
+    await test.step(`Link module to project: ${projectName}`, async () => {
+      await this.loc(L.linkProjectsButton).click();
+      await this.page.waitForTimeout(1000);
+      // Uncheck "Select All" to deselect all projects
+      await this.loc(L.linkProjectsSelectAll).click();
+      await this.page.waitForTimeout(500);
+      // Search for the specific project
+      await this.loc(L.linkProjectsSearch).fill(projectName);
+      await this.page.waitForTimeout(1000);
+      // Select the project
+      await this.loc(linkProjectCheckbox(projectName)).click();
+      await this.page.waitForTimeout(500);
+      // Save changes
+      await this.loc(L.linkProjectsSaveChanges).click();
+      await this.page.waitForTimeout(1000);
+    });
+  }
+
   async addModuleTag(tag?: string): Promise<void> {
     await test.step('Add module tag', async () => {
       const tagToUse = tag || this.moduleTagValue;
@@ -49,9 +68,14 @@ export class ModulePage extends BasePage {
 
   async addModuleStep(stepDetails: string): Promise<void> {
     await test.step('Add module step', async () => {
-      await this.loc(L.addStep).click();
-      await this.page.waitForTimeout(1000);
-      await this.loc(L.moduleStepSteps).fill(stepDetails);
+      // Click the step details button to expand the Sun Editor
+      await this.loc(L.moduleStepButton).scrollIntoViewIfNeeded();
+      await this.loc(L.moduleStepButton).click();
+      // Type into the Sun Editor contenteditable area
+      const editor = this.loc(L.moduleStepSteps);
+      await editor.click();
+      await this.page.keyboard.type(stepDetails);
+      await this.page.waitForTimeout(500);
       await this.loc(L.moduleAddStep).click();
       await this.page.waitForTimeout(1000);
     });
@@ -115,6 +139,12 @@ export class ModulePage extends BasePage {
 
   async insertModule(): Promise<void> {
     await test.step('Insert module', async () => {
+      // Wait for test case detail page to load, then navigate to Test steps tab
+      await this.page.waitForLoadState('domcontentloaded');
+      const testStepsTab = this.page.getByRole('tab', { name: 'Test steps' });
+      await testStepsTab.waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+      await testStepsTab.click();
+      await this.page.waitForTimeout(1000);
       await this.loc(L.insertModule).click();
       await this.page.waitForTimeout(2000);
     });
@@ -161,10 +191,15 @@ export class ModulePage extends BasePage {
     });
   }
 
-  async createModuleWithDetails(steps: string[] = []): Promise<void> {
+  async createModuleWithDetails(steps: string[] = [], projectName?: string): Promise<void> {
     await test.step('Create module with details', async () => {
       await this.clickCreateModule();
       await this.enterModuleName();
+
+      if (projectName) {
+        await this.linkProject(projectName);
+      }
+
       await this.enterModuleDescription();
       await this.addModuleTag();
 

@@ -13,7 +13,7 @@ const Nav = {
   sidebarSettings: `//span[text()='Settings']`,
   automationSidebar: `//span[text()='Automation']`,
   kaneaiSidebar: `(//a[@aria-label="KaneAI"])`,
-  moduleSidebar: `//h5[text()="Modules"]`,
+  moduleSidebar: `//a[@aria-label='Modules']`,
   testCaseNav: `//span[text()='Test Cases']`,
   testRunNav: `//span[text()='Test Runs']`,
   buildNav: `//a[text()='Builds']`,
@@ -70,7 +70,9 @@ export class NavigationPage extends BasePage {
   }
 
   async navigateToModules(): Promise<void> {
-    await this.loc(Nav.moduleSidebar).click();
+    await test.step('Navigate to Modules from sidebar', async () => {
+      await this.loc(Nav.moduleSidebar).click();
+    });
   }
 
   async navigateToReports(): Promise<void> {

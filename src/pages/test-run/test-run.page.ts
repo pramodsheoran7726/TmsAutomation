@@ -71,29 +71,80 @@ export class TestRunPage extends BasePage {
       await this.loc(L.createTestRunButton).first().click({ timeout: TIMEOUTS.long });
       await this.loc(L.testRunTitle).fill(runName);
       await this.loc(L.testRunDescription).fill(randomString(RANDOM_LENGTH.long));
-      await this.loc(L.selectAllCheckboxInTpTestcase).click();
-      await this.loc(L.nextCtaForTP).click();
-      await waitForNetworkIdle(this.page);
-      // Select configuration
-      await this.loc(L.selectConfigCtaConfPopup).click();
-      await this.loc(L.selectConfigInTRPage).click();
-      await this.loc(L.selectConfigButton).click();
-      await this.loc(L.applyConfiguration).click();
-      // Select assignee
-      await this.loc(L.selectAssigneeTRPageButton1).click();
-      await this.loc(L.selectAssignee).click();
-      await this.loc(L.selectAssigneeTRPageButton1).click();
-      // Save
+      // Create test run (opens edit screen with test cases)
       await this.loc(L.saveTestRunCta).last().click({ timeout: TIMEOUTS.long });
       await waitForNetworkIdle(this.page);
+      // Wait for test cases to load, then select all
+      await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+      await this.loc(L.selectAllCheckboxInTpTestcase).click();
+      await this.loc(L.addTcTestRunCta).click();
+      await waitForNetworkIdle(this.page);
+      // Verify missing config/assignee message
+      await expect.soft(this.loc(L.missingMsgTR)).toBeVisible({ timeout: TIMEOUTS.medium });
+      // Add configuration
+      await this.loc(L.addConfigCtaTP).click();
+      await waitForNetworkIdle(this.page);
+      await this.loc(L.selectConfigCheck).first().click();
+      await this.loc(L.applyConfiguration).click();
+      await waitForNetworkIdle(this.page);
+      // Add assignee
+      await this.loc(L.selectAssigneeTRPageButton1).click();
+      await this.loc(L.selectAssignee).click();
+      await waitForNetworkIdle(this.page);
+      // Save test run
+      await this.loc(L.saveTestRun).click({ timeout: TIMEOUTS.long });
+      await waitForNetworkIdle(this.page);
+      // Verify test run appears on instances page
+      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(runName))).toBeVisible({ timeout: TIMEOUTS.long });
+    });
+  }
+
+  async createTestRunWithTestCases(name?: string): Promise<void> {
+    await test.step('Create test run with test cases', async () => {
+      const runName = name ?? this.testRunName;
+      await clickAndWaitForNetwork(this.page, this.loc(L.testRunNav));
+      await this.loc(L.createTestRunButton).first().click({ timeout: TIMEOUTS.long });
+      await this.loc(L.testRunTitle).fill(runName);
+      await this.loc(L.testRunDescription).fill(randomString(RANDOM_LENGTH.long));
+      // Create test run (opens edit screen with test cases)
+      await this.loc(L.saveTestRunCta).last().click({ timeout: TIMEOUTS.long });
+      await waitForNetworkIdle(this.page);
+      // Wait for test cases to load, then select all
+      await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+      await this.loc(L.selectAllCheckboxInTpTestcase).click();
+      await this.loc(L.addTcTestRunCta).click();
+      await waitForNetworkIdle(this.page);
+      // Add configuration for all unconfigured TCs (required to save)
+      await expect.soft(this.loc(L.missingMsgTR).first()).toBeVisible({ timeout: TIMEOUTS.medium });
+      const configBtnCount = await this.loc(L.addConfigCtaTP).count();
+      for (let i = 0; i < configBtnCount; i++) {
+        await this.loc(L.addConfigCtaTP).first().click();
+        await waitForNetworkIdle(this.page);
+        await this.loc(L.selectConfigCheck).first().click();
+        await this.loc(L.applyConfiguration).click();
+        await waitForNetworkIdle(this.page);
+      }
+      // Save test run
+      await this.loc(L.saveTestRun).click({ timeout: TIMEOUTS.long });
+      await waitForNetworkIdle(this.page);
+      // Verify test run appears on instances page
+      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(runName)).first()).toBeVisible({ timeout: TIMEOUTS.long });
     });
   }
 
   async openTestRun(name?: string): Promise<void> {
     await test.step(`Open test run ${name ?? this.testRunName}`, async () => {
       const runName = name ?? this.testRunName;
+      // Navigate to test run list based on current page context
+      if (await this.isVisible(L.testRunNav, 2000)) {
+        await clickAndWaitForNetwork(this.page, this.loc(L.testRunNav));
+      } else {
+        await this.loc(L.backtoTestRunList).click();
+        await waitForNetworkIdle(this.page);
+      }
       await fillAndWaitForSearch(this.page, this.loc(L.searchFieldInLinkProject), runName, this.loc(L.createdTestrunAppear(runName)));
       await this.loc(L.createdTestrunAppear(runName)).click();
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -220,10 +271,12 @@ export class TestRunPage extends BasePage {
 
   async archiveTestRun(): Promise<void> {
     await test.step('Archive test run', async () => {
+      await fillAndWaitForSearch(this.page, this.loc(L.searchFieldInLinkProject), this.testRunName, this.loc(L.createdTestrunAppear(this.testRunName)));
       await this.loc(L.createdTestrunOpenMenu(this.testRunName)).click();
       await this.loc(L.archiveTestRun).click();
-      await this.loc(L.archiveTestRun).click();
-      await expect.soft(this.loc(L.archivedTestRun)).toBeVisible({ timeout: TIMEOUTS.medium });
+      await waitForNetworkIdle(this.page);
+      // After archiving, the test run disappears from the active view
+      await expect.soft(this.loc(L.createdTestrunAppear(this.testRunName))).not.toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
 
@@ -245,18 +298,27 @@ export class TestRunPage extends BasePage {
       await waitForNetworkIdle(this.page);
       await this.loc(L.createdTestrunOpenMenu(runName)).first().click();
       await this.loc(L.duplicateTestRun).click();
+      await waitForNetworkIdle(this.page);
+      // Close menu if still open, then search for duplicate
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(1000);
+      await fillAndWaitForSearch(this.page, this.loc(L.searchFieldInLinkProject), `Copy of ${runName}`, this.loc(L.duplicateTestRunByName(runName)));
       await expect.soft(this.loc(L.duplicateTestRunByName(runName))).toBeVisible({ timeout: TIMEOUTS.long });
     });
   }
 
   async editTestRunAddTestCase(existingTcTitle: string, newTcTitle: string): Promise<void> {
     await test.step('Edit test run and add new test case', async () => {
+      // Navigate to test run list and open the test run
       await clickAndWaitForNetwork(this.page, this.loc(L.testRunNav));
-      await this.loc(L.createdTestrunOpenMenu(this.testRunName)).first().click();
-      await this.loc(L.editTR).click();
+      await fillAndWaitForSearch(this.page, this.loc(L.searchFieldInLinkProject), this.testRunName, this.loc(L.createdTestrunAppear(this.testRunName)));
+      await this.loc(L.createdTestrunAppear(this.testRunName)).click();
+      await waitForNetworkIdle(this.page);
+      // Click Edit from instances page to go to edit page
+      await this.loc(L.editCtaInsideTR).click();
       await waitForNetworkIdle(this.page);
       // Verify old TC visible, new TC NOT visible
-      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(existingTcTitle))).toBeVisible({ timeout: TIMEOUTS.medium });
+      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(existingTcTitle)).first()).toBeVisible({ timeout: TIMEOUTS.medium });
       await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(newTcTitle))).not.toBeVisible({ timeout: TIMEOUTS.short });
       // Add new test case
       await this.loc(L.addTcInTR).click();
@@ -265,10 +327,16 @@ export class TestRunPage extends BasePage {
       await this.loc(L.updateTestcaseInTestRun).click();
       await waitForNetworkIdle(this.page);
       // Verify both TCs visible
-      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(existingTcTitle))).toBeVisible({ timeout: TIMEOUTS.medium });
-      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(newTcTitle))).toBeVisible({ timeout: TIMEOUTS.medium });
-      // Save
-      await this.loc(L.saveTestRunCta).last().click({ timeout: TIMEOUTS.long });
+      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(existingTcTitle)).first()).toBeVisible({ timeout: TIMEOUTS.medium });
+      await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(newTcTitle)).first()).toBeVisible({ timeout: TIMEOUTS.medium });
+      // Add configuration for newly added TC
+      await this.loc(L.addConfigCtaTP).click();
+      await waitForNetworkIdle(this.page);
+      await this.loc(L.selectConfigCheck).first().click();
+      await this.loc(L.applyConfiguration).click();
+      await waitForNetworkIdle(this.page);
+      // Save test run
+      await this.loc(L.saveTestRun).click({ timeout: TIMEOUTS.long });
       await waitForNetworkIdle(this.page);
     });
   }

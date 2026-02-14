@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Test Run Bulk Edit Instances', {
-  tag: ['@regression'],
+  tag: ['@regression', '@test-run'],
   annotation: [
     { type: 'feature', description: 'Test Run Management' },
     { type: 'severity', description: 'critical' },
@@ -11,11 +11,8 @@ test.describe('Test Run Bulk Edit Instances', {
     projectWithTestCase,
     testRunPage,
   }) => {
-    // Create test run with config and assignee
+    // Create test run with config and assignee (ends on instances page)
     await testRunPage.createTestRunWithConfigAndAssignee();
-
-    // Open the test run
-    await testRunPage.openTestRun();
 
     // Bulk assign to first instance
     await testRunPage.markBulkAssignee(1);

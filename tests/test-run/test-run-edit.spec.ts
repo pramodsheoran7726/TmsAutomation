@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Edit Test Run', {
-  tag: ['@regression'],
+  tag: ['@regression', '@test-run'],
   annotation: [
     { type: 'feature', description: 'Test Run Management' },
     { type: 'severity', description: 'critical' },
@@ -10,8 +10,8 @@ test.describe('Edit Test Run', {
 }, () => {
   test('should edit test run to add a new test case and verify both test cases', async ({ projectWithTestCase, projectPage, testCasePage, testRunPage }) => {
 
-    // Create test run (picks up TC1)
-    await testRunPage.createTestRun();
+    // Create test run with test cases (picks up TC1)
+    await testRunPage.createTestRunWithTestCases();
 
     // Navigate back to test case page and create second test case
     await projectPage.backToProjectList();

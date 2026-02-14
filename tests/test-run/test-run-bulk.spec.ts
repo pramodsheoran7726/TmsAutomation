@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Test Run Bulk Operations', {
-  tag: ['@regression'],
+  tag: ['@regression', '@test-run'],
   annotation: [
     { type: 'feature', description: 'Test Run Management' },
     { type: 'severity', description: 'critical' },
@@ -36,7 +36,6 @@ test.describe('Test Run Bulk Operations', {
 
   test('should archive and reactivate a test run', async ({ projectWithTestCase, testRunPage }) => {
     await testRunPage.createTestRun();
-    await testRunPage.openTestRun();
     await testRunPage.archiveTestRun();
   });
 });

@@ -3,7 +3,7 @@ import { randomString } from '../../src/utils/random.helper.js';
 import { RANDOM_LENGTH } from '../../src/config/constants.js';
 
 test.describe('Test Run Execution', {
-  tag: ['@regression'],
+  tag: ['@regression', '@test-run'],
   annotation: [
     { type: 'feature', description: 'Test Run Management' },
     { type: 'severity', description: 'critical' },
@@ -30,13 +30,12 @@ test.describe('Test Run Execution', {
     await testCasePage.openTestCase(tc2Title);
     await testCasePage.createManualStep(step2Desc, step2Outcome);
 
-    // Navigate back to project and create test run
+    // Navigate back to project and create test run with test cases
     await projectPage.backToProjectList();
     await projectPage.openProject();
-    await testRunPage.createTestRun();
+    await testRunPage.createTestRunWithTestCases();
 
-    // Open test run and verify both TCs in instances
-    await testRunPage.openTestRun();
+    // Verify both TCs in instances (already on instances page after create)
     await testRunPage.verifyTestCasesInInstances(tc1Title, tc2Title);
 
     // Open TC1, mark step as Passed, go back to instances

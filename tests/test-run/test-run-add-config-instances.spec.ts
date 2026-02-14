@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Test Run Add Config from Instances', {
-  tag: ['@regression' , '@testrun-with-config'],
+  tag: ['@regression', '@test-run', '@testrun-with-config'],
   annotation: [
     { type: 'feature', description: 'Test Run Management' },
     { type: 'severity', description: 'normal' },

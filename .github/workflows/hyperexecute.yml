@@ -36,6 +36,16 @@ on:
         required: false
         default: ''
         type: string
+      auth_email:
+        description: 'Override AUTH_EMAIL (leave empty to use repo secret)'
+        required: false
+        default: ''
+        type: string
+      auth_password:
+        description: 'Override AUTH_PASSWORD (leave empty to use repo secret)'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   hyperexecute:
@@ -62,8 +72,8 @@ jobs:
           TEST_ENV: ${{ inputs.environment }}
           TEST_SUITE: ${{ inputs.test_suite }}
           HE_BUILD_ID: ${{ github.run_number }}
-          AUTH_EMAIL: ${{ secrets.AUTH_EMAIL }}
-          AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
+          AUTH_EMAIL: ${{ inputs.auth_email || secrets.AUTH_EMAIL }}
+          AUTH_PASSWORD: ${{ inputs.auth_password || secrets.AUTH_PASSWORD }}
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
           LT_USERNAME: ${{ secrets.LT_USERNAME }}
           LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}

@@ -45,7 +45,10 @@ async function globalSetup() {
   });
 
   if (!response.ok()) {
-    throw new Error(`Login API failed: ${response.status()} ${response.statusText()}`);
+    const body = await response.text().catch(() => 'unable to read response body');
+    const msg = `\n❌ Login API failed: ${response.status()} ${response.statusText()}\n   URL: ${loginUrl}\n   Email: ${EnvConfig.authEmail}\n   Response: ${body.slice(0, 500)}\n`;
+    console.error(msg);
+    throw new Error(msg);
   }
 
   // 2. Hit the dashboard to settle cookies on the accounts domain

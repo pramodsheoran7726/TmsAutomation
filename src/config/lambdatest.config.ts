@@ -185,4 +185,4 @@ export const REMOTE_TIMEOUTS = {
 } as const;
 
 /** Worker count for remote grid — limited by LT plan concurrency */
-export const REMOTE_WORKERS = 5;
+export const REMOTE_WORKERS = 1;

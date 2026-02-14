@@ -170,8 +170,8 @@ export const test = base.extend<TmsFixtures>({
   tmsApi: async ({ request }, use) => {
     await use(new TmsApi(request));
   },
-  jiraApi: async ({ request }, use) => {
-    await use(new JiraApi(request));
+  jiraApi: async ({}, use) => {
+    await use(new JiraApi());
   },
   apiSetup: async ({ tmsApi }, use) => {
     const { setup, cleanup } = createApiSetup(tmsApi);

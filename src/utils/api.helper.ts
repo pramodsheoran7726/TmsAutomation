@@ -28,10 +28,18 @@ export class ApiHelper {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${auth}`,
+        'X-Atlassian-Token': 'no-check',
       },
     });
-    const body = (await response.json()) as T;
-    return { status: response.status(), body };
+    const status = response.status();
+    const text = await response.text();
+    let body: T;
+    try {
+      body = JSON.parse(text) as T;
+    } catch {
+      throw new Error(`API POST ${url} returned ${status}: ${text}`);
+    }
+    return { status, body };
   }
 
   async getWithBasicAuth<T>(
@@ -41,7 +49,10 @@ export class ApiHelper {
   ): Promise<{ status: number; body: T }> {
     const auth = Buffer.from(`${email}:${token}`).toString('base64');
     const response = await this.request.get(url, {
-      headers: { Authorization: `Basic ${auth}` },
+      headers: {
+        Authorization: `Basic ${auth}`,
+        'X-Atlassian-Token': 'no-check',
+      },
     });
     const body = (await response.json()) as T;
     return { status: response.status(), body };

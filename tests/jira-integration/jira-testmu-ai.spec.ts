@@ -18,11 +18,11 @@ test.describe('Jira TestMu AI Integration', {
     expect(link).toBeTruthy();
     if (link) {
       await page.goto(link);
-      await page.waitForTimeout(5000);
-      await kaneaiPage.expandInitialPrompt();
+      await page.waitForLoadState('domcontentloaded');
       await kaneaiPage.verifyJiraIssueKey(issueKey);
       const count = await kaneaiPage.getTestCaseCount();
-      expect(count).toBeGreaterThan(0);
+      console.log('test case count', count);
+      expect(count).toBeGreaterThan(1);
     }
   });
 });

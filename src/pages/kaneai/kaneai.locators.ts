@@ -21,7 +21,7 @@ export const KaneaiLocators = {
   viewDetailsCode: `//h5[contains(text(), 'View details')]`,
   initialPromptChevron: C.initialPromptChevron,
   initialPromptExpanded: `//span[text()='Initial prompt']//following-sibling::div//*[contains(@class, 'octicon-chevron-down')]`,
-  testCasesButton: `//button[contains(.,'test cases')]`,
+  testCasesButton: `//button[contains(.,'Test Cases')]`,
   testCasesTabCount: `//span[contains(., 'Test Cases')]//following-sibling::span[contains(@class, 'CounterLabel')]`,
   systemIdle: `//span[contains(text(),'System Idle')]`,
   saveButton: `//button[@aria-label='Save Test Case']`,
@@ -32,7 +32,7 @@ export const KaneaiLocators = {
  */
 
 /**
- * Returns locator for KaneAI Jira issue key
+ * Returns locator for KaneAI Jira issue key (span next to Atlassian icon)
  */
-export const kaneaiJiraIssueKey = (key: string) =>
-  `//span[text()='Initial prompt']//parent::div//following-sibling::div[contains(@class, 'overflow-hidden')]//span[text()='${key}']`;
+export const kaneaiJiraIssueKey = () =>
+  `//div[contains(@class, 'group')]//img[contains(@src, 'atlassian')]//following-sibling::span`;

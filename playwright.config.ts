@@ -25,23 +25,21 @@ const TEST_MODE = process.env.TEST_MODE ?? 'local';
 const isRemote = TEST_MODE === 'remote';
 
 const PROJECT_NAME: Record<string, string> = {
-  'stage':    'us-chromium',
+  'stage': 'us-chromium',
   'eu-stage': 'eu-chromium',
-  'prod':     'us-chromium',
-  'eu-prod':  'eu-chromium',
+  'prod': 'us-chromium',
+  'eu-prod': 'eu-chromium',
 };
 
 const BASE_URLS: Record<string, string> = {
-  'stage':    'https://stage-accounts.lambdatestinternal.com',
+  'stage': 'https://stage-accounts.lambdatestinternal.com',
   'eu-stage': 'https://stage-eu-accounts.lambdatestinternal.com',
-  'prod':     'https://accounts.lambdatest.com',
-  'eu-prod':  'https://eu-accounts.lambdatest.com',
+  'prod': 'https://accounts.lambdatest.com',
+  'eu-prod': 'https://eu-accounts.lambdatest.com',
 };
 
 const projectName = PROJECT_NAME[TEST_ENV] ?? PROJECT_NAME['stage'];
 const baseURL = process.env.BASE_URL ?? BASE_URLS[TEST_ENV] ?? BASE_URLS['stage'];
-const AUTH_FILE = '.auth/user.json';
-
 // ──────────────────────────────────────────────────────────────
 // Worker count: remote grid is limited by LT plan concurrency
 // ──────────────────────────────────────────────────────────────
@@ -83,14 +81,13 @@ export default defineConfig({
 
   projects: [
     // Single test project — name and URLs driven by TEST_ENV
-    // Auth handled by globalSetup (not a test project)
+    // Auth injected at runtime via tms.fixture.ts (cookies from AUTH_STATE env var)
     {
       name: projectName,
       testIgnore: '**/api/**',
       use: {
         ...devices['Desktop Chrome'],
         baseURL,
-        storageState: AUTH_FILE,
       },
     },
 

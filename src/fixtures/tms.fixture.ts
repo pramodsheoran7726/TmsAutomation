@@ -24,6 +24,18 @@ import { TmsApi } from '../api/tms.api.js';
 import { JiraApi } from '../api/jira.api.js';
 import { createApiSetup } from './api-setup.factory.js';
 
+/**
+ * Decode auth cookies from the AUTH_STATE env var set by globalSetup.
+ * This avoids the storageState file dependency that caused 0-tests issues.
+ */
+function getAuthState(): { cookies: Array<{ name: string; value: string; domain: string; path: string; expires: number; httpOnly: boolean; secure: boolean; sameSite: 'Strict' | 'Lax' | 'None' }>; origins: Array<{ origin: string; localStorage: Array<{ name: string; value: string }> }> } {
+  const encoded = process.env.AUTH_STATE;
+  if (!encoded) {
+    throw new Error('AUTH_STATE env var not set. Did globalSetup run?');
+  }
+  return JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'));
+}
+
 export type ApiSetup = {
   createProject(name: string, description?: string): Promise<{ id: string; name: string }>;
   createTestCase(projectId: string, title: string): Promise<{ id: string; title: string }>;
@@ -67,8 +79,11 @@ type TmsFixtures = {
 export const test = base.extend<TmsFixtures>({
   // Auto-navigate to TMS before every test
   // In remote mode: creates a per-test LT session with the test name in capabilities
-  page: async ({ page }, use, testInfo) => {
+  page: async ({ page, context }, use, testInfo) => {
     if (process.env.TEST_MODE !== 'remote') {
+      // Inject auth cookies from env var into the browser context
+      const state = getAuthState();
+      await context.addCookies(state.cookies);
       await page.goto(EnvConfig.tmsBaseUrl, { waitUntil: 'domcontentloaded' });
       await use(page);
       return;
@@ -81,11 +96,11 @@ export const test = base.extend<TmsFixtures>({
     const wsEndpoint = getCdpEndpoint(profile, runProfile, testName);
 
     const browser = await chromium.connect(wsEndpoint);
-    const context = await browser.newContext({
-      storageState: testInfo.project.use.storageState as string | undefined,
+    const remoteContext = await browser.newContext({
+      storageState: getAuthState(),
       baseURL: testInfo.project.use.baseURL,
     });
-    const remotePage = await context.newPage();
+    const remotePage = await remoteContext.newPage();
     await remotePage.goto(EnvConfig.tmsBaseUrl, { waitUntil: 'domcontentloaded' });
 
     await use(remotePage);
@@ -97,11 +112,11 @@ export const test = base.extend<TmsFixtures>({
       : `Test failed: ${testInfo.error?.message?.slice(0, 200) ?? 'unknown error'}`;
 
     await remotePage.evaluate(
-      () => {},
+      () => { },
       `lambdatest_action: ${JSON.stringify({ action: 'setTestStatus', arguments: { status, remark } })}`,
     );
 
-    await context.close();
+    await remoteContext.close();
     await browser.close();
   },
   nav: async ({ page }, use) => {

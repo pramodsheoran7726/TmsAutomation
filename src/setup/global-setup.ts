@@ -51,11 +51,18 @@ async function globalSetup() {
   // 2. Hit the dashboard to settle cookies on the accounts domain
   await ctx.get(`${EnvConfig.baseUrl}/dashboard`);
 
-  // 3. Save cookies as storage state (no browser needed)
-  await ctx.storageState({ path: AUTH_FILE });
+  // 3. Capture storage state (cookies) from the API context
+  const state = await ctx.storageState();
   await ctx.dispose();
 
-  console.log(`Auth saved to ${AUTH_FILE}`);
+  // 4. Save as env var — Playwright propagates env vars from globalSetup to all workers.
+  //    This avoids the chicken-and-egg problem where Playwright validates storageState
+  //    file path BEFORE globalSetup runs, causing 0 tests if the file is missing/stale.
+  process.env.AUTH_STATE = Buffer.from(JSON.stringify(state)).toString('base64');
+
+  // 5. Also write file for debugging convenience (not used by tests)
+  fs.writeFileSync(AUTH_FILE, JSON.stringify(state, null, 2));
+  console.log(`Auth saved to env var AUTH_STATE and ${AUTH_FILE}`);
 }
 
 export default globalSetup;

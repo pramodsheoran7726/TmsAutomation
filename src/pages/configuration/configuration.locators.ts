@@ -86,14 +86,14 @@ export const ConfigurationLocators = {
   falconResolutionDropdown: `//*[normalize-space()='Resolution' and not(self::h5) and not(self::button) and not(ancestor::button)]/following::button[1]`,
 
   // Real Device platform
-  realDevicePlatformTab: `//span[text()='Real Device']`,
+  realDevicePlatformTab: `//span[@data-content='Real Device']`,
   manufacturerDropdown: `//*[normalize-space()='Manufacturer']/following::button[1]`,
-  deviceNameDropdown: `//*[normalize-space()='Device name']/following::button[1]`,
+  deviceNameDropdown: `//*[normalize-space()='Device']/following::button[1]`,
   realDeviceOsVersionDropdown: `//*[normalize-space()='OS version']/following::button[1]`,
 
   // Dynamic selectors for Falcon / Real Device
-  selectManufacturer: (manufacturer: string) => `//span[text()='${manufacturer}']`,
-  selectDeviceName: (device: string) => `//span[text()='${device}']`,
+  selectManufacturer: (manufacturer: string) => `//*[@role='option']//span[text()='${manufacturer}']`,
+  selectDeviceName: (device: string) => `//*[@role='option']//span[text()='${device}']`,
 
   // Dynamic locators
   createdConfig: (name: string) => `//*[text()='${name}']`,

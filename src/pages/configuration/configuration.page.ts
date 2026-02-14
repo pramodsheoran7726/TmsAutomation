@@ -22,11 +22,37 @@ export class ConfigurationPage extends BasePage {
     await this.loc(optionSelector).click();
   }
 
+  /** Open a Real Device checkbox popup, search, and click the matching option */
+  private async selectFromCheckboxPopup(dropdownSelector: string, searchValue: string, searchPlaceholder = 'Search device'): Promise<void> {
+    await this.loc(dropdownSelector).click();
+    const searchInput = this.page.locator(`input[placeholder="${searchPlaceholder}"]`);
+    await searchInput.waitFor({ state: 'visible' });
+    await searchInput.fill(searchValue);
+    await this.page.waitForTimeout(1000);
+    // Click matching option via DOM (popup uses custom checkbox elements)
+    await this.page.evaluate((text) => {
+      const els = document.querySelectorAll('span, div, p, label, li, a');
+      for (const el of els) {
+        const t = el.textContent?.trim();
+        if (t && t.toLowerCase().includes(text.toLowerCase()) && t.toLowerCase() !== 'any'
+          && el.children.length <= 2 && el.tagName !== 'INPUT'
+          && !['BODY', 'HTML', 'HEAD', 'SCRIPT'].includes(el.tagName)) {
+          (el as HTMLElement).click();
+          return;
+        }
+      }
+    }, searchValue);
+    await this.page.waitForTimeout(500);
+    // Close the popup by pressing Escape
+    await this.page.keyboard.press('Escape');
+    await this.page.waitForTimeout(500);
+  }
+
   async createConfiguration(config?: ConfigurationRequest): Promise<void> {
     const configData = config ?? {
       name: this.configurationName,
       osType: 'Windows',
-      osVersion: '10',
+      osVersion: 'Windows 10',
       browser: 'Chrome',
       browserVersion: 'Latest',
       resolution: '1920x1080',
@@ -71,9 +97,8 @@ export class ConfigurationPage extends BasePage {
     await this.createConfiguration({
       name: this.configurationName,
       osType: 'Windows',
-      osVersion: '11',
+      osVersion: 'Windows 11',
       browser: 'Chrome',
-      browserVersion: 'Latest',
       resolution: '1920x1080',
     });
   }
@@ -82,9 +107,8 @@ export class ConfigurationPage extends BasePage {
     await this.createConfiguration({
       name: `Mac_${randomString(RANDOM_LENGTH.medium)}`,
       osType: 'macOS',
-      osVersion: 'Monterey',
+      osVersion: 'macOS Monterey',
       browser: 'Safari',
-      browserVersion: 'Latest',
       resolution: '1920x1080',
     });
   }
@@ -93,9 +117,7 @@ export class ConfigurationPage extends BasePage {
     await this.createConfiguration({
       name: `Linux_${randomString(RANDOM_LENGTH.medium)}`,
       osType: 'Linux',
-      osVersion: 'Ubuntu 22.04',
       browser: 'Firefox',
-      browserVersion: 'Latest',
       resolution: '1920x1080',
     });
   }
@@ -128,6 +150,9 @@ export class ConfigurationPage extends BasePage {
       await this.loc(L.configurationNameInput).fill(this.configurationName);
 
       await this.loc(L.saveConfigurationButton).click();
+      await this.page.waitForTimeout(2000);
+      await this.loc(L.searchConfigurationInput).clear();
+      await this.page.waitForTimeout(1000);
       await this.loc(L.searchConfigurationInput).fill(this.configurationName);
       await expect.soft(this.loc(L.createdConfiguration(this.configurationName))).toBeVisible({ timeout: TIMEOUTS.medium });
     });
@@ -215,16 +240,16 @@ export class ConfigurationPage extends BasePage {
       await this.loc(L.configurationNameInput).fill(config.name);
 
       if (config.osType) {
-        await this.loc(L.selectOS(config.osType)).click();
-      }
-      if (config.osVersion) {
-        await this.selectFromDropdown(L.realDeviceOsVersionDropdown, config.osVersion, L.selectOsVersion(config.osVersion));
+        await this.selectFromDropdown(L.osDropdown, config.osType, L.selectOS(config.osType));
       }
       if (config.manufacturer) {
-        await this.selectFromDropdown(L.manufacturerDropdown, config.manufacturer, L.selectManufacturer(config.manufacturer));
+        await this.selectFromCheckboxPopup(L.manufacturerDropdown, config.manufacturer);
       }
       if (config.device) {
-        await this.selectFromDropdown(L.deviceNameDropdown, config.device, L.selectDeviceName(config.device));
+        await this.selectFromCheckboxPopup(L.deviceNameDropdown, config.device);
+      }
+      if (config.osVersion) {
+        await this.selectFromCheckboxPopup(L.realDeviceOsVersionDropdown, config.osVersion, 'Search OS version');
       }
 
       await this.loc(L.createConfigurationSubmit).click();

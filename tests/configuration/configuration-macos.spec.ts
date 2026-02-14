@@ -15,14 +15,13 @@ test.describe('Configuration - macOS', {
     await configPage.createConfiguration({
       name: configPage.configurationName,
       osType: 'macOS',
-      osVersion: 'Monterey',
+      osVersion: 'macOS Monterey',
       browser: 'Safari',
-      browserVersion: 'Latest',
       resolution: '1920x1080',
     });
 
     await configPage.verifyConfigurationExists(configPage.configurationName);
-    await configPage.editConfiguration();
+    await configPage.editConfiguration(configPage.configurationName);
     await configPage.deleteConfiguration();
     await configPage.verifyConfigurationDeleted();
   });

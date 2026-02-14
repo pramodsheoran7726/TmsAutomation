@@ -23,6 +23,7 @@ test.describe('Configuration - Real Device Android', {
     });
 
     await configPage.verifyConfigurationExists(configName);
+    await configPage.editConfiguration(configName);
     await configPage.deleteConfiguration(configName);
     await configPage.verifyConfigurationDeleted(configName);
   });

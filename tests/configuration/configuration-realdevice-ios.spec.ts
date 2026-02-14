@@ -18,11 +18,12 @@ test.describe('Configuration - Real Device iOS', {
       name: configName,
       osType: 'iOS',
       osVersion: '17.0',
-      manufacturer: 'Apple',
+      manufacturer: 'iPhone',
       device: 'iPhone 15',
     });
 
     await configPage.verifyConfigurationExists(configName);
+    await configPage.editConfiguration(configName);
     await configPage.deleteConfiguration(configName);
     await configPage.verifyConfigurationDeleted(configName);
   });

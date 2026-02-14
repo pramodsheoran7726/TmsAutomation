@@ -21,8 +21,8 @@ export const KaneaiLocators = {
   viewDetailsCode: `//h5[contains(text(), 'View details')]`,
   initialPromptChevron: C.initialPromptChevron,
   initialPromptExpanded: `//span[text()='Initial prompt']//following-sibling::div//*[contains(@class, 'octicon-chevron-down')]`,
-  testCasesButton: `//button[contains(.,'Test Cases')]`,
-  testCasesTabCount: `//span[contains(., 'Test Cases')]//following-sibling::span[contains(@class, 'CounterLabel')]`,
+  testCasesButton: `//button[contains(.,'Create and Automate')]`,
+  testCasesTabCount: `//span[contains(., 'Create and Automate')]//following-sibling::span[contains(@class, 'CounterLabel')]`,
   systemIdle: `//span[contains(text(),'System Idle')]`,
   saveButton: `//button[@aria-label='Save Test Case']`,
 } as const;

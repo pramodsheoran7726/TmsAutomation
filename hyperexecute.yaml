@@ -42,7 +42,7 @@ testDiscovery:
   mode: remote
   command: node scripts/discover-tests.js --env $TEST_ENV --grep "${TEST_SUITE}"
 
-testRunnerCommand: node scripts/run-tests.js --env $TEST_ENV --mode remote --run-profile regression --grep "${TEST_SUITE}" --retries 2 -- tests/$test
+testRunnerCommand: node scripts/run-tests.js --env $TEST_ENV --mode remote --run-profile regression --grep "${TEST_SUITE}" --retries 2 tests/$test
 
 post:
   - echo "Test suite complete"

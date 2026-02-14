@@ -42,7 +42,7 @@ testDiscovery:
   mode: remote
   command: node scripts/discover-tests.js --env $TEST_ENV --grep "@smoke"
 
-testRunnerCommand: node scripts/run-tests.js --env $TEST_ENV --mode remote --run-profile smoke --grep "@smoke" --retries 1 -- tests/$test
+testRunnerCommand: node scripts/run-tests.js --env $TEST_ENV --mode remote --run-profile smoke --grep "@smoke" --retries 1 tests/$test
 
 post:
   - echo "Test suite complete"

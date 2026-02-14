@@ -88,7 +88,14 @@ export class KaneaiPage extends BasePage {
   }
 
   async verifyJiraIssueKey(issueKey: string): Promise<void> {
-    await expect.soft(this.loc(kaneaiJiraIssueKey(issueKey))).toBeVisible({ timeout: TIMEOUTS.long });
+    await test.step(`Verify JIRA issue key "${issueKey}" in Initial prompt`, async () => {
+      // Wait for test cases button to ensure page is fully loaded (matches Java: 120s wait)
+      await this.loc(L.testCasesButton).waitFor({ state: 'visible', timeout: 120_000 });
+      const el = this.loc(kaneaiJiraIssueKey());
+      await el.waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+      const actualKey = (await el.textContent())?.trim() ?? '';
+      expect.soft(actualKey).toBe(issueKey);
+    });
   }
 
   async clickTestCasesButton(): Promise<void> {
@@ -96,11 +103,13 @@ export class KaneaiPage extends BasePage {
     await this.page.waitForTimeout(2000);
   }
 
-  async getTestCaseCount(): Promise<string> {
-    if (await this.isVisible(L.testCasesTabCount, TIMEOUTS.medium)) {
-      return (await this.loc(L.testCasesTabCount).textContent()) ?? '';
+  async getTestCaseCount(): Promise<number> {
+    if (await this.isVisible(L.testCasesButton, TIMEOUTS.long)) {
+      const text = (await this.loc(L.testCasesButton).textContent()) ?? '';
+      const match = text.match(/(\d+)/);
+      return match ? parseInt(match[1], 10) : 0;
     }
-    return '0';
+    return 0;
   }
 
   async verifySystemIdle(): Promise<void> {

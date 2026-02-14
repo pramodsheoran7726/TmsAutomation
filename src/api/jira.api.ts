@@ -1,5 +1,3 @@
-import { APIRequestContext } from '@playwright/test';
-import { ApiHelper } from '../utils/api.helper.js';
 import { EnvConfig } from '../config/env.config.js';
 import { jiraApiUrl } from '../utils/url.helper.js';
 import {
@@ -8,11 +6,37 @@ import {
 } from '../types/jira.types.js';
 import { JIRA, POLL } from '../config/constants.js';
 
+/**
+ * Jira API client using Node's native fetch (no Playwright APIRequestContext).
+ * Playwright's request context sends browser cookies/headers that trigger
+ * Jira's XSRF protection — plain fetch avoids this entirely.
+ */
 export class JiraApi {
-  private readonly api: ApiHelper;
+  private readonly auth: string;
 
-  constructor(request: APIRequestContext) {
-    this.api = new ApiHelper(request);
+  constructor() {
+    this.auth = Buffer.from(`${EnvConfig.jiraEmail}:${EnvConfig.jiraApiToken}`).toString('base64');
+  }
+
+  private async jiraFetch<T>(url: string, options: RequestInit = {}): Promise<{ status: number; body: T }> {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${this.auth}`,
+        'X-Atlassian-Token': 'no-check',
+        ...((options.headers as Record<string, string>) ?? {}),
+      },
+    });
+    const status = response.status;
+    const text = await response.text();
+    let body: T;
+    try {
+      body = JSON.parse(text) as T;
+    } catch {
+      throw new Error(`Jira API ${options.method ?? 'GET'} ${url} returned ${status}: ${text}`);
+    }
+    return { status, body };
   }
 
   /** Create a JIRA issue with login scenario details */
@@ -26,15 +50,13 @@ export class JiraApi {
     );
 
     const url = jiraApiUrl('/issue');
-    const { status, body } = await this.api.postWithBasicAuth<{ key: string; id: string }>(
-      url,
-      request,
-      EnvConfig.jiraEmail,
-      EnvConfig.jiraApiToken,
-    );
+    const { status, body } = await this.jiraFetch<{ key: string; id: string }>(url, {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
 
     if (status !== 201) {
-      throw new Error(`Failed to create JIRA issue. Status: ${status}`);
+      throw new Error(`Failed to create JIRA issue. Status: ${status}, Body: ${JSON.stringify(body)}`);
     }
 
     return { issueKey: body.key, issueId: body.id };
@@ -44,12 +66,10 @@ export class JiraApi {
   async addTestMuTriggerComment(issueKey: string): Promise<void> {
     const request = createJiraCommentRequest(JIRA.testMuTriggerComment);
     const url = jiraApiUrl(`/issue/${issueKey}/comment`);
-    const { status } = await this.api.postWithBasicAuth<unknown>(
-      url,
-      request,
-      EnvConfig.jiraEmail,
-      EnvConfig.jiraApiToken,
-    );
+    const { status } = await this.jiraFetch<unknown>(url, {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
 
     if (status !== 201) {
       throw new Error(`Failed to add comment. Status: ${status}`);
@@ -77,11 +97,7 @@ export class JiraApi {
   /** Get all comments for a JIRA issue */
   async getIssueComments(issueKey: string): Promise<Record<string, unknown>[]> {
     const url = jiraApiUrl(`/issue/${issueKey}/comment`);
-    const { status, body } = await this.api.getWithBasicAuth<{ comments: Record<string, unknown>[] }>(
-      url,
-      EnvConfig.jiraEmail,
-      EnvConfig.jiraApiToken,
-    );
+    const { status, body } = await this.jiraFetch<{ comments: Record<string, unknown>[] }>(url);
     return status === 200 ? body.comments : [];
   }
 

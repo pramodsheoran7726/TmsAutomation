@@ -79,13 +79,20 @@ type TmsFixtures = {
 export const test = base.extend<TmsFixtures>({
   // Auto-navigate to TMS before every test
   // In remote mode: creates a per-test LT session with the test name in capabilities
-  page: async ({ page, context }, use, testInfo) => {
+  page: async ({ playwright }, use, testInfo) => {
     if (process.env.TEST_MODE !== 'remote') {
-      // Inject auth cookies from env var into the browser context
+      // Local mode: launch a browser ourselves and inject auth cookies
       const state = getAuthState();
-      await context.addCookies(state.cookies);
+      const browser = await playwright.chromium.launch();
+      const context = await browser.newContext({
+        storageState: state,
+        baseURL: testInfo.project.use.baseURL,
+      });
+      const page = await context.newPage();
       await page.goto(EnvConfig.tmsBaseUrl, { waitUntil: 'domcontentloaded' });
       await use(page);
+      await context.close();
+      await browser.close();
       return;
     }
 

@@ -71,7 +71,14 @@ export class NavigationPage extends BasePage {
 
   async navigateToModules(): Promise<void> {
     await test.step('Navigate to Modules from sidebar', async () => {
-      await this.loc(Nav.moduleSidebar).click();
+      const modulesLink = this.loc(Nav.moduleSidebar);
+      const isVisible = await modulesLink.isVisible().catch(() => false);
+      if (!isVisible) {
+        await this.loc(Nav.tmsSidebar).click();
+        await this.page.waitForTimeout(1000);
+      }
+      await modulesLink.click();
+      await this.page.waitForLoadState('domcontentloaded');
     });
   }
 

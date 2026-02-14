@@ -139,7 +139,7 @@ export class ModulePage extends BasePage {
 
   async insertModule(): Promise<void> {
     await test.step('Insert module', async () => {
-      // Wait for test case detail page to load, then navigate to Test steps tab
+      // Wait for test case detail page to render
       await this.page.waitForLoadState('domcontentloaded');
       const testStepsTab = this.page.getByRole('tab', { name: 'Test steps' });
       await testStepsTab.waitFor({ state: 'visible', timeout: TIMEOUTS.long });
@@ -231,11 +231,17 @@ export class ModulePage extends BasePage {
 
   async editModule(newName: string): Promise<void> {
     await test.step('Edit module', async () => {
-      await this.openMoreActions();
-      await this.loc(`//span[text()='Edit']`).click();
-      await this.page.waitForTimeout(1000);
-      const el = this.loc(L.moduleNameInputField); await el.click(); await el.clear(); await el.fill(newName);
-      await this.loc(L.createNewModule).click();
+      // Inline edit on the module detail page
+      await this.loc(L.editModuleName).click();
+      await this.page.waitForTimeout(500);
+      const nameInput = this.page.locator(`${L.editModuleName}//ancestor::div[1]//input`).first();
+      // Fallback: the Edit Module Name div is replaced by a textbox sibling
+      const textbox = this.page.getByRole('textbox').first();
+      const target = (await nameInput.isVisible().catch(() => false)) ? nameInput : textbox;
+      await target.click();
+      await target.clear();
+      await target.fill(newName);
+      await this.page.keyboard.press('Enter');
       await this.page.waitForTimeout(2000);
     });
   }

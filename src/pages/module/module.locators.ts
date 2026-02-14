@@ -16,7 +16,8 @@ export const ModuleLocators = {
   moduleAddStep: `//span[text()="Add"]`,
   createNewModule: `//span[text()="Create new module"]`,
   moduleVersion: `//button[contains(@class, "lt-select-anchor")]//span[normalize-space(text())="Version:"]/following-sibling::span`,
-  moreActions: `//button[@aria-label="More actions"]`,
+  moreActions: `//button[@aria-label="Open column options"]`,
+  editModuleName: `//div[@role='button' and @aria-label='Edit Module Name']`,
   addModule: `//span[text()="Add Module"]`,
   createAModule: `//span[text()="Create Module"]`,
   insertModule: `//div[@id='module-insert-cta']//button`,
@@ -29,10 +30,10 @@ export const ModuleLocators = {
   submitGenerateWithAi: `//div[@id='omnibox-input-toolbar']//button[@type = 'submit']`,
 
   // ─── Link Projects Modal ─────────────────────────
-  linkProjectsButton: `//button[.//div[text()='Link Projects']]`,
+  linkProjectsButton: `//button[.//span[text()='Link Projects']]`,
   linkProjectsSearch: `//input[@placeholder='Search projects...']`,
-  linkProjectsSelectAll: `//span[text()='Select All']`,
-  linkProjectsSaveChanges: `//button[text()='Save changes']`,
+  linkProjectsSelectAll: `//h5[text()='Select All']`,
+  linkProjectsSaveChanges: `//button[normalize-space()='Save changes']`,
 } as const;
 
 /**
@@ -49,5 +50,5 @@ export const moduleName = (name: string) =>
  * Returns locator for a project checkbox in Link Projects modal
  */
 export const linkProjectCheckbox = (projectName: string) =>
-  `//span[text()='${projectName}']/ancestor::label`;
+  `//h5[text()='${projectName}']/parent::div`;
 

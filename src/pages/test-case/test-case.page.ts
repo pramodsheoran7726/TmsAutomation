@@ -28,7 +28,19 @@ export class TestCasePage extends BasePage {
   }
 
   async openTestCase(title?: string): Promise<void> {
-    await this.loc(L.createdTC(title ?? this.testCaseTitle)).click();
+    await test.step('Open test case', async () => {
+      const link = this.loc(L.createdTC(title ?? this.testCaseTitle));
+      // Use page.goto() with the href to force a full navigation (the SPA
+      // intercepts clicks and stays on web-frontend, which can't render the
+      // test case detail page — it only works on test-manager domain).
+      const href = await link.getAttribute('href');
+      if (href) {
+        await this.page.goto(href);
+      } else {
+        await link.click();
+      }
+      await this.page.waitForLoadState('domcontentloaded');
+    });
   }
 
   async selectTestCaseType(type = 'Functional'): Promise<void> {

@@ -75,18 +75,33 @@ export const test = base.extend<TmsFixtures>({
     }
 
     // Remote mode: connect to LT grid with per-test session name
+    // Retry once on connection/page-load failure (grid congestion under high parallelism)
     const testName = testInfo.titlePath.slice(1).join(' > ');
     const profile = process.env.LT_PROFILE ?? 'chrome-win';
     const runProfile = (process.env.LT_RUN_PROFILE ?? 'regression') as LTRunProfile;
     const wsEndpoint = getCdpEndpoint(profile, runProfile, testName);
 
-    const browser = await chromium.connect(wsEndpoint);
-    const context = await browser.newContext({
-      storageState: testInfo.project.use.storageState as string | undefined,
-      baseURL: testInfo.project.use.baseURL,
-    });
-    const remotePage = await context.newPage();
-    await remotePage.goto(EnvConfig.tmsBaseUrl, { waitUntil: 'domcontentloaded' });
+    let browser!: Awaited<ReturnType<typeof chromium.connect>>;
+    let context!: Awaited<ReturnType<typeof browser.newContext>>;
+    let remotePage!: Awaited<ReturnType<typeof context.newPage>>;
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        browser = await chromium.connect(wsEndpoint);
+        context = await browser.newContext({
+          storageState: testInfo.project.use.storageState as string | undefined,
+          baseURL: testInfo.project.use.baseURL,
+        });
+        remotePage = await context.newPage();
+        await remotePage.goto(EnvConfig.tmsBaseUrl, { waitUntil: 'domcontentloaded' });
+        break;
+      } catch (error) {
+        await context?.close().catch(() => {});
+        await browser?.close().catch(() => {});
+        if (attempt === 2) throw error;
+        console.log(`[Remote] Connection/page load failed (attempt ${attempt}/2), retrying: ${(error as Error).message}`);
+      }
+    }
 
     await use(remotePage);
 

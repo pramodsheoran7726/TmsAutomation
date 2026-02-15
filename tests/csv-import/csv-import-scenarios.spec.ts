@@ -1,6 +1,5 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 import path from 'path';
-import { TEST_DATA } from '../../src/config/constants.js';
 
 test.describe('CSV Import - BDD', {
   tag: ['@regression'],
@@ -10,7 +9,7 @@ test.describe('CSV Import - BDD', {
   ],
 }, () => {
   test('should import BDD CSV and verify test case and folder', async ({ projectOnly, csvImportPage }) => {
-    const bddCsvPath = path.resolve('src/data', TEST_DATA.sampleBddCsvFile);
+    const bddCsvPath = path.resolve('data', 'sample_BDD_testStep.csv');
 
     // Step 3: Upload BDD CSV file
     await csvImportPage.uploadBddCsv(bddCsvPath);
@@ -21,7 +20,7 @@ test.describe('CSV Import - BDD', {
     await csvImportPage.clickNext();
     await csvImportPage.verifyMapValues();
     await csvImportPage.clickNext();
-    await csvImportPage.clickPreviewImport();
+    await csvImportPage.verifyPreviewImport();
     await csvImportPage.clickImportTestCases();
 
     // Step 5: Verify imported test case is visible

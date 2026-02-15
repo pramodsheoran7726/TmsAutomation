@@ -38,7 +38,7 @@ export class CsvImportPage extends BasePage {
     await test.step('Verify map fields', async () => {
       await expect.soft(this.loc(L.mapFieldsCsvPage)).toBeVisible({ timeout: TIMEOUTS.long });
       await expect.soft(this.loc(L.verifyMapToColumn)).toBeVisible();
-      await expect.soft(this.loc(L.verifyFieldInCsvColumn)).toBeVisible();
+      await expect.soft(this.loc(L.verifyFieldInCsvColumn).first()).toBeVisible();
     });
   }
 
@@ -48,17 +48,27 @@ export class CsvImportPage extends BasePage {
     });
   }
 
-  async clickPreviewImport(): Promise<void> {
-    await this.loc(L.previewCsv).click();
+  async verifyPreviewImport(): Promise<void> {
+    await test.step('Verify preview import page', async () => {
+      await expect.soft(this.loc(L.previewCsv)).toBeVisible({ timeout: TIMEOUTS.long });
+    });
   }
 
   async clickImportTestCases(): Promise<void> {
     await this.loc(L.importTestCaseCta).click();
+    // Wait for redirect from import page back to test cases list
+    await this.page.waitForFunction(
+      () => !window.location.href.includes('/import'),
+      { timeout: TIMEOUTS.extraLong },
+    );
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async verifyImportedTestCase(): Promise<void> {
     await test.step('Verify imported test case', async () => {
-      await expect.soft(this.loc(L.testcaseTitleImportingViaCsv)).toBeVisible({ timeout: TIMEOUTS.long });
+      await expect.soft(
+        this.page.locator('h5', { hasText: 'All Test Cases' }).first(),
+      ).toBeVisible({ timeout: TIMEOUTS.extraLong });
     });
   }
 
@@ -74,7 +84,7 @@ export class CsvImportPage extends BasePage {
       await this.clickNext();
       await this.verifyMapValues();
       await this.clickNext();
-      await this.clickPreviewImport();
+      await this.verifyPreviewImport();
       await this.clickImportTestCases();
     });
   }

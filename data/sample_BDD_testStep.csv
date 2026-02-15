@@ -1,0 +1,44 @@
+Title,Description,Priority,Type,Status,Steps,Outcome,bdd_scenario,Tags,Preconditions
+Verify logout functionality,This test case aims to verify logout functionality.,Medium,Functional,Open,"1. Log in to the application. 
+2. Click the logout button.",,,logout,User should be in login state
+Verify password complexity requirements,This test case aims to verify password complexity requirements.,High,Security,Closed,,1. Pass,"1.Scenario: User sets a complex password 
+Given the user is on the password reset page 
+When the user enters a new password that does not meet complexity requirements 
+And attempts to save the new password 
+Then the user should see an error message indicating password complexity requirements
+2.Scenario: User sets a complex username 
+Given the user is on the username reset page 
+When the user enters a new username that is not available on the platform
+And attempts to save it in the system 
+Then the user should see an error message indicating usrname is already taken",,
+Verify brute force attack prevention,This test case aims to verify brute force attack prevention.,High,Security,Draft,,,"Scenario: User is protected from brute force attacks 
+Given the user is on the login page 
+When the user attempts multiple login attempts with invalid credentials 
+Then the account should be temporarily locked",,
+Verify account lock after multiple failed login attempts,This test case aims to verify account lock after multiple failed login attempts.,High,Security,Closed,"1. Navigate to the login page. 
+2. Enter invalid credentials multiple times. 
+3. Verify the account is locked after a certain number of attempts.","1. The login page should be displayed
+2. Each time invalid credentials are entered, an error message indicating invalid credentials should be displayed
+3. The account should be locked, and an error message indicating that the account is locked should be displayed.","Scenario: User's account is locked after multiple failed login attempts 
+Given the user is on the login page 
+When the user enters invalid credentials multiple times 
+Then the account should be locked after a certain number of attempts",complexity,Should have a valid email id
+Verify view profile functionality,This test case aims to verify view profile functionality.,Low,Functional,Draft,"1. Log in to the application. 
+2. Navigate to the profile page.",2. Pass,"Scenario: User views profile 
+Given the user is logged in 
+When the user navigates to the profile page 
+Then the user should see their profile information",,
+Verify profile update security,This test case aims to verify profile update security.,High,Security,Closed,,,"Scenario: User attempts insecure profile update 
+Given the user is on the profile page 
+When the user attempts to update profile with invalid data 
+Then the update should be rejected with an error message",,
+Verify order details,This test case aims to verify order details.,Low,Functional,Draft,,,"1.Scenario: User views order details 
+Given the user is on the order history page 
+When the user clicks on an order to view details 
+Then the user should see the order details
+2.Scenario: User views profile details 
+Given the user is on the profile page 
+When the user clicks on profile to view details 
+Then the user should see the profile details",,
+Verify phone number update,This test case aims to verify phone number update.,Medium,Functional,Closed,"1. Navigate to the profile page. 
+","5. The profile page should refresh, and the updated phone number should be displayed in the phone number field",,,

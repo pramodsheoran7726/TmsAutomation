@@ -31,7 +31,7 @@ export const DatasetLocators = {
 
 
   // ============== DATASET COPY MODAL LOCATORS ==============
-  datasetCopyOption: `//div[normalize-space()='Copy Dataset']`,
+  datasetCopyOption: `//h5[text()='Make a copy']`,
   datasetCopyConfirmBtn: `//button[normalize-space()='Copy']`,
 
   // ============== VALIDATION ERROR LOCATORS ⚠️ PENDING ==============

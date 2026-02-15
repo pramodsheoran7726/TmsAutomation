@@ -26,19 +26,19 @@ export class ProjectPage extends BasePage {
         await this.loc(L.newProjectCta).click();
         await this.loc(L.createProjectCta).click();
       }
-      await this.page.waitForLoadState('networkidle');
-      await this.loc(L.projectTitle).fill(this.projectName);
-      await this.page.waitForLoadState('networkidle');
+      await this.loc(L.projectTitle).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+      await this.loc(L.projectTitle).first().fill(this.projectName);
+      await this.page.waitForTimeout(500);
       if (description) {
-        await this.loc(L.projectDescription).fill(randomString(RANDOM_LENGTH.standard));
+        await this.loc(L.projectDescription).first().fill(randomString(RANDOM_LENGTH.standard));
       }
       if (tag) {
-        const tagInput = this.loc(L.projectTag);
+        const tagInput = this.loc(L.projectTag).first();
         await tagInput.click();
         await tagInput.fill(randomString(RANDOM_LENGTH.standard));
         await this.page.keyboard.press('Enter');
       }
-      await this.loc(L.projectCreate).click();
+      await this.loc(L.projectCreate).first().click();
       await expect.soft(this.loc(L.createdProject(this.projectName))).toBeVisible({ timeout: TIMEOUTS.long });
     });
   }

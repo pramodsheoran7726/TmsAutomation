@@ -12,8 +12,8 @@ export const CsvImportLocators = {
   uploadFileButton: `//span[text()='Upload File']`,
   selectFileButton: `//span[text()='Select File']`,
   dragDropArea: `//div[contains(@class,'drag-drop-area')]`,
-  verifyCsvUploaded: `//div[contains(@class,'csv-uploaded')]`,
-  verifyBddCsvUploaded: `//div[contains(@class,'bdd-csv-uploaded')]`,
+  verifyCsvUploaded: `//button[normalize-space()='Replace']`,
+  verifyBddCsvUploaded: `//button[normalize-space()='Replace']`,
 
   // File preview
   filePreview: `//div[contains(@class,'file-preview')]`,
@@ -26,20 +26,20 @@ export const CsvImportLocators = {
   nextButton: C.nextSpan,
   nextButtonCsv: C.nextSpan,
   previousButton: `//span[text()='Previous']`,
-  verifyTitleColumn: `//th[text()='Title']`,
-  verifyTypeColumn: `//th[text()='Type']`,
-  verifyStatusColumn: `//th[text()='Status']`,
-  verifyPriorityColumn: `//th[text()='Priority']`,
-  verifyDescriptionColumn: `//th[text()='Description']`,
+  verifyTitleColumn: `//th[normalize-space()='Title']`,
+  verifyTypeColumn: `//th[normalize-space()='Type']`,
+  verifyStatusColumn: `//th[normalize-space()='Status']`,
+  verifyPriorityColumn: `//th[normalize-space()='Priority']`,
+  verifyDescriptionColumn: `//th[normalize-space()='Description']`,
 
   // Column mapping
-  mapColumnsHeading: `//h5[text()='Map Columns']`,
-  mapFieldsCsvPage: `//h5[text()='Map Columns']`,
+  mapColumnsHeading: `//*[text()='Map Fields']`,
+  mapFieldsCsvPage: `//*[text()='Map Fields']`,
   sourceColumn: `//span[text()='Source Column']`,
   targetField: `//span[text()='Target Field']`,
-  verifyMapToColumn: `//th[text()='Map To']`,
-  verifyFieldInCsvColumn: `//th[text()='Field in CSV']`,
-  mappedValueCsvPage: `//div[contains(@class,'mapped-values')]`,
+  verifyMapToColumn: `//th[normalize-space()='Map to']`,
+  verifyFieldInCsvColumn: `//th[normalize-space()='Field in CSV']`,
+  mappedValueCsvPage: `//*[text()='Map Values']`,
 
   // Field mapping dropdowns
   titleFieldMapping: `//span[text()='Title']`,
@@ -70,11 +70,11 @@ export const CsvImportLocators = {
 
   // Import execution
   importButton: `//span[text()='Import']`,
-  previewCsv: `//span[text()='Preview Import']`,
+  previewCsv: `//*[text()='Preview Import']`,
   importTestCaseCta: `//span[text()='Import Test Cases']`,
   startImportButton: `//span[text()='Start Import']`,
   cancelImport: C.cancelSpan,
-  testcaseTitleImportingViaCsv: `//span[text()='Test Case Imported']`,
+  testcaseTitleImportingViaCsv: `//span[text()='Verify phone number update']`,
 
   // Import progress
   importProgressBar: `//div[contains(@class,'progress-bar')]`,
@@ -92,10 +92,10 @@ export const CsvImportLocators = {
   // Import history
   importHistoryNav: `//span[text()='Import History']`,
   importHistoryTable: `//table[contains(@class,'import-history')]`,
-  importDate: `//th[text()='Date']`,
-  importedBy: `//th[text()='Imported By']`,
-  importStatus: `//th[text()='Status']`,
-  importActions: `//th[text()='Actions']`,
+  importDate: `//th[normalize-space()='Date']`,
+  importedBy: `//th[normalize-space()='Imported By']`,
+  importStatus: `//th[normalize-space()='Status']`,
+  importActions: `//th[normalize-space()='Actions']`,
 
   // Error handling
   errorMessage: `//div[contains(@class,'error-message')]`,
@@ -103,8 +103,8 @@ export const CsvImportLocators = {
   closeError: `//button[@aria-label='Close error']`,
 
   // Sample template
-  downloadSampleTemplate: `//span[text()='Download Sample Template']`,
-  downloadSampleCsv: `//span[text()='Download Sample Template']`,
+  downloadSampleTemplate: `//span[text()='Sample CSV']`,
+  downloadSampleCsv: `//span[text()='Sample CSV']`,
   viewSampleTemplate: `//span[text()='View Sample']`,
 
   // Dynamic locators

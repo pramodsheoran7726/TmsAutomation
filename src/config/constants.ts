@@ -85,9 +85,9 @@ export const DATA_DIRS = {
 
 export const TEST_DATA = {
   // CSV files → src/data/csv/
-  sampleCsvFile: 'csv/sample_data.csv',
-  sampleBddCsvFile: 'csv/sample_BDD_testStep.csv',
-  sampleSelectionCsvFile: 'csv/sample_Selection.csv',
+  sampleCsvFile: 'data/sample_data.csv',
+  sampleBddCsvFile: 'data/sample_BDD_testStep.csv',
+  sampleSelectionCsvFile: 'data/sample_Selection.csv',
   // Attachments → src/data/attachments/
   sampleAttachment: 'attachments/sampleexample.txt',
   // Images → src/data/images/

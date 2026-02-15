@@ -240,8 +240,6 @@ export class DatasetPage extends BasePage {
       await this.page.waitForTimeout(2000);
       await this.loc(L.datasetCopyOption).click();
       await this.page.waitForTimeout(2000);
-      await this.loc(L.datasetCopyConfirmBtn).click();
-      await this.page.waitForTimeout(3000);
     });
   }
 }

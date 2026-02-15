@@ -1,0 +1,16 @@
+ID,Title,Description,Priority,Type,Status
+TC-1,User Registration,Register a new user account,High,Functional,Open
+TC-2,User Login,Login with existing user credentials,High,Functional,Draft
+TC-3,Password Reset,Reset password for existing user,Medium,Functional,Draft
+TC-4,Edit Profile,Update user profile information,Low,Regression,Closed
+TC-5,View Content,View content on the main page,Medium,Functional,Open
+TC-6,Post Content,Post new content,Medium,Functional,Open
+TC-7,Search Content,Search for specific content,Lowest,Functional,Draft
+TC-8,Send Message,Send a message to another user,Low,Destructive,Open
+TC-9,Receive Message,Receive a message from another user,Low,Functional,Open
+TC-10,Load Performance,Evaluate page load time under high traffic,High,Performance,Draft
+TC-11,Stress Test,Assess application behavior under extreme conditions,High,Performance,Closed
+TC-12,SQL Injection,Test for SQL injection vulnerabilities,Highest,Security,Draft
+TC-13,Cross-site Scripting,Test for XSS vulnerabilities,Highest,Security,Open
+TC-14,Data Encryption,Verify data encryption methods,High,Security,Closed
+TC-15,API Response Time,Check response time of external APIs,Medium,Integration,Open

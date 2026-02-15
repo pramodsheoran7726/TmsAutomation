@@ -61,6 +61,11 @@ on:
         required: false
         default: '10'
         type: string
+      retries:
+        description: 'Retries on test failure (0 to disable)'
+        required: false
+        default: '2'
+        type: string
       auth_email:
         description: 'Override AUTH_EMAIL (leave empty to use secret)'
         required: false
@@ -203,7 +208,7 @@ jobs:
             --workers ${{ inputs.workers }} \
             --grep ${{ env.TEST_SUITE }} \
             --shard ${{ steps.shard.outputs.index }}/${{ steps.shard.outputs.total }} \
-            --retries 2
+            --retries ${{ inputs.retries || '2' }}
         env:
           LT_USERNAME: ${{ secrets.LT_USERNAME }}
           LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}

@@ -8,7 +8,9 @@ test.describe.serial('Dataset Copy', {
     { type: 'severity', description: 'normal' },
   ],
 }, () => {
-  test('should copy a dataset', async ({ datasetPage }) => {
+  test('should copy a dataset', async ({ projectOnly, page, datasetPage }) => {
+    await datasetPage.openDatasetsTab();
+    await datasetPage.verifyEmptyState();
     await datasetPage.createDatasetWithDetails();
     await datasetPage.copyDataset();
   });

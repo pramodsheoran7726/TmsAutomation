@@ -31,7 +31,7 @@ export const InsightsLocators = {
   viewingLabel: `//div[text()='Viewing:']`,
 
   // Refresh Button
-  refreshButton: `//button[@aria-label='Refresh']`,  //need to update this
+  refreshButton: `//button[@aria-describedby=':rl:-loading-announcement']`,
   syncWidget: `//button[@aria-label='Refresh']`,
   dataRefreshInfo: `//div[contains(text(),'New data may take around')]`,
 

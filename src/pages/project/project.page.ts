@@ -26,7 +26,9 @@ export class ProjectPage extends BasePage {
         await this.loc(L.newProjectCta).click();
         await this.loc(L.createProjectCta).click();
       }
+      await this.page.waitForLoadState('networkidle');
       await this.loc(L.projectTitle).fill(this.projectName);
+      await this.page.waitForLoadState('networkidle');
       if (description) {
         await this.loc(L.projectDescription).fill(randomString(RANDOM_LENGTH.standard));
       }

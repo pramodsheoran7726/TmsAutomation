@@ -13,9 +13,9 @@ export class TestRunPage extends BasePage {
     super(page);
   }
 
-  /** Click the "select all" checkbox wrapper (the hidden <input> isn't directly clickable). */
+  /** Click the "select all" checkbox to select all test cases. */
   private async clickSelectAllCheckbox(): Promise<void> {
-    await this.page.locator('div:has(> input#all)').click();
+    await this.page.locator('input#all').click();
   }
 
   async createTestRun(name?: string): Promise<void> {
@@ -89,6 +89,7 @@ export class TestRunPage extends BasePage {
       // Add configuration
       await this.loc(L.addConfigCtaTP).click();
       await waitForNetworkIdle(this.page);
+      await this.page.waitForTimeout(1000);
       await this.loc(L.selectConfigCheck).first().click();
       await this.loc(L.applyConfiguration).click();
       await waitForNetworkIdle(this.page);
@@ -124,13 +125,15 @@ export class TestRunPage extends BasePage {
       const configBtnCount = await this.loc(L.addConfigCtaTP).count();
       for (let i = 0; i < configBtnCount; i++) {
         await this.loc(L.addConfigCtaTP).first().click();
-        await waitForNetworkIdle(this.page);
+        await this.loc(L.selectConfigCheck).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+        await this.loc(L.applyConfiguration).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
         await this.loc(L.selectConfigCheck).first().click();
         await this.loc(L.applyConfiguration).click();
-        await waitForNetworkIdle(this.page);
+        await this.loc(L.applyConfiguration).waitFor({ state: 'hidden', timeout: TIMEOUTS.medium });
       }
       // Save test run
       await this.loc(L.saveTestRun).click({ timeout: TIMEOUTS.long });
+      await this.loc(L.saveTestRun).waitFor({ state: 'hidden', timeout: TIMEOUTS.medium });
       await waitForNetworkIdle(this.page);
       // Verify test run appears on instances page
       await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(runName)).first()).toBeVisible({ timeout: TIMEOUTS.long });
@@ -188,10 +191,12 @@ export class TestRunPage extends BasePage {
 
   async markStatus(status: 'Passed' | 'Failed' | 'Skipped' | 'Blocked'): Promise<void> {
     await test.step(`Mark test case status: ${status}`, async () => {
+      await this.loc(L.instanceStatusDropdown()).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.instanceStatusDropdown()).click();
+      await this.loc(`//div[@role='option'][@data-id='${status}']`).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(`//div[@role='option'][@data-id='${status}']`).click();
       await waitForNetworkIdle(this.page);
-      await this.page.waitForTimeout(1000);
+      await this.page.waitForTimeout(3000);
     });
   }
 
@@ -286,6 +291,8 @@ export class TestRunPage extends BasePage {
   async archiveTestRun(): Promise<void> {
     await test.step('Archive test run', async () => {
       await fillAndWaitForSearch(this.page, this.loc(L.searchFieldInLinkProject), this.testRunName, this.loc(L.createdTestrunAppear(this.testRunName)));
+      await waitForNetworkIdle(this.page);
+      await this.page.waitForTimeout(500);
       await this.loc(L.createdTestrunOpenMenu(this.testRunName)).click();
       await this.loc(L.archiveTestRun).click();
       await waitForNetworkIdle(this.page);
@@ -372,8 +379,12 @@ export class TestRunPage extends BasePage {
 
   async openTestCaseInInstances(title: string): Promise<void> {
     await test.step(`Open test case ${title} in instances`, async () => {
-      await this.loc(L.testrunStepInstances(title)).click();
-      await waitForNetworkIdle(this.page);
+      // Use page.goto instead of click — SPA click may not navigate
+      const link = this.page.locator(`//a[text()="${title}"]`);
+      await link.waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
+      const href = await link.getAttribute('href');
+      const baseUrl = new URL(this.page.url()).origin;
+      await this.page.goto(`${baseUrl}${href}`, { waitUntil: 'domcontentloaded' });
     });
   }
 
@@ -401,7 +412,7 @@ export class TestRunPage extends BasePage {
 
   async verifyManualRunRemark(): Promise<void> {
     await test.step('Verify manual run remark', async () => {
-      await expect.soft(this.loc(L.manualRunRemark)).toBeVisible({ timeout: TIMEOUTS.medium });
+      await expect.soft(this.loc(L.manualRunRemark).first()).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
 

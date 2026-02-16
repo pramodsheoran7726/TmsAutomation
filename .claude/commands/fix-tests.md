@@ -53,9 +53,9 @@ These rules are **non-negotiable** and apply to every fix:
 
 ### Phase 1: Run Tests & Capture Failures
 
-1. Run the test command to identify failures:
+1. Run the test command to identify failures (**always in headed mode**):
    ```bash
-   npx playwright test <path> --reporter=list 2>&1
+   npx playwright test <path> --headed --reporter=list 2>&1
    ```
 
 2. For each failure, capture:
@@ -238,9 +238,9 @@ For each failure, apply fixes following the **strict mode hierarchy**:
 [ ] All importers of modified locators have been checked
 ```
 
-#### Re-run the specific failing test:
+#### Re-run the specific failing test (headed mode):
 ```bash
-npx playwright test <path> --grep "<test name>" --reporter=list 2>&1
+npx playwright test <path> --headed --grep "<test name>" --reporter=list 2>&1
 ```
 
 If still failing, go back to Phase 3 and re-inspect with the browser.
@@ -251,9 +251,9 @@ If still failing, go back to Phase 3 and re-inspect with the browser.
 
 This phase is **not optional**. You MUST complete it before declaring the fix done.
 
-#### Step 1: Run the full test file
+#### Step 1: Run the full test file (headed mode)
 ```bash
-npx playwright test <test-file-path> --reporter=list 2>&1
+npx playwright test <test-file-path> --headed --reporter=list 2>&1
 ```
 
 #### Step 2: Run all dependent tests

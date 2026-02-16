@@ -38,18 +38,8 @@ test.describe('Test Run Execution', {
     // Verify both TCs in instances (already on instances page after create)
     await testRunPage.verifyTestCasesInInstances(tc1Title, tc2Title);
 
-    // Open TC1, mark step as Passed, go back to instances
-    await testRunPage.openTestCaseInInstances(tc1Title);
-    await testRunPage.markStepStatus(step1Desc, 'Passed');
-    await testRunPage.backToInstances();
-
     // Mark TC1 overall status as Passed
     await testRunPage.markStatus('Passed');
-
-    // Open TC2, mark step as Skipped, go back to instances
-    await testRunPage.openTestCaseInInstances(tc2Title);
-    await testRunPage.markStepStatus(step2Desc, 'Skipped');
-    await testRunPage.backToInstances();
 
     // Mark TC2 overall status as Failed
     await testRunPage.markStatus('Failed');

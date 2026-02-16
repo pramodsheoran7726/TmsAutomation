@@ -26,6 +26,91 @@ Build a comprehensive context map of the entire framework — every file, every 
 
 ---
 
+## Scoped Scan Mode (Review Mode Only)
+
+> This section applies ONLY when the agent is invoked via `/maintain review`. For full pipeline runs, skip to "Scan Dimensions" below.
+
+In review mode, the scan is scoped to **only the files changed by `/fix-tests`** and their direct dependents. This is faster and more focused than a full framework scan.
+
+### Input
+
+Read the change manifest from `docs/tms-agent/maintenance-agent/runs/fix-tests-latest/CHANGE_MANIFEST.md`.
+
+Extract:
+- **Changed files** — every file listed in the "Files Changed" table
+- **Dependent files** — every file listed in the "Impact Analysis" table
+- **Fixed tests** — every spec listed in the "Fixed Tests" table
+- **Regression results** — pass/fail status from the "Regression Results" table
+
+### Scoped Scan Dimensions
+
+For each changed file, run ONLY the relevant dimensions from the full scan:
+
+| File Type | Dimensions to Run |
+|-----------|------------------|
+| `*.locators.ts` | D2 (Page Object Architecture) — locator quality only for changed locators |
+| `*.page.ts` | D2 (Page Object Architecture) — method quality, BasePage usage, test.step() |
+| `*.spec.ts` | D3 (Test Specifications) — fixture usage, tags, flaky patterns, assertions |
+| `src/fixtures/*` | D4 (Fixtures & Setup) — cleanup, typing, dependencies |
+| `src/utils/*` | D5 (Utilities & Helpers) — typing, error handling |
+| `src/api/*` | D6 (API Layer) — typing, error handling, endpoint correctness |
+| `src/config/*` | D7 (Configuration) — constant usage, magic numbers |
+
+### Scoped Scan Questions (apply to each changed file)
+
+For every file in the manifest, answer:
+1. **Does the change follow existing framework patterns?** Compare against neighboring files in the same directory.
+2. **Is the change minimal and surgical?** Does it only fix what was broken, or did it introduce unnecessary modifications?
+3. **Are naming conventions preserved?** Variable names, method names, locator keys — consistent with the rest of the codebase?
+4. **Is the change product-aware?** Does it use correct product terminology from `PRODUCT_CONTEXT.md`?
+5. **Are there any new flaky patterns introduced?** Hard waits, bare clicks, missing assertions?
+6. **Were all dependents checked?** Cross-reference the manifest's impact analysis against actual imports.
+
+### Scoped Scan Output
+
+Save to `review-scan.md`:
+
+```markdown
+# Review Scan — Scoped Analysis of Fix-Tests Changes
+
+## Manifest Summary
+- **Source:** fix-tests-latest/CHANGE_MANIFEST.md
+- **Files changed:** N
+- **Tests fixed:** N
+- **Regression status:** All pass / N failures
+
+## Per-File Analysis
+### <file path>
+| Check | Status | Notes |
+|-------|--------|-------|
+| Follows framework patterns | ✅/⚠️/❌ | ... |
+| Minimal and surgical | ✅/⚠️/❌ | ... |
+| Naming conventions | ✅/⚠️/❌ | ... |
+| Product terminology | ✅/⚠️/❌ | ... |
+| No new flaky patterns | ✅/⚠️/❌ | ... |
+| Dependents checked | ✅/⚠️/❌ | ... |
+
+(Repeat for each file)
+
+## Cross-File Concerns
+- [Any issues that span multiple changed files]
+
+## Scoped Scan Score: X/10
+```
+
+### 🛑 CHECKPOINT (Review Mode)
+
+After completing the scoped scan:
+1. Display the **Per-File Analysis** summary and any **Cross-File Concerns** in chat
+2. Save to `docs/tms-agent/maintenance-agent/runs/{timestamp}/review-scan.md`
+3. **STOP and WAIT** for user approval before proceeding to Phase 2 (review critique)
+
+---
+
+## Full Scan Mode (Default)
+
+> The following dimensions apply to the full pipeline (`/maintain` without `review`).
+
 ## Scan Dimensions
 
 Execute each scan dimension methodically. Use the Task tool with Explore subagents for parallel scanning where dimensions are independent.

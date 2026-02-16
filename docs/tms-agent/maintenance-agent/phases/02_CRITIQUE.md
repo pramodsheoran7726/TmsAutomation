@@ -25,8 +25,14 @@ Apply multi-perspective analysis to the scan report findings, uncovering issues 
 
 ## Prerequisites
 
+### Full Pipeline Mode
 - Phase 1 scan-report.md must be complete and approved
 - All scan dimension data must be available (including Dimension 11: Product Domain Alignment)
+- Product context from `reference/PRODUCT_CONTEXT.md` must be loaded (Phase 0)
+
+### Review Mode
+- Phase 1 review-scan.md must be complete and approved
+- Change manifest from `fix-tests-latest/CHANGE_MANIFEST.md` must be loaded
 - Product context from `reference/PRODUCT_CONTEXT.md` must be loaded (Phase 0)
 
 ---
@@ -285,6 +291,132 @@ Target: ≤5 imports, ≤10 lines boilerplate, full IDE discovery
 ```
 
 ---
+
+---
+
+## Review Mode — Persona Prompts
+
+> This section applies ONLY when the agent is invoked via `/maintain review`. Each persona evaluates the specific changes from the fix-tests manifest rather than the whole framework.
+
+### Review Mode Input
+Each persona receives:
+1. The **change manifest** (`CHANGE_MANIFEST.md`) — what changed, why, and impact
+2. The **scoped scan** (`review-scan.md`) — per-file analysis from Phase 1
+3. The **actual code diffs** — read each changed file to see the modifications
+
+### R1: Framework Architect — Review Focus
+
+**Review question:** "Do these changes fit the framework's architecture and patterns?"
+
+| Check | What R1 Evaluates |
+|-------|-------------------|
+| **Pattern consistency** | Do the changes follow the same patterns as the rest of the codebase? (two-file POM, BasePage usage, test.step(), etc.) |
+| **Naming alignment** | Are new/changed names consistent with existing conventions? |
+| **Import hygiene** | Were imports added/removed cleanly? Any circular dependencies introduced? |
+| **Scope creep** | Did the fix stay surgical, or did it introduce unnecessary refactoring? |
+| **Type safety** | Are types preserved? Any new `any` types or unsafe assertions? |
+
+### R2: Reliability Engineer — Review Focus
+
+**Review question:** "Will these changes be reliable in CI, or did they introduce flakiness?"
+
+| Check | What R2 Evaluates |
+|-------|-------------------|
+| **Wait strategies** | Are new/modified waits using proper patterns (explicit waits, not hardcoded timeouts)? |
+| **Flaky patterns** | Do the changes introduce any anti-patterns (bare clicks, missing waitFor, race conditions)? |
+| **Test isolation** | Do the changes maintain test independence? No shared state introduced? |
+| **Cleanup preserved** | If fixtures were changed, does cleanup still run on failure? |
+| **Regression coverage** | Were enough dependent tests re-verified? Are there untested dependents? |
+
+### R3: DX Analyst — Review Focus
+
+**Review question:** "Are these changes readable and maintainable by the team?"
+
+| Check | What R3 Evaluates |
+|-------|-------------------|
+| **Readability** | Can a newcomer understand the changes within 30 seconds? |
+| **Comments** | Are complex changes explained with WHY comments? |
+| **Consistency** | Does the code style match surrounding code (formatting, naming, structure)? |
+| **Product terminology** | Do changes use official product terms from PRODUCT_CONTEXT.md? |
+| **Discoverability** | If new methods/locators were added, are they discoverable via IDE? |
+
+### R4: Performance Specialist — Review Focus
+
+**Review question:** "Do these changes affect test execution speed or resource usage?"
+
+| Check | What R4 Evaluates |
+|-------|-------------------|
+| **Wait overhead** | Do new waits add unnecessary execution time? |
+| **Network calls** | Were unnecessary API calls or page navigations added? |
+| **Selector performance** | Are new locators efficient (data-testid > complex XPath)? |
+| **CI impact** | Could these changes affect parallel execution or worker utilization? |
+
+### R5: Devil's Advocate — Review Focus
+
+**Review question:** "What's wrong with these changes that nobody else noticed?"
+
+| Check | What R5 Challenges |
+|-------|-------------------|
+| **Root cause validity** | Did fix-tests actually fix the root cause, or just the symptom? |
+| **Hidden regressions** | Could these changes break tests that weren't in the dependency analysis? |
+| **Simpler alternative** | Is there a simpler fix that was overlooked? |
+| **Strict mode compliance** | Did fix-tests actually follow its own strict mode rules? (no data reduction, no coverage loss, no skipped tests) |
+| **Manifest accuracy** | Does the change manifest accurately reflect what was actually changed? Diff the files to verify. |
+
+**R5 VETO in Review Mode:**
+```
+⚡ R5 can VETO the changes if:
+  - The root cause was misidentified (symptom fix, not real fix)
+  - Strict mode was violated (data removed, assertions weakened)
+  - The change manifest is inaccurate or incomplete
+  - A simpler fix exists that was overlooked
+  - Hidden regression risk is high and untested
+```
+
+### Review Mode Critique Output
+
+Save to `review-critique.md`:
+
+```markdown
+# Review Critique — Fix-Tests Changes
+
+## Persona Verdicts
+| Persona | Verdict | Key Concern | Score |
+|---------|---------|-------------|-------|
+| R1: Framework Architect | APPROVE / FLAG / REJECT | ... | X/10 |
+| R2: Reliability Engineer | APPROVE / FLAG / REJECT | ... | X/10 |
+| R3: DX Analyst | APPROVE / FLAG / REJECT | ... | X/10 |
+| R4: Performance Specialist | APPROVE / FLAG / REJECT | ... | X/10 |
+| R5: Devil's Advocate | APPROVE / VETO | ... | X/10 |
+
+## Overall Review Score: X/50 (X%)
+
+## Detailed Findings
+### Concerns (must address)
+1. [Finding with file:line, persona who raised it]
+
+### Suggestions (nice to have)
+1. [Finding with file:line, persona who raised it]
+
+### VETOES (if any)
+| R5 Veto | Reason | Alternative Proposed |
+|---------|--------|---------------------|
+
+## Final Verdict: APPROVED / APPROVED WITH NOTES / CHANGES REQUESTED / ESCALATED
+```
+
+### 🛑 CHECKPOINT (Review Mode)
+
+After completing the review critique:
+1. Display **Persona Verdicts** table and **Final Verdict** in chat
+2. Save to `docs/tms-agent/maintenance-agent/runs/{timestamp}/review-critique.md`
+3. If verdict is **CHANGES REQUESTED** or **ESCALATED**, present specific action items
+4. If verdict is **APPROVED** or **APPROVED WITH NOTES**, inform the user the changes are verified
+5. **STOP** — review mode is complete (no Phase 4/5 needed)
+
+---
+
+## Full Pipeline Mode — Critique Aggregation
 
 ## Critique Aggregation
 

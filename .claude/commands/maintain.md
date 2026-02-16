@@ -31,9 +31,51 @@ If the user provides arguments like `$ARGUMENTS`, handle them:
 - `phase N` — Start from Phase N (assumes prior phases are complete)
 - `resume` — Read latest state from `docs/tms-agent/maintenance-agent/runs/latest/state.json`
 - `quick` — Run Phase 1 only (scan report)
+- `review` — **Review Mode**: Verify code changes made by `/fix-tests` (see Review Mode below)
 - No arguments — Run full pipeline starting from Phase 0
 
+## Review Mode (`/maintain review`)
+
+When invoked with `review`, the agent operates as a **quality gate for `/fix-tests` changes**. Instead of scanning the whole framework, it reads the change manifest and runs a scoped review.
+
+### Review Mode Pipeline
+```
+Phase 0: Product Context Loading (same as full pipeline)
+  ↓
+Phase 1: Scoped Scan (ONLY files in the change manifest + their dependents)
+  ↓  🛑 HUMAN CHECKPOINT
+Phase 2: Multi-Persona Critique (review-focused prompts for each persona)
+  ↓  🛑 HUMAN CHECKPOINT
+Phase 3: Verdict (approve / request changes / flag concerns)
+  ↓  DONE — no Phase 4/5 (code already written by fix-tests)
+```
+
+### Review Mode Steps
+1. Read `docs/tms-agent/maintenance-agent/runs/fix-tests-latest/CHANGE_MANIFEST.md`
+   - If the manifest doesn't exist, inform the user and suggest running `/fix-tests` first
+2. Load product context (Phase 0 — same as always)
+3. Run Phase 1 in **scoped mode** — see `phases/01_DEEP_SCAN.md` "Scoped Scan Mode" section
+4. Run Phase 2 with **review-specific prompts** — see `phases/02_CRITIQUE.md` "Review Mode" section
+5. Deliver Phase 3 verdict:
+   - **APPROVED** — Changes are clean, well-scoped, and follow framework patterns
+   - **APPROVED WITH NOTES** — Changes are acceptable but have minor suggestions
+   - **CHANGES REQUESTED** — Specific issues found that should be addressed before merging
+   - **ESCALATED** — Devil's Advocate veto or conflicting concerns that need human decision
+
+### Review Mode Artifacts
+```
+docs/tms-agent/maintenance-agent/runs/{timestamp}/
+├── state.json           # mode: "review", source manifest path
+├── review-scan.md       # Scoped scan output (Phase 1)
+├── review-critique.md   # Persona critiques (Phase 2)
+└── review-verdict.md    # Final verdict (Phase 3)
+```
+
+---
+
 ## Getting Started
+
+### Full Pipeline (default)
 
 1. Read `docs/tms-agent/maintenance-agent/MAINTENANCE_AGENT.md` for the full playbook
 2. **Phase 0: Load product context**
@@ -49,3 +91,14 @@ If the user provides arguments like `$ARGUMENTS`, handle them:
 6. Present scan findings and wait for approval before Phase 2
 
 Begin now. Start with Phase 0 (product context loading), then Phase 1.
+
+### Review Mode
+
+1. Read the change manifest at `docs/tms-agent/maintenance-agent/runs/fix-tests-latest/CHANGE_MANIFEST.md`
+2. Load product context (Phase 0)
+3. Create a timestamped run directory: `docs/tms-agent/maintenance-agent/runs/{YYYYMMDD-HHMM}/`
+4. Run Phase 1 in scoped mode (only files from the manifest)
+5. Run Phase 2 with review-specific persona prompts
+6. Deliver Phase 3 verdict
+
+Begin now. Start by reading the change manifest.

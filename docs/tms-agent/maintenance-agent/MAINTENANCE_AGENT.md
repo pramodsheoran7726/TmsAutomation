@@ -175,11 +175,21 @@ Runs only the specified phase (assumes previous phases are complete).
 ```
 Reads `docs/tms-agent/maintenance-agent/runs/latest/state.json` and resumes from last checkpoint.
 
+### Review Mode (verify fix-tests changes)
+```
+/maintain review
+```
+Reads the change manifest from `/fix-tests` and runs a scoped review (Phases 0-3 only, no code changes). Used as a quality gate after `/fix-tests` has made code changes.
+
+**Flow:** `/fix-tests` → writes `CHANGE_MANIFEST.md` → `/maintain review` → scoped scan → persona critique → verdict
+
 ---
 
 ## Artifact Storage
 
 All analysis and reports are stored in:
+
+### Full Pipeline Artifacts
 ```
 docs/tms-agent/maintenance-agent/runs/{timestamp}/
 ├── state.json              # Current phase, status, decisions
@@ -191,6 +201,21 @@ docs/tms-agent/maintenance-agent/runs/{timestamp}/
 └── screenshots/            # Phase 4 MCP verification evidence (optional)
     ├── batch-A-{page}.png
     └── ...
+```
+
+### Fix-Tests Handoff Artifacts
+```
+docs/tms-agent/maintenance-agent/runs/fix-tests-latest/
+└── CHANGE_MANIFEST.md      # Written by /fix-tests, consumed by /maintain review
+```
+
+### Review Mode Artifacts
+```
+docs/tms-agent/maintenance-agent/runs/{timestamp}/
+├── state.json              # mode: "review", source manifest path
+├── review-scan.md          # Scoped scan output (Phase 1)
+├── review-critique.md      # Persona critiques (Phase 2)
+└── review-verdict.md       # Final verdict (Phase 3)
 ```
 
 ---

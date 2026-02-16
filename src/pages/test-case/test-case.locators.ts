@@ -8,7 +8,7 @@ export const TestCaseLocators = {
   searchTcInput: `//input[@placeholder='Search by Test Case ID or Title']`,
   selectFunctionalTestType: `//span[text()='Functional']`,
   selectTestType: `//span[starts-with(@id, 'selectItem-') and text()='{{type}}']`,
-  selectAutomatedAutomationStatus: `//span[starts-with(@id, 'selectItem-') and text()='To Be Automated']`,
+  selectAutomatedAutomationStatus: `//span[starts-with(@id, 'selectItem-') and text()='Automated']`,
   selectHighTestPriority: `//span[starts-with(@id, 'selectItem-') and text()='{{priority}}']`,
   selectOpenTestStatus: `//span[starts-with(@id, 'selectItem-') and text()='Live']`,
   attachmentInTestcase: `#fileInput`,

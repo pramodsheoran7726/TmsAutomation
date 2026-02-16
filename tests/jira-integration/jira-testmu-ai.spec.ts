@@ -1,5 +1,4 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
-import { RETRY } from '../../src/config/constants.js';
 
 test.describe('Jira TestMu AI Integration', {
   tag: ['@regression'],
@@ -8,7 +7,6 @@ test.describe('Jira TestMu AI Integration', {
     { type: 'severity', description: 'minor' },
   ],
 }, () => {
-  test.describe.configure({ retries: RETRY.jiraRetries });
 
   test('should create Jira issue, trigger TestMu AI, and verify response', async ({ page, jiraApi, kaneaiPage }) => {
     const { issueKey } = await jiraApi.createJiraIssue();

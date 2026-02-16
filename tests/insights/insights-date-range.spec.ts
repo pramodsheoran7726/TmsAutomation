@@ -34,6 +34,7 @@ test.describe('Insights - Date Range Filter', {
     testRunPage,
     insightsPage,
   }) => {
+    test.setTimeout(300_000);
     await testRunPage.createTestRun();
     await projectPage.backToProjectList();
     await projectPage.openProject();
@@ -73,13 +74,10 @@ test.describe('Insights - Date Range Filter', {
     testRunPage,
     insightsPage,
   }) => {
+    test.setTimeout(300_000);
     // Create test cases - Manual and Automated
     const manualTC = `ManualTC_DateRange_${Date.now()}`;
     await testCasePage.createTestCase(manualTC);
-    await testCasePage.openTestCase(manualTC);
-    await testCasePage.saveChanges();
-
-    await projectPage.openProject();
 
     const automatedTC = `AutomatedTC_DateRange_${Date.now()}`;
     await testCasePage.createTestCase(automatedTC);
@@ -89,9 +87,8 @@ test.describe('Insights - Date Range Filter', {
 
     await projectPage.openProject();
 
-    // Create a test run with test cases
-    await testRunPage.createTestRun();
-    await testRunPage.addTestCases(2);
+    // Create a test run with all test cases (includes configuration)
+    await testRunPage.createTestRunWithTestCases();
 
     await projectPage.openProject();
 

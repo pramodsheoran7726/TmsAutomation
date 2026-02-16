@@ -236,10 +236,11 @@ export class DatasetPage extends BasePage {
 
   async copyDataset(): Promise<void> {
     await test.step('Copy dataset', async () => {
+      await this.navigateBackToDatasetsList();
       await this.loc(L.datasetMenuByName(this.datasetName)).click();
       await this.page.waitForTimeout(2000);
       await this.loc(L.datasetCopyOption).click();
-      await this.page.waitForTimeout(2000);
+      await this.page.waitForTimeout(3000);
     });
   }
 }

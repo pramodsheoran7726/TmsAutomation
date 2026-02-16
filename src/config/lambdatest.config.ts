@@ -143,13 +143,14 @@ export function buildCapabilities(
     ?? process.env.GITHUB_RUN_NUMBER
     ?? Date.now().toString();
   const suffix = opts?.buildSuffix ?? buildId;
+  const suiteName = (process.env.TEST_SUITE ?? '@smoke').replace('@', '');
 
   return {
     browserName: profile.browser,
     browserVersion: profile.browserVersion,
     'LT:Options': {
       platform: profile.platform,
-      build: `TMS-E2E-${env}-${profile.browser}-${suffix}`,
+      build: `TMS-E2E-${env}-${suiteName}-${suffix}`,
       name: opts?.testName ?? `TMS ${env} ${profile.browser}/${profile.platform}`,
       user: EnvConfig.ltUsername,
       accessKey: EnvConfig.ltAccessKey,

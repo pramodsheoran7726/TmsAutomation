@@ -29,17 +29,22 @@ export class TestCasePage extends BasePage {
 
   async openTestCase(title?: string): Promise<void> {
     await test.step('Open test case', async () => {
-      const link = this.loc(L.createdTC(title ?? this.testCaseTitle));
+      const tcName = title ?? this.testCaseTitle;
+      const link = this.loc(L.createdTC(tcName));
+      // Wait for the href to contain a valid test case ID (not 'undefined').
+      // The link renders immediately but the API may not have returned the ID yet.
+      await expect(link).toHaveAttribute('href', /\/test-cases\/(?!undefined)/, { timeout: TIMEOUTS.medium });
       // Use page.goto() with the href to force a full navigation (the SPA
       // intercepts clicks and stays on web-frontend, which can't render the
       // test case detail page — it only works on test-manager domain).
       const href = await link.getAttribute('href');
       if (href) {
-        await this.page.goto(href);
+        await this.page.goto(href, { waitUntil: 'domcontentloaded' });
       } else {
         await link.click();
       }
-      await this.page.waitForLoadState('domcontentloaded');
+      // Wait for the test case detail page to render (SPA may need time after navigation)
+      await this.loc(L.backFromEditTC).waitFor({ state: 'visible', timeout: TIMEOUTS.long });
     });
   }
 

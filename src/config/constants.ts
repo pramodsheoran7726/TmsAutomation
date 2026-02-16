@@ -31,7 +31,7 @@ export const RETRY = {
 export const POLL = {
   maxWaitSeconds: 120,         // 2 min  — general polling timeout
   intervalSeconds: 10,         // 10 sec — pause between poll attempts
-  insightsTimeoutSeconds: 300, // 5 min  — Insights data may take longer to sync
+  insightsTimeoutSeconds: 120, // 2 min  — Insights data sync per metric (4 metrics polled sequentially)
 } as const;
 
 // ──────────────────────────────────────────────────────────────
@@ -47,6 +47,7 @@ export const CI_CONFIG = {
 // ──────────────────────────────────────────────────────────────
 export const ROUTES = {
   settingsFields: '/settings/fields',
+  settingsCustomFields: '/settings/fields/custom',
 } as const;
 
 // ──────────────────────────────────────────────────────────────

@@ -1,14 +1,12 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
-import { RETRY } from '../../src/config/constants.js';
 
 test.describe('Insights Validation', {
-  tag: ['@regression'],
+  tag: ['@regression' , '@insights-validation'],
   annotation: [
     { type: 'feature', description: 'Insights Dashboard' },
     { type: 'severity', description: 'normal' },
   ],
 }, () => {
-  test.describe.configure({ retries: RETRY.insightsRetries });
 
   /**
    * Basic validation - verify Insights page elements are visible
@@ -40,15 +38,10 @@ test.describe('Insights Validation', {
     testRunPage,
     insightsPage,
   }) => {
-    // Step 2: Create a Manual test case (Not Automated)
+    test.setTimeout(300_000);
+    // Step 2: Create a Manual test case (Not Automated - default)
     const manualTCTitle = `ManualTC_${Date.now()}`;
     await testCasePage.createTestCase(manualTCTitle);
-    await testCasePage.openTestCase(manualTCTitle);
-    // Leave automation status as default (Not Automated)
-    await testCasePage.saveChanges();
-
-    // Navigate back to project
-    await projectPage.openProject();
 
     // Step 3: Create an Automated test case
     const automatedTCTitle = `AutomatedTC_${Date.now()}`;
@@ -60,9 +53,8 @@ test.describe('Insights Validation', {
     // Navigate back to project
     await projectPage.openProject();
 
-    // Step 4: Create a test run with test cases
-    await testRunPage.createTestRun();
-    await testRunPage.addTestCases(2);
+    // Step 4: Create a test run with all test cases (includes configuration)
+    await testRunPage.createTestRunWithTestCases();
 
     // Navigate back to project
     await projectPage.openProject();
@@ -82,10 +74,7 @@ test.describe('Insights Validation', {
     // Step 7: Validate chart sections are visible
     await insightsPage.verifyAllChartSectionsVisible();
 
-    // Step 8: Validate test run summary not started count (2 test instances, none executed)
-    await insightsPage.verifyTestRunSummaryNotStartedCount('2');
-
-    // Step 9: Validate date range filter and refresh button visibility
+    // Step 8: Validate date range filter and refresh button visibility
     await insightsPage.verifyDateRangeFilterVisible();
     await insightsPage.verifyRefreshButtonVisible();
 

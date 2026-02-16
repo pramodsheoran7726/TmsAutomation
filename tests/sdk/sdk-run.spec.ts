@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('SDK Run', {
-  tag: ['@regression'],
+  tag: ['@sdk'],
   annotation: [
     { type: 'feature', description: 'SDK Integration' },
     { type: 'severity', description: 'minor' },

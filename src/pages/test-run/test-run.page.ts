@@ -13,6 +13,11 @@ export class TestRunPage extends BasePage {
     super(page);
   }
 
+  /** Click the "select all" checkbox wrapper (the hidden <input> isn't directly clickable). */
+  private async clickSelectAllCheckbox(): Promise<void> {
+    await this.page.locator('div:has(> input#all)').click();
+  }
+
   async createTestRun(name?: string): Promise<void> {
     await test.step('Create new test run', async () => {
       const runName = name ?? this.testRunName;
@@ -45,7 +50,7 @@ export class TestRunPage extends BasePage {
       await waitForNetworkIdle(this.page);
       // Wait for test cases to load, then select all
       await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
-      await this.loc(L.selectAllCheckboxInTpTestcase).click();
+      await this.clickSelectAllCheckbox();
       await this.loc(L.addTcTestRunCta).click();
       await waitForNetworkIdle(this.page);
       // Verify missing config/assignee message
@@ -76,7 +81,7 @@ export class TestRunPage extends BasePage {
       await waitForNetworkIdle(this.page);
       // Wait for test cases to load, then select all
       await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
-      await this.loc(L.selectAllCheckboxInTpTestcase).click();
+      await this.clickSelectAllCheckbox();
       await this.loc(L.addTcTestRunCta).click();
       await waitForNetworkIdle(this.page);
       // Verify missing config/assignee message
@@ -111,7 +116,7 @@ export class TestRunPage extends BasePage {
       await waitForNetworkIdle(this.page);
       // Wait for test cases to load, then select all
       await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
-      await this.loc(L.selectAllCheckboxInTpTestcase).click();
+      await this.clickSelectAllCheckbox();
       await this.loc(L.addTcTestRunCta).click();
       await waitForNetworkIdle(this.page);
       // Add configuration for all unconfigured TCs (required to save)
@@ -154,10 +159,9 @@ export class TestRunPage extends BasePage {
   async addTestCases(count = 1): Promise<void> {
     await test.step(`Add ${count} test case(s) to test run`, async () => {
       await this.loc(L.addTcTestRunCta).click();
-      await this.page.waitForTimeout(1000);
-      for (let i = 0; i < count; i++) {
-        await this.loc(L.selectAllCheckboxInTpTestcase).nth(i).click();
-      }
+      // Wait for test case rows to load before selecting
+      await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
+      await this.clickSelectAllCheckbox();
       await this.loc(L.updateTestcaseInTestRun).click();
       await expect.soft(this.loc(L.saveTestRun)).toBeVisible({ timeout: TIMEOUTS.medium });
       await this.loc(L.saveTestRun).click();
@@ -334,7 +338,7 @@ export class TestRunPage extends BasePage {
       // Add new test case
       await this.loc(L.addTcInTR).click();
       await this.page.waitForTimeout(1000);
-      await this.loc(L.selectAllCheckboxInTpTestcase).click();
+      await this.clickSelectAllCheckbox();
       await this.loc(L.updateTestcaseInTestRun).click();
       await waitForNetworkIdle(this.page);
       // Verify both TCs visible

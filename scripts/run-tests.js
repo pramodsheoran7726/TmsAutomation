@@ -22,6 +22,11 @@ const browserInput = extractFlag('--browser');      // chrome-win | edge-win | c
 const runProfile   = extractFlag('--run-profile');  // smoke | regression | debug
 const workersInput = extractFlag('--workers');      // number of parallel workers
 
+// Peek at --grep value without removing it (Playwright needs it)
+const grepIdx = args.indexOf('--grep');
+const grepValue = grepIdx !== -1 ? args[grepIdx + 1] : null;
+const testSuite = process.env.TEST_SUITE || grepValue || '@smoke';
+
 const mode = modeInput || process.env.TEST_MODE || 'local';
 const isRemote = mode === 'remote';
 // Explicit 'false' overrides even for remote mode (lets CI workflow manage the lifecycle)
@@ -95,7 +100,7 @@ console.log(`  cmd: npx playwright test ${playwrightArgs}\n`);
 // ──────────────────────────────────────────────────────────
 function reportLab(cmd) {
   try {
-    execSync(`HE_BUILD_ID=${buildId} TEST_ENV=${envInput} TEST_SUITE=${process.env.TEST_SUITE || '@smoke'} npx tsx scripts/report-lab.ts ${cmd}`, {
+    execSync(`HE_BUILD_ID=${buildId} TEST_ENV=${envInput} TEST_SUITE=${testSuite} npx tsx scripts/report-lab.ts ${cmd}`, {
       stdio: 'inherit',
       cwd: process.cwd(),
     });

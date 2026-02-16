@@ -122,15 +122,15 @@ export class InsightsPage extends BasePage {
         console.log(`[Polling ${metricName}] Attempt ${attempt}: Element not found, retrying...`);
       }
 
-      // Randomly choose refresh strategy
+      // Randomly choose refresh strategy (avoid page.reload which breaks SPA context)
       const strategy = Math.floor(Math.random() * 3);
       if (strategy === 0) {
         console.log(`[Polling ${metricName}] Clicking refresh button...`);
         await this.loc(L.refreshButton).click().catch(() => {});
       } else if (strategy === 1) {
-        console.log(`[Polling ${metricName}] Reloading page...`);
-        await this.page.reload();
-        await this.navigateToInsights();
+        console.log(`[Polling ${metricName}] Re-navigating to Insights tab...`);
+        await this.loc(L.insightsTab).click().catch(() => {});
+        await this.page.waitForTimeout(2000);
       } else {
         console.log(`[Polling ${metricName}] Waiting...`);
       }

@@ -280,6 +280,70 @@ DATA IMPACT:     None (test data unchanged)
 COVERAGE IMPACT: None (all assertions preserved)
 ```
 
+#### Step 5: Generate Change Manifest (MANDATORY)
+
+After all fixes are verified, write a structured change manifest to `docs/tms-agent/maintenance-agent/runs/fix-tests-latest/CHANGE_MANIFEST.md`. This manifest is consumed by `/maintain review` for quality verification.
+
+```markdown
+# Change Manifest — Fix Tests Run
+
+## Metadata
+- **Date:** YYYY-MM-DD HH:MM
+- **Trigger:** /fix-tests <arguments>
+- **Tests Fixed:** N
+- **Files Changed:** N
+
+## Fixed Tests
+| Test | File | Root Cause | Category |
+|------|------|-----------|----------|
+| <test name> | <spec file path> | <root cause> | Locator / Timing / Flow / Data / Navigation |
+
+## Files Changed
+| File | Change Type | What Changed | Risk Level |
+|------|------------|-------------|-----------|
+| <file path> | Locator / Page Object / Spec / Helper | <description> | LOW / MEDIUM / HIGH |
+
+## Change Details
+### <file path>
+- **Lines modified:** N
+- **Before:** <brief description or code snippet>
+- **After:** <brief description or code snippet>
+- **Reason:** <why this change was needed>
+
+(Repeat for each file)
+
+## Impact Analysis
+| Changed File | Dependent Files | Tests Re-Verified |
+|-------------|----------------|------------------|
+| <file path> | <list of importers> | <list of specs run> |
+
+## Regression Results
+| Test | Status | Notes |
+|------|--------|-------|
+| <test name> | PASS / FAIL | <any notes> |
+
+## Strict Mode Compliance
+- [ ] No test data removed or reduced
+- [ ] No assertions removed or weakened
+- [ ] No tests skipped or disabled
+- [ ] All dependent tests pass
+- [ ] All method signatures unchanged (or all callers updated)
+```
+
+Also update the latest symlink:
+```
+If docs/tms-agent/maintenance-agent/runs/fix-tests-latest/ already exists,
+overwrite CHANGE_MANIFEST.md with the new one.
+```
+
+**After writing the manifest, inform the user:**
+```
+Change manifest saved to docs/tms-agent/maintenance-agent/runs/fix-tests-latest/CHANGE_MANIFEST.md
+
+To verify these changes with the maintenance agent, run:
+  /maintain review
+```
+
 ---
 
 ## Key Debugging Patterns

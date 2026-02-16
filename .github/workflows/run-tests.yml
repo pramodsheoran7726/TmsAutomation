@@ -86,7 +86,7 @@ on:
 env:
   TEST_ENV: ${{ github.event.inputs.environment || 'stage' }}
   TEST_SUITE: ${{ github.event.inputs.test_suite || (github.event.schedule == '0 0 * * 0' && '@regression') || '@smoke' }}
-  LT_RUN_PROFILE: ${{ inputs.run_profile || (inputs.test_suite == '@smoke' && 'smoke') || 'regression' }}
+  LT_RUN_PROFILE: ${{ inputs.run_profile || (inputs.test_suite == '@smoke' && 'smoke') || (inputs.test_suite == '@critical-path' && 'smoke') || 'regression' }}
   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 

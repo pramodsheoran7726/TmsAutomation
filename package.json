@@ -12,6 +12,8 @@
     "test:list": "node scripts/run-tests.js --list",
     "test:smoke": "node scripts/run-tests.js --grep @smoke",
     "test:regression": "node scripts/run-tests.js --grep @regression",
+    "test:critical-path": "node scripts/run-tests.js --grep @critical-path",
+    "test:eu:critical-path": "node scripts/run-tests.js --env eu-stage --grep @critical-path",
     "test:eu": "node scripts/run-tests.js --env eu-stage",
     "test:eu:smoke": "node scripts/run-tests.js --env eu-stage --grep @smoke",
     "test:eu:regression": "node scripts/run-tests.js --env eu-stage --grep @regression",

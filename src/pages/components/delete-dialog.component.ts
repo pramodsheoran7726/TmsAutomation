@@ -1,5 +1,6 @@
 import { type Page } from '@playwright/test';
 import { BasePage } from '../../utils/base.page.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 /**
  * Reusable Delete Confirmation Dialog component.
@@ -19,7 +20,7 @@ export class DeleteDialogComponent extends BasePage {
     await input.click();
     await input.fill('');
     await input.pressSequentially('DELETE');
-    await this.page.waitForTimeout(1000);
+    await waitForNetworkIdle(this.page);
     await this.loc(confirmButton).click();
   }
 

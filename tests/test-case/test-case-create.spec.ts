@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Test Case Creation', {
-  tag: ['@smoke', '@regression'],
+  tag: ['@smoke', '@regression', '@critical-path'],
   annotation: [
     { type: 'feature', description: 'Test Case Management' },
     { type: 'severity', description: 'critical' },

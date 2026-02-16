@@ -76,19 +76,10 @@ test.describe('Insights Mixed Status', {
     await testRunPage.createTestRunWithTestCases();
 
     // Step 4: Mark test instances with different statuses
-    // Wait for instances page to fully render status dropdowns
-    await page.waitForTimeout(3000);
-    // Mark first instance as Passed
+    // markStatus already waits for networkIdle after each status change
     await testRunPage.markStatus('Passed');
-    await page.waitForTimeout(2000);
-
-    // Mark second instance as Failed
     await testRunPage.markStatus('Failed');
-    await page.waitForTimeout(2000);
-
-    // Mark third instance as Skipped
     await testRunPage.markStatus('Skipped');
-    await page.waitForTimeout(2000);
 
     // Navigate back to project
     await projectPage.openProject();

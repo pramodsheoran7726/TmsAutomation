@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Milestone CRUD with TestRun Integration', {
-  tag: ['@smoke', '@regression'],
+  tag: ['@smoke', '@regression', '@critical-path'],
   annotation: [
     { type: 'feature', description: 'Milestone Management' },
     { type: 'severity', description: 'critical' },

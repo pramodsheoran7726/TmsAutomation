@@ -75,7 +75,7 @@ export class NavigationPage extends BasePage {
       const isVisible = await modulesLink.isVisible().catch(() => false);
       if (!isVisible) {
         await this.loc(Nav.tmsSidebar).click();
-        await this.page.waitForTimeout(1000);
+        await modulesLink.waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       }
       await modulesLink.click();
       await this.page.waitForLoadState('domcontentloaded');

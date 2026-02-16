@@ -2,11 +2,9 @@ import { CommonLocators as C } from '../common/common.locators.js';
 
 export const ProjectLocators = {
   loadingProjects: `//div[text()='Loading Projects']`,
-  newProjectCta: `(//button[@aria-haspopup='true'])[1]`,
-  createProjectCta: `//div[text()='Create new']`,
-  newProjectCtaOverlay: `//span[text()='Create Project']`,
+  createProjectBtn: `//button[.//span[text()='Create Project']]`,
   projectTitle: `input[placeholder='Enter project name']`,
-  projectDescription: `textarea[placeholder='Add description to the project']`,
+  projectDescription: `[placeholder='Add description to the project']`,
   projectTag: C.tagsInput,
   projectCreate: C.createSpan,
   projectCreateFL: `//span[text()='New Project']`,

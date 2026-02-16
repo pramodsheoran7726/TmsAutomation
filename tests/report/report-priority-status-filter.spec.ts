@@ -2,7 +2,7 @@ import { test } from '../../src/fixtures/tms.fixture.js';
 import { setupReportProject, configureReportFilters, generateAndVerifyReport } from '../../src/helpers/report-test.helper.js';
 
 test.describe('Report - Priority and Status Filters', {
-  tag: ['@regression', '@Reportregressionus', '@Reportsanityus'],
+  tag: ['@regression', '@report'],
   annotation: [
     { type: 'feature', description: 'Reports' },
     { type: 'severity', description: 'normal' },

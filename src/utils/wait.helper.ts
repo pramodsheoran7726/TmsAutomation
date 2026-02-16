@@ -28,7 +28,19 @@ export async function clickAndWaitForResponse(page: Page, locator: Locator, urlP
   await responsePromise;
 }
 
-/** Fill an input and wait for search results to appear */
+/** Click a trigger and wait for a target element to become visible */
+export async function clickAndWaitForVisible(locator: Locator, targetLocator: Locator, timeout = TIMEOUTS.medium): Promise<void> {
+  await locator.click({ timeout });
+  await targetLocator.waitFor({ state: 'visible', timeout });
+}
+
+/** Click a trigger and wait for an element to disappear (e.g. dropdown closes, modal hides) */
+export async function clickAndWaitForHidden(locator: Locator, targetLocator: Locator, timeout = TIMEOUTS.medium): Promise<void> {
+  await locator.click({ timeout });
+  await targetLocator.waitFor({ state: 'hidden', timeout });
+}
+
+/** Fill an input and wait for search results / network to settle (search debounce) */
 export async function fillAndWaitForSearch(page: Page, locator: Locator, value: string, debounceLocator?: Locator, timeout = TIMEOUTS.long): Promise<void> {
   await locator.click({ timeout });
   await locator.fill(value);
@@ -38,4 +50,11 @@ export async function fillAndWaitForSearch(page: Page, locator: Locator, value: 
     await page.waitForTimeout(TIMEOUTS.animation);
     await waitForNetworkIdle(page);
   }
+}
+
+/** Fill a search input and wait for network idle (for search debounce without a specific result locator) */
+export async function fillSearchAndWaitForNetwork(page: Page, locator: Locator, value: string, timeout = TIMEOUTS.long): Promise<void> {
+  await locator.click({ timeout });
+  await locator.fill(value);
+  await waitForNetworkIdle(page);
 }

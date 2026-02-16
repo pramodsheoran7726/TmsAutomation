@@ -12,18 +12,13 @@ test.describe('Verify Test Case Selection', {
     page,
     testCasePage,
   }) => {
-    // Create 3 test cases with waits between them
+    // Create 3 test cases — createTestCase already verifies each is visible before returning
     const tc1 = `AutoTC_Selection_1_${Date.now()}`;
     await testCasePage.createTestCase(tc1);
-    await page.waitForTimeout(500);
     const tc2 = `AutoTC_Selection_2_${Date.now()}`;
     await testCasePage.createTestCase(tc2);
-    await page.waitForTimeout(500);
     const tc3 = `AutoTC_Selection_3_${Date.now()}`;
     await testCasePage.createTestCase(tc3);
-
-    // Wait for the list view to fully render after test case creation
-    await page.waitForTimeout(2000);
 
     // Select all test cases using select all checkbox
     await page.locator('#all').waitFor({ state: 'attached', timeout: 15000 });
@@ -34,7 +29,7 @@ test.describe('Verify Test Case Selection', {
 
     // Clear selection
     await page.locator(`//button[.//*[normalize-space()='Clear Selection']]`).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator(`//p[contains(.,'Test Cases are selected')]`)).not.toBeVisible({ timeout: 15000 });
 
     // Select single test case
     await page.locator(`(//input[@type='checkbox'])[2]`).click();

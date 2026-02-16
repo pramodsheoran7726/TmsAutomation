@@ -61,6 +61,7 @@ export default defineConfig({
   reporter: [
     ['html', { open: 'never' }],
     ['./src/reporters/step-reporter.ts'],
+    ['./src/reporters/flaky-reporter.ts'],
     ['allure-playwright'],
     ...(process.env.REPORT_LAB_ENABLED === 'true'
       ? [['./src/reporters/report-lab.reporter.ts'] as const]

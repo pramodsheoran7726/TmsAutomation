@@ -38,7 +38,7 @@ const ENV_URLS: Record<TestEnvironment, {
   stage: {
     authUrl: 'https://stage-auth.lambdatestinternal.com',
     baseUrl: 'https://stage-accounts.lambdatestinternal.com',
-    tmsBaseUrl: 'https://stage-web-frontend.lambdatestinternal.com',
+    tmsBaseUrl: 'https://stage-test-manager.lambdatestinternal.com',
     tmsApiUrl: 'https://stage-test-manager-api.lambdatestinternal.com',
     tmsInsightsApi: 'https://stage-api.lambdatestinternal.com/tms/insights',
     hubUrl: 'https://stage-hub.lambdatestinternal.com',

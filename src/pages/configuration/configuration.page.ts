@@ -3,6 +3,7 @@ import { BasePage } from '../../utils/base.page.js';
 import { ConfigurationLocators as L } from './configuration.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 import type { ConfigurationRequest } from '../../types/configuration.types.js';
 
 export class ConfigurationPage extends BasePage {
@@ -27,7 +28,7 @@ export class ConfigurationPage extends BasePage {
     const searchInput = this.page.locator(`input[placeholder="${searchPlaceholder}"]`);
     await searchInput.waitFor({ state: 'visible' });
     await searchInput.fill(searchValue);
-    await this.page.waitForTimeout(1000);
+    await waitForNetworkIdle(this.page);
     // Click matching option via DOM (popup uses custom checkbox elements)
     await this.page.evaluate((text) => {
       const els = document.querySelectorAll('span, div, p, label, li, a');
@@ -41,10 +42,9 @@ export class ConfigurationPage extends BasePage {
         }
       }
     }, searchValue);
-    await this.page.waitForTimeout(500);
     // Close the popup by pressing Escape
     await this.page.keyboard.press('Escape');
-    await this.page.waitForTimeout(500);
+    await waitForNetworkIdle(this.page);
   }
 
   async createConfiguration(config?: ConfigurationRequest): Promise<void> {
@@ -139,7 +139,7 @@ export class ConfigurationPage extends BasePage {
     const configName = oldName ?? this.configurationName;
     await test.step('Edit configuration: ' + configName, async () => {
       await this.loc(L.searchConfigurationInput).fill(configName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
 
       await this.loc(L.configurationOptionsMenu(configName)).click();
       await this.loc(L.editConfigurationButton).click();
@@ -149,11 +149,10 @@ export class ConfigurationPage extends BasePage {
       await this.loc(L.configurationNameInput).fill(this.configurationName);
 
       await this.loc(L.saveConfigurationButton).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
       await this.loc(L.searchConfigurationInput).clear();
-      await this.page.waitForTimeout(1000);
       await this.loc(L.searchConfigurationInput).fill(this.configurationName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
       await expect.soft(this.loc(L.createdConfiguration(this.configurationName))).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
@@ -162,7 +161,7 @@ export class ConfigurationPage extends BasePage {
     const configName = name ?? this.configurationName;
     await test.step('Delete configuration: ' + configName, async () => {
       await this.loc(L.searchConfigurationInput).fill(configName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
 
       if (await this.isVisible(L.createdConfiguration(configName))) {
         await this.loc(L.configurationOptionsMenu(configName)).click();
@@ -176,7 +175,7 @@ export class ConfigurationPage extends BasePage {
   async searchConfiguration(query: string): Promise<void> {
     await test.step('Search configuration: ' + query, async () => {
       await this.loc(L.searchConfigurationInput).fill(query);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
       await expect.soft(this.loc(L.configurationSearchResults)).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
@@ -195,7 +194,7 @@ export class ConfigurationPage extends BasePage {
     const configName = name ?? this.configurationName;
     await test.step('Duplicate configuration: ' + configName, async () => {
       await this.loc(L.searchConfigurationInput).fill(configName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
 
       await this.loc(L.configurationOptionsMenu(configName)).click();
       await this.loc(L.duplicateConfigurationButton).click();
@@ -271,7 +270,7 @@ export class ConfigurationPage extends BasePage {
     const configName = name ?? this.configurationName;
     await test.step('Open configuration: ' + configName, async () => {
       await this.loc(L.searchConfigurationInput).fill(configName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
       await this.loc(L.createdConfiguration(configName)).click();
     });
   }
@@ -280,7 +279,7 @@ export class ConfigurationPage extends BasePage {
     await test.step('Filter configurations by OS: ' + os, async () => {
       await this.loc(L.osFilterDropdown).click();
       await this.loc(L.selectOsFilter(os)).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
       await expect.soft(this.loc(L.filteredConfigurations)).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }
@@ -289,7 +288,7 @@ export class ConfigurationPage extends BasePage {
     await test.step('Filter configurations by browser: ' + browser, async () => {
       await this.loc(L.browserFilterDropdown).click();
       await this.loc(L.selectBrowserFilter(browser)).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
       await expect.soft(this.loc(L.filteredConfigurations)).toBeVisible({ timeout: TIMEOUTS.medium });
     });
   }

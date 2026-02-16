@@ -2,53 +2,57 @@ import { type Page, expect, test } from '@playwright/test';
 import { BasePage } from '../../utils/base.page.js';
 import { KaneaiLocators as L, kaneaiJiraIssueKey } from './kaneai.locators.js';
 import { TIMEOUTS } from '../../config/constants.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class KaneaiPage extends BasePage {
   constructor(page: Page) { super(page); }
 
   async openKaneaiSidebar(): Promise<void> {
     await this.loc(L.auteurSidebar).click();
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async automateWithKaneai(): Promise<void> {
     await this.loc(L.automateWithKaneai).click();
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async selectDesktopBrowser(): Promise<void> {
     await this.loc(L.desktopBrowser).click();
-    await this.page.waitForTimeout(1000);
+    await waitForNetworkIdle(this.page);
   }
 
   async selectMobileApp(): Promise<void> {
     await this.loc(L.mobileAppButton).click();
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async selectMobileAppLink(): Promise<void> {
     await this.loc(L.mobileAppLink).click();
-    await this.page.waitForTimeout(1000);
+    await waitForNetworkIdle(this.page);
   }
 
   async uploadApp(filePath: string): Promise<void> {
     await this.loc(L.uploadAppButton).setInputFiles(filePath);
+    // File upload is async I/O — keep hard wait
     await this.page.waitForTimeout(3000);
   }
 
   async startTesting(): Promise<void> {
     await this.loc(L.startTesting).click();
+    // External service initialization — keep hard wait
     await this.page.waitForTimeout(3000);
   }
 
   async startTestingMobile(): Promise<void> {
     await this.loc(L.startTestingMobileButton).click();
+    // External service initialization — keep hard wait
     await this.page.waitForTimeout(3000);
   }
 
   async approve(): Promise<void> {
     await this.loc(L.approve).click();
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async verifyWebsiteLaunched(): Promise<void> {
@@ -61,12 +65,12 @@ export class KaneaiPage extends BasePage {
 
   async saveTestCase(): Promise<void> {
     await this.loc(L.saveTestcaseAuthoring).click();
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async clickCode(): Promise<void> {
     await this.loc(L.code).click();
-    await this.page.waitForTimeout(1000);
+    await waitForNetworkIdle(this.page);
   }
 
   async verifyViewDetailsCode(): Promise<void> {
@@ -77,7 +81,6 @@ export class KaneaiPage extends BasePage {
     await test.step('Expand initial prompt section', async () => {
       if (await this.isVisible(L.initialPromptChevron, TIMEOUTS.long)) {
         await this.loc(L.initialPromptChevron).click();
-        await this.page.waitForTimeout(2000);
         await expect.soft(this.loc(L.initialPromptExpanded)).toBeVisible({ timeout: TIMEOUTS.medium });
       }
     });
@@ -100,7 +103,7 @@ export class KaneaiPage extends BasePage {
 
   async clickTestCasesButton(): Promise<void> {
     await this.loc(L.testCasesButton).click();
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async getTestCaseCount(): Promise<number> {
@@ -118,10 +121,11 @@ export class KaneaiPage extends BasePage {
 
   async clickSaveButton(): Promise<void> {
     await this.loc(L.saveButton).click();
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async waitForTestGeneration(timeoutMs = TIMEOUTS.extraLong): Promise<void> {
+    // External AI process — no DOM signal, hard wait is legitimate
     await this.page.waitForTimeout(timeoutMs);
   }
 
@@ -130,6 +134,7 @@ export class KaneaiPage extends BasePage {
       await this.automateWithKaneai();
       await this.selectDesktopBrowser();
       await this.startTesting();
+      // External service startup — keep hard wait
       await this.page.waitForTimeout(5000);
     });
   }
@@ -141,6 +146,7 @@ export class KaneaiPage extends BasePage {
       await this.uploadApp(appPath);
       await this.selectMobileAppLink();
       await this.startTestingMobile();
+      // External service startup — keep hard wait
       await this.page.waitForTimeout(5000);
     });
   }

@@ -25,7 +25,6 @@ export class SearchComponent extends BasePage {
     if (resultSelector) {
       await this.loc(resultSelector).first().waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
     } else {
-      await this.page.waitForTimeout(TIMEOUTS.animation);
       await waitForNetworkIdle(this.page);
     }
   }

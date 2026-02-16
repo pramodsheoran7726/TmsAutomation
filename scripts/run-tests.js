@@ -1,4 +1,14 @@
 #!/usr/bin/env node
+// ──────────────────────────────────────────────────────────────
+// Tag Hierarchy (use with --grep)
+// ──────────────────────────────────────────────────────────────
+//   @smoke          — Quick sanity, run on every PR
+//   @critical-path  — Core user journeys, run on merge to main
+//   @regression     — Full suite, run nightly/on-demand
+//   @sdk            — SDK integration tests, run separately
+//   Feature tags    — Targeted runs: @project, @folder, @test-run,
+//                     @report, @dataset, @milestone, etc.
+// ──────────────────────────────────────────────────────────────
 const { execSync } = require('child_process');
 
 const args = process.argv.slice(2);
@@ -81,6 +91,7 @@ const buildId = process.env.LT_BUILD_ID
 const envVars = [
   `TEST_ENV=${envInput}`,
   `LT_BUILD_ID=${buildId}`,
+  `TEST_SUITE=${testSuite}`,
   modeInput    ? `TEST_MODE=${modeInput}`         : '',
   browserInput ? `LT_PROFILE=${browserInput}`     : '',
   runProfile   ? `LT_RUN_PROFILE=${runProfile}`   : '',

@@ -3,7 +3,7 @@ import { randomString } from '../../src/utils/random.helper.js';
 import { RANDOM_LENGTH } from '../../src/config/constants.js';
 
 test.describe('Test Run Execution', {
-  tag: ['@regression', '@test-run'],
+  tag: ['@regression', '@critical-path', '@test-run'],
   annotation: [
     { type: 'feature', description: 'Test Run Management' },
     { type: 'severity', description: 'critical' },

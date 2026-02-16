@@ -240,7 +240,7 @@ export class SettingsPage extends BasePage {
 
   async searchCustomField(name: string): Promise<void> {
     await this.loc(L.searchCustomFields).fill(name);
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   /**

@@ -196,7 +196,7 @@ export class InsightsPage extends BasePage {
     await test.step(`Verify test run summary passed count contains "${expectedCount}"`, async () => {
       // Hover on chart to show tooltip
       await this.loc(L.testRunSummaryCanvas).hover();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.g2TooltipValue).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       const tooltipValue = (await this.loc(L.g2TooltipValue).textContent()) ?? '';
       expect.soft(tooltipValue).toContain(expectedCount);
     });
@@ -205,7 +205,7 @@ export class InsightsPage extends BasePage {
   async verifyTestRunSummaryFailedCount(expectedCount: string): Promise<void> {
     await test.step(`Verify test run summary failed count contains "${expectedCount}"`, async () => {
       await this.loc(L.testRunSummaryCanvas).hover();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.g2TooltipValue).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       const tooltipValue = (await this.loc(L.g2TooltipValue).textContent()) ?? '';
       expect.soft(tooltipValue).toContain(expectedCount);
     });
@@ -214,7 +214,6 @@ export class InsightsPage extends BasePage {
   async verifyTestRunSummaryNotStartedCount(expectedCount: string): Promise<void> {
     await test.step('Verify test run summary not started count', async () => {
       await this.loc(L.testRunSummaryCanvas).hover();
-      await this.page.waitForTimeout(1000);
       // Validate tooltip shows Not Started status
       const isVisible = await this.isVisible(L.testRunNotStartedTooltip, TIMEOUTS.medium);
       expect.soft(isVisible).toBeTruthy();
@@ -224,7 +223,6 @@ export class InsightsPage extends BasePage {
   async verifyTestRunSummarySkippedCount(expectedCount: string): Promise<void> {
     await test.step('Verify test run summary skipped count', async () => {
       await this.loc(L.testRunSummaryCanvas).hover();
-      await this.page.waitForTimeout(1000);
       const isVisible = await this.isVisible(L.testRunSkippedTooltip, TIMEOUTS.medium);
       expect.soft(isVisible).toBeTruthy();
     });
@@ -235,7 +233,6 @@ export class InsightsPage extends BasePage {
   async verifyTestCaseSummaryTypeCount(testCaseType: string, expectedCount: string): Promise<void> {
     await test.step(`Verify test case summary type count for "${testCaseType}"`, async () => {
       await this.loc(L.testCaseSummaryCanvas).hover();
-      await this.page.waitForTimeout(1000);
       // Check tooltip is visible for the type
       const typeTooltip = `//div[contains(@class,'g2-tooltip')]//span[contains(@class,'g2-tooltip-list-item-name-label') and text()='${testCaseType}']`;
       const isVisible = await this.isVisible(typeTooltip, TIMEOUTS.medium);

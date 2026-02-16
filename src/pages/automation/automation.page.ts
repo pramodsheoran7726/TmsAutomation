@@ -2,6 +2,7 @@ import { type Page, expect, test } from '@playwright/test';
 import { BasePage } from '../../utils/base.page.js';
 import { AutomationLocators as L } from './automation.locators.js';
 import { TIMEOUTS } from '../../config/constants.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class AutomationPage extends BasePage {
   constructor(page: Page) { super(page); }
@@ -9,7 +10,7 @@ export class AutomationPage extends BasePage {
   async openAutomationSidebar(): Promise<void> {
     await test.step('Open automation sidebar', async () => {
       await this.loc(L.automationSidebar).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -46,14 +47,14 @@ export class AutomationPage extends BasePage {
   async linkTestCase(): Promise<void> {
     await test.step('Link test case in automation dashboard', async () => {
       await this.loc(L.linkTcInAutomationDash).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async createNewTestCase(): Promise<void> {
     await test.step('Create new test case in automation dashboard', async () => {
       await this.loc(L.createNewTcAutomationDash).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -66,9 +67,9 @@ export class AutomationPage extends BasePage {
   async unlinkTestCase(): Promise<void> {
     await test.step('Unlink test case', async () => {
       await this.loc(L.unlinkTcAutomationDash).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.automationUnlinkConfirmation).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.automationUnlinkConfirmation).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -81,14 +82,14 @@ export class AutomationPage extends BasePage {
   async searchTestCase(testCaseName: string): Promise<void> {
     await test.step('Search test case in automation dashboard', async () => {
       await this.loc(L.searchTcAutomationDash).fill(testCaseName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async openLinkSearch(): Promise<void> {
     await test.step('Open link search', async () => {
       await this.loc(L.linkOpenSearch).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -107,7 +108,7 @@ export class AutomationPage extends BasePage {
   async openAutomationMenu(): Promise<void> {
     await test.step('Open automation menu', async () => {
       await this.loc(L.openMenuAutomationPage).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -115,16 +116,16 @@ export class AutomationPage extends BasePage {
     await test.step('Delete from automation page', async () => {
       await this.openAutomationMenu();
       await this.loc(L.deleteAutomationPage).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async deleteFromAutomationPageProd(): Promise<void> {
     await test.step('Delete from automation page (prod)', async () => {
       await this.loc(L.openMenuProd).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.deleteAutomationPageProd).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.deleteAutomationPageProd).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -137,21 +138,21 @@ export class AutomationPage extends BasePage {
   async openDefaultProject(): Promise<void> {
     await test.step('Open default project', async () => {
       await this.loc(L.openDefaultProject).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async openAutomationProject(): Promise<void> {
     await test.step('Open automation project', async () => {
       await this.loc(L.automationProject).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async searchTestsMl(testName: string): Promise<void> {
     await test.step('Search tests in ML', async () => {
       await this.loc(L.searchTestsMl).fill(testName);
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -176,7 +177,7 @@ export class AutomationPage extends BasePage {
   async expandBuildMl(): Promise<void> {
     await test.step('Expand build in ML', async () => {
       await this.loc(L.mlExpandBuild).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -189,7 +190,7 @@ export class AutomationPage extends BasePage {
   async clickAutomationTestCase(): Promise<void> {
     await test.step('Click automation test case', async () => {
       await this.loc(L.automationTcTitleTms).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 

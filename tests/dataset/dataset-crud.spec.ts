@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Dataset CRUD', {
-  tag: ['@smoke', '@regression' , '@dataset'],
+  tag: ['@smoke', '@regression', '@critical-path', '@dataset'],
   annotation: [
     { type: 'feature', description: 'Dataset Management' },
     { type: 'severity', description: 'normal' },

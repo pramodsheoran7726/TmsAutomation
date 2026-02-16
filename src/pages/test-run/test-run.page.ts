@@ -89,7 +89,7 @@ export class TestRunPage extends BasePage {
       // Add configuration
       await this.loc(L.addConfigCtaTP).click();
       await waitForNetworkIdle(this.page);
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.selectConfigCheck).first().waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.selectConfigCheck).first().click();
       await this.loc(L.applyConfiguration).click();
       await waitForNetworkIdle(this.page);
@@ -196,19 +196,17 @@ export class TestRunPage extends BasePage {
       await this.loc(`//div[@role='option'][@data-id='${status}']`).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(`//div[@role='option'][@data-id='${status}']`).click();
       await waitForNetworkIdle(this.page);
-      await this.page.waitForTimeout(3000);
     });
   }
 
   async markBulkStatus(status: 'Passed' | 'Failed' | 'Skipped' | 'Blocked', count = 2): Promise<void> {
     await test.step(`Mark bulk status: ${status} for ${count} items`, async () => {
       await waitForNetworkIdle(this.page);
-      await this.page.waitForTimeout(1000);
       // Ensure fresh selection: uncheck select-all if already checked from previous bulk operation
       const selectAll = this.loc(L.selectInstancesInBulk).first();
       if (await selectAll.isChecked()) {
         await selectAll.click();
-        await this.page.waitForTimeout(500);
+        await expect(selectAll).not.toBeChecked({ timeout: TIMEOUTS.short });
       }
       for (let i = 0; i < count; i++) {
         await this.loc(L.selectInstancesInBulk).nth(i).click();
@@ -230,13 +228,13 @@ export class TestRunPage extends BasePage {
       await waitForNetworkIdle(this.page);
       // Wait for instance checkboxes to be rendered and interactive
       await this.loc(L.selectInstancesInBulk).first().waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.selectInstancesInBulk).nth(count - 1).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       for (let i = 0; i < count; i++) {
         await this.loc(L.selectInstancesInBulk).nth(i).click();
       }
       await this.loc(L.bulkAssigneeDropdown).click();
       await this.loc(L.bulkSelectAssignee).click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -292,7 +290,7 @@ export class TestRunPage extends BasePage {
     await test.step('Archive test run', async () => {
       await fillAndWaitForSearch(this.page, this.loc(L.searchFieldInLinkProject), this.testRunName, this.loc(L.createdTestrunAppear(this.testRunName)));
       await waitForNetworkIdle(this.page);
-      await this.page.waitForTimeout(500);
+      await this.loc(L.createdTestrunOpenMenu(this.testRunName)).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.createdTestrunOpenMenu(this.testRunName)).click();
       await this.loc(L.archiveTestRun).click();
       await waitForNetworkIdle(this.page);
@@ -344,7 +342,7 @@ export class TestRunPage extends BasePage {
       await expect.soft(this.loc(L.createdTestrunAppearInstancesPage(newTcTitle))).not.toBeVisible({ timeout: TIMEOUTS.short });
       // Add new test case
       await this.loc(L.addTcInTR).click();
-      await this.page.waitForTimeout(1000);
+      await this.loc(L.testCaseRowLoaded).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
       await this.clickSelectAllCheckbox();
       await this.loc(L.updateTestcaseInTestRun).click();
       await waitForNetworkIdle(this.page);
@@ -398,7 +396,7 @@ export class TestRunPage extends BasePage {
       } else if (status === 'Skipped') {
         await this.loc(L.tcStatusSkip).click();
       }
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -462,7 +460,7 @@ export class TestRunPage extends BasePage {
   async verifyExecutionHistory(statuses: string[]): Promise<void> {
     await test.step('Verify execution history statuses', async () => {
       await this.loc(L.executionHistoryTab).click();
-      await this.page.waitForTimeout(2000);
+      await this.loc(L.executionHistoryStatus(statuses[0])).first().waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       for (const status of statuses) {
         await expect.soft(this.loc(L.executionHistoryStatus(status))).toBeVisible({ timeout: TIMEOUTS.medium });
       }

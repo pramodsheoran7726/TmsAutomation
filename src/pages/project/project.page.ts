@@ -20,15 +20,9 @@ export class ProjectPage extends BasePage {
   ): Promise<void> {
     const { tag = true, description = true } = options;
     await test.step('Create project with tag and description', async () => {
-      if (await this.isVisible(L.newProjectCtaOverlay)) {
-        await this.loc(L.newProjectCtaOverlay).click();
-      } else {
-        await this.loc(L.newProjectCta).click();
-        await this.loc(L.createProjectCta).click();
-      }
+      await this.loc(L.createProjectBtn).click();
       await this.loc(L.projectTitle).first().waitFor({ state: 'visible', timeout: TIMEOUTS.long });
       await this.loc(L.projectTitle).first().fill(this.projectName);
-      await this.page.waitForTimeout(500);
       if (description) {
         await this.loc(L.projectDescription).first().fill(randomString(RANDOM_LENGTH.standard));
       }
@@ -65,7 +59,7 @@ export class ProjectPage extends BasePage {
       await retryAction(this.page, async () => {
         // Dismiss any overlay before each attempt
         await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(500);
+        await waitForNetworkIdle(this.page);
 
         const el = this.loc(L.searchProject);
         await el.click();
@@ -117,14 +111,14 @@ export class ProjectPage extends BasePage {
       if (await this.isVisible(L.createdProject(projectName))) {
         // Dismiss any stale tooltips/menus before opening the options menu
         await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(500);
+        await waitForNetworkIdle(this.page);
 
         // Retry opening the triple-dot menu up to 3 times
         let menuOpened = false;
         for (let attempt = 0; attempt < 3 && !menuOpened; attempt++) {
           if (attempt > 0) {
             await this.page.keyboard.press('Escape');
-            await this.page.waitForTimeout(500);
+            await waitForNetworkIdle(this.page);
           }
           await this.loc(L.projectTripleDotButton(projectName)).first().click({ force: true });
           try {
@@ -142,7 +136,7 @@ export class ProjectPage extends BasePage {
         await confirmInput.pressSequentially('DELETE');
         await this.loc(L.projectDeleteConfirmation).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
         await this.loc(L.projectDeleteConfirmation).click();
-        await this.page.waitForTimeout(2000);
+        await expect(this.loc(L.createdProject(projectName))).not.toBeVisible({ timeout: TIMEOUTS.medium });
       }
     });
   }

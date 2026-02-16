@@ -3,6 +3,7 @@ import { BasePage } from '../../utils/base.page.js';
 import { TestCaseLocators as L } from './test-case.locators.js';
 import { TIMEOUTS, RANDOM_LENGTH } from '../../config/constants.js';
 import { randomString } from '../../utils/random.helper.js';
+import { waitForNetworkIdle } from '../../utils/wait.helper.js';
 
 export class TestCasePage extends BasePage {
   testCaseTitle = `AutoTC_${randomString(RANDOM_LENGTH.standard)}`;
@@ -52,7 +53,7 @@ export class TestCasePage extends BasePage {
     await test.step(`Select test case type: ${type}`, async () => {
       await this.loc(L.typeDropdownTestcaseStage).click();
       await this.loc(this.tpl(L.selectTestType, { type })).click();
-      await this.page.waitForTimeout(500);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -60,25 +61,25 @@ export class TestCasePage extends BasePage {
     await test.step('Select automation status: Automated', async () => {
       await this.loc(L.automationDropdownTestcaseStage).click();
       await this.loc(L.selectAutomatedAutomationStatus).click();
-      await this.page.waitForTimeout(500);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async selectTestCaseStatus(): Promise<void> {
     await test.step('Select test case status: Live', async () => {
       await this.loc(L.statusDropdownTestcaseStage).click();
-      await this.page.waitForTimeout(500);
+      await this.loc(L.selectOpenTestStatus).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(L.selectOpenTestStatus).click();
-      await this.page.waitForTimeout(500);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async selectPriority(priority: string): Promise<void> {
     await test.step(`Select priority: ${priority}`, async () => {
       await this.loc(L.priorityDropdownTestcaseStage).click();
-      await this.page.waitForTimeout(500);
+      await this.loc(this.tpl(L.selectHighTestPriority, { priority })).waitFor({ state: 'visible', timeout: TIMEOUTS.medium });
       await this.loc(this.tpl(L.selectHighTestPriority, { priority })).click();
-      await this.page.waitForTimeout(500);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -117,7 +118,8 @@ export class TestCasePage extends BasePage {
   async createStepViaAI(): Promise<void> {
     await test.step('Create test step via AI', async () => {
       await this.loc(L.aiButton).click();
-      await this.page.waitForTimeout(2000);
+      // AI generation is async — wait for the Create Step button to become available
+      await this.loc(L.createStepCta).waitFor({ state: 'visible', timeout: TIMEOUTS.long });
       await this.loc(L.createStepCta).click();
       await expect.soft(this.loc(L.verifyAiTeststep)).toBeVisible({ timeout: TIMEOUTS.long });
     });
@@ -132,7 +134,7 @@ export class TestCasePage extends BasePage {
       if (await this.isVisible(L.saveTestCaseCommitMessage, TIMEOUTS.medium)) {
         await this.loc(L.saveTestCaseCommitMessage).click();
       }
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -156,7 +158,7 @@ export class TestCasePage extends BasePage {
 
   async searchTestCase(query: string): Promise<void> {
     await this.loc(L.searchTcInput).fill(query);
-    await this.page.waitForTimeout(2000);
+    await waitForNetworkIdle(this.page);
   }
 
   async selectScenarioType(): Promise<void> {
@@ -179,7 +181,7 @@ export class TestCasePage extends BasePage {
         editor?.trigger('keyboard', 'type', { text });
       }, scenarioText);
       await this.loc(L.addScenarioCta).click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
@@ -198,14 +200,14 @@ export class TestCasePage extends BasePage {
   async cloneScenario(): Promise<void> {
     await test.step('Clone scenario', async () => {
       await this.loc(L.scenarioDuplicate).first().click();
-      await this.page.waitForTimeout(2000);
+      await waitForNetworkIdle(this.page);
     });
   }
 
   async deleteScenario(): Promise<void> {
     await test.step('Delete scenario', async () => {
       await this.loc(L.scenarioDelete).first().click();
-      await this.page.waitForTimeout(1000);
+      await waitForNetworkIdle(this.page);
     });
   }
 }

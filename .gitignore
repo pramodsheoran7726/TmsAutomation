@@ -27,6 +27,9 @@ report-lab-results/
 .summary.json
 .slack_thread_ts
 
+# Flaky test report
+flaky-tests.json
+
 # HyperExecute CLI binary
 hyperexecute
 

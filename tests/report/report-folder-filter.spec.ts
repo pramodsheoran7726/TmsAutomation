@@ -2,7 +2,7 @@ import { test } from '../../src/fixtures/tms.fixture.js';
 import { setupReportProject, configureReportFilters, generateAndVerifyReport, USE_FOLDER_NAME } from '../../src/helpers/report-test.helper.js';
 
 test.describe('Report - Folder Filter', {
-  tag: ['@regression', '@Reportregressionus'],
+  tag: ['@regression', '@report'],
   annotation: [
     { type: 'feature', description: 'Reports' },
     { type: 'severity', description: 'normal' },

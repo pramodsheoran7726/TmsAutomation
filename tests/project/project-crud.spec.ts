@@ -2,7 +2,7 @@ import { EnvConfig } from '@config/env.config.js';
 import { test, expect } from '../../src/fixtures/tms.fixture.js';
 
 test.describe('Project CRUD', {
-  tag: ['@smoke', '@regression','@project'],
+  tag: ['@smoke', '@regression', '@critical-path', '@project'],
   annotation: [
     { type: 'feature', description: 'Project Management' },
     { type: 'severity', description: 'critical' },
@@ -16,3 +16,4 @@ test.describe('Project CRUD', {
     await projectPage.verifyProjectDeleted();
   });
 });
+
